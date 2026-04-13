@@ -1,0 +1,15 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "ISSS608: Visual Analytics & its Applications"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Pre-Lesson
+
+format:
+  html:
+    theme: cosmo
+    toc: true

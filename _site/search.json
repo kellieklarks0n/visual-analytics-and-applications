@@ -1,0 +1,44 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Exam Data Visualisation",
+    "section": "",
+    "text": "library(readr) \nlibrary(ggplot2) \nlibrary(dplyr)\nThis does three things:"
+  },
+  {
+    "objectID": "index.html#bar-chart-of-gender",
+    "href": "index.html#bar-chart-of-gender",
+    "title": "Exam Data Visualisation",
+    "section": "3.1 Bar chart of gender",
+    "text": "3.1 Bar chart of gender\nNow let’s start with the easiest plot.\n\nggplot(exam_data, aes(x = GENDER)) + geom_bar() + labs( \n  title = \"Number of Students by Gender\", \n  x = \"Gender\", \n  y = \"Count\" )\n\n\n\n\n\n\n\n\n\n3.1.1 What this does\n\nggplot(exam_data, aes(x = GENDER)) says: use exam_data and put GENDER on the x-axis\ngeom_bar() automatically counts how many students are in each gender category\nlabs() adds a chart title and axis labels"
+  },
+  {
+    "objectID": "index.html#bar-chart-of-race",
+    "href": "index.html#bar-chart-of-race",
+    "title": "Exam Data Visualisation",
+    "section": "7.1 Bar chart of race",
+    "text": "7.1 Bar chart of race\nNow use the same idea for RACE:\n\nggplot(exam_data, aes(x = RACE, fill = RACE)) + geom_bar() + labs( \n  title = \"Number of Students by Race\", \n  x = \"Race\", \n  y = \"Count\" ) + \n  theme_minimal()\n\n\n\n\n\n\n\n\nThis shows how many students belong to each race category."
+  },
+  {
+    "objectID": "index.html#histogram-of-maths-scores",
+    "href": "index.html#histogram-of-maths-scores",
+    "title": "Exam Data Visualisation",
+    "section": "8.1 Histogram of Maths scores",
+    "text": "8.1 Histogram of Maths scores\nNow let’s visualise a numerical variable.\n\nggplot(exam_data, aes(x = MATHS)) + geom_histogram(binwidth = 5, fill = \"steelblue\", color = \"white\") + labs( \n  title = \"Distribution of Maths Scores\", \n  x = \"Maths Score\", \n  y = \"Frequency\" ) + \n  theme_minimal()\n\n\n\n\n\n\n\n\n\n8.1.1 What this does\n\nx = MATHS puts maths marks on the x-axis\ngeom_histogram() groups the scores into intervals\nbinwidth = 10 means the bars cover ranges like 0–10, 10–20, 20–30, and so on\n\nThis helps you see:\n\nWhere most students’ maths scores lie\nWhether the distribution is spread out\nWhether there are very low or very high scores"
+  },
+  {
+    "objectID": "index.html#boxplot-of-maths-by-gender",
+    "href": "index.html#boxplot-of-maths-by-gender",
+    "title": "Exam Data Visualisation",
+    "section": "9.1 Boxplot of Maths by Gender",
+    "text": "9.1 Boxplot of Maths by Gender\nNow let’s compare marks across categories.\n\nggplot(exam_data, aes(x = GENDER, y = MATHS, fill = GENDER)) + geom_boxplot(alpha = 0.7) + labs( \n  title = \"Maths Scores by Gender\", \n  x = \"Gender\", \n  y = \"Maths Score\" ) + \n  theme_minimal()\n\n\n\n\n\n\n\n\n\n9.1.1 Why this is useful\nA boxplot helps you compare:\n\nMedian score\nSpread of scores\nPossible outliers\n\nSo instead of just counting students, you are now comparing their performance."
+  },
+  {
+    "objectID": "index.html#english-vs-maths",
+    "href": "index.html#english-vs-maths",
+    "title": "Exam Data Visualisation",
+    "section": "10.1 English vs Maths",
+    "text": "10.1 English vs Maths\nNow a relationship plot:\n\nggplot(exam_data, aes(x = ENGLISH, y = MATHS)) +\n  geom_point(alpha = 0.6) +\n  geom_smooth(method = \"lm\", se = FALSE) +\n  labs(\n    title = \"English vs Maths Scores\",\n    x = \"English Score\",\n    y = \"Maths Score\"\n  ) +\n  theme_minimal()\n\n`geom_smooth()` using formula = 'y ~ x'\n\n\n\n\n\n\n\n\n\nThis helps answer:\n\nDo students who score higher in English also tend to score higher in Maths?\nIs there a visible positive trend?"
+  }
+]
