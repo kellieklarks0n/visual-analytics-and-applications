@@ -1,200 +1,79 @@
 ---
-title: "Exam Data Visualisation"
-format:
-  html:
-    toc: true
-    number-sections: true
+title: "Home"
+toc: false
 ---
 
-```{r, message=FALSE, warning=FALSE} 
-library(readr) 
-library(ggplot2) 
-library(dplyr)
-```
-This does three things:
+<style>
+.quarto-title-block {
+  display: none;
+}
+</style>
 
-- `readr` reads the CSV
-- `ggplot2` makes the charts
-- `dplyr` helps with simple data handling
+:::{.hero-section}
+<div class="hero-text">
 
-------------------------------------------------------------------------
+# Kelvin Andikko
 
-# Step 3: Read the CSV file
+Welcome to my coursework website for **ISSS608: Visual Analytics & Applications**.
 
-Add this next chunk:
+This website showcases the visualisations, analysis, and exercises that I have completed throughout the module. It serves as a portfolio of my learning journey in visual analytics using Quarto and R.
 
-```{r} 
-exam_data <- read_csv("Exam_data.csv")
-```
-This assumes your Quarto file and your CSV are in the **same folder**.
+<div class="hero-buttons">
+  <a href="https://www.linkedin.com/in/kelvinandikko/" class="custom-button secondary-button" target="_blank">LinkedIn</a>
+</div>
 
-If your CSV is in another folder, then you need the correct file path instead.
+</div>
 
-------------------------------------------------------------------------
+<div class="hero-image">
+  <img src="images/profile.jpg" alt="Profile photo" class="profile-image">
+</div>
+:::
 
-# Step 4: Preview the data
+## Latest Work
 
-Add this:
+Here are the most recently uploaded exercises.
 
-```{r} 
-head(exam_data)
-```
-This lets you see the first few rows and confirm the file loaded properly.
+<div class="latest-grid">
 
-You can also check the column names:
+<div class="card-link">
+<a href="hands-on/exercise1.html" style="text-decoration:none; color:inherit;">
+<div class="latest-card">
 
-```{r}
-colnames(exam_data)
-```
-------------------------------------------------------------------------
+### Hands-On Exercise
 
-# Step 5: Make your first simple visualisation
+**Latest:** Exercise 1
 
-## Bar chart of gender
+This exercise covers the introduction of ggplot2 and its various functions.
+</div>
+</a>
+</div>
 
-Now let’s start with the easiest plot.
+<div class="card-link">
+<a href="in-class/exercise1.html" style="text-decoration:none; color:inherit;">
+<div class="latest-card">
 
-```{r} 
-ggplot(exam_data, aes(x = GENDER)) + geom_bar() + labs( 
-  title = "Number of Students by Gender", 
-  x = "Gender", 
-  y = "Count" )
-```
-### What this does
+### In-Class Exercise
 
--   `ggplot(exam_data, aes(x = GENDER))` says: use `exam_data` and put `GENDER` on the x-axis
--   `geom_bar()` automatically counts how many students are in each gender category
--   `labs()` adds a chart title and axis labels
+**Latest:** Exercise 1
 
-# What you should expect
+A brief overview of the most recent in-class exercise and the visualisations completed.
 
-This will produce a **bar chart** with: 
+</div>
+</a>
+</div>
 
-- one bar for **Male** 
-- one bar for **Female**
+<div class="card-link">
+<a href="assignments/assign1.html" style="text-decoration:none; color:inherit;">
+<div class="latest-card">
 
-Since your dataset has both genders, this is a good first plot to understand category counts.
+### Assignments
 
-------------------------------------------------------------------------
+**Latest:** Assignment 1
 
-# Step 6: Make it look a bit nicer
+A brief overview of the most recent assignment and the visualisations completed.
 
-You can slightly improve the appearance:
+</div>
+</a>
+</div>
 
-```{r}
-ggplot(exam_data, aes(x = GENDER, fill = GENDER)) + geom_bar() + labs( 
-  title = "Number of Students by Gender", 
-  x = "Gender", 
-  y = "Count" ) + 
-  theme_minimal()
-```
-### New parts here
-
--   `fill = GENDER` gives different colours to each gender bar
--   `theme_minimal()` gives a cleaner style
-
-------------------------------------------------------------------------
-
-# Step 7: Render or preview
-
-Now click: 
-
-- **Render** or 
-- **Preview** in RStudio.
-
-You should now see your first chart in the output.
-
-------------------------------------------------------------------------
-
-# Step 8: Try a second bar chart
-
-## Bar chart of race
-
-Now use the same idea for `RACE`:
-
-```{r} 
-ggplot(exam_data, aes(x = RACE, fill = RACE)) + geom_bar() + labs( 
-  title = "Number of Students by Race", 
-  x = "Race", 
-  y = "Count" ) + 
-  theme_minimal()
-```
-This shows how many students belong to each race category.
-
-------------------------------------------------------------------------
-
-# Step 9: First numerical visualisation
-
-## Histogram of Maths scores
-
-Now let’s visualise a numerical variable.
-
-```{r}
-ggplot(exam_data, aes(x = MATHS)) + geom_histogram(binwidth = 5, fill = "steelblue", color = "white") + labs( 
-  title = "Distribution of Maths Scores", 
-  x = "Maths Score", 
-  y = "Frequency" ) + 
-  theme_minimal()
-```
-### What this does
-
--   `x = MATHS` puts maths marks on the x-axis
--   `geom_histogram()` groups the scores into intervals
--   `binwidth = 10` means the bars cover ranges like 0–10, 10–20, 20–30, and so on
-
-This helps you see: 
-
--   Where most students’ maths scores lie 
--   Whether the distribution is spread out 
--   Whether there are very low or very high scores
-
-------------------------------------------------------------------------
-
-# Step 10: Another useful plot
-
-## Boxplot of Maths by Gender
-
-Now let’s compare marks across categories.
-
-```{r}
-ggplot(exam_data, aes(x = GENDER, y = MATHS, fill = GENDER)) + geom_boxplot(alpha = 0.7) + labs( 
-  title = "Maths Scores by Gender", 
-  x = "Gender", 
-  y = "Maths Score" ) + 
-  theme_minimal()
-```
-### Why this is useful
-
-A boxplot helps you compare: 
-
--   Median score 
--   Spread of scores 
--   Possible outliers
-
-So instead of just counting students, you are now comparing their performance.
-
-------------------------------------------------------------------------
-
-# Step 11: Scatter plot
-
-## English vs Maths
-
-Now a relationship plot:
-
-```{r} 
-ggplot(exam_data, aes(x = ENGLISH, y = MATHS)) +
-  geom_point(alpha = 0.6) +
-  geom_smooth(method = "lm", se = FALSE) +
-  labs(
-    title = "English vs Maths Scores",
-    x = "English Score",
-    y = "Maths Score"
-  ) +
-  theme_minimal()
-```
-This helps answer: 
-
--   Do students who score higher in English also tend to score higher in Maths? 
--   Is there a visible positive trend?
-
-------------------------------------------------------------------------
+</div>

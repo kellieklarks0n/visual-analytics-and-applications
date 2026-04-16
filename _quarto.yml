@@ -3,13 +3,55 @@ project:
   output-dir: _site
 
 website:
-  title: "ISSS608: Visual Analytics & its Applications"
+  title: ""
   navbar:
+    logo: images/kelvinalytics-logo.png
+    logo-alt: "Kelvinalytics"
     left:
-      - href: index.qmd
-        text: Pre-Lesson
+      - text: Hands-On Exercise
+        menu:
+          - text: Overview
+            href: hands-on.qmd
+          - text: Exercise 1
+            href: hands-on/exercise1.qmd
+          - text: Exercise 2
+            href: hands-on/exercise2.qmd
+
+      - text: In-Class Exercise
+        menu:
+          - text: Overview
+            href: in-class.qmd
+          - text: Exercise 1
+            href: in-class/exercise1.qmd
+          - text: Exercise 2
+            href: in-class/exercise2.qmd
+
+      - text: Assignments
+        menu:
+          - text: Overview
+            href: assignments.qmd
+          - text: Assignment 1
+            href: assignments/assign1.qmd
+          - text: Assignment 2
+            href: assignments/assign2.qmd
+
+      - href: about.qmd
+        text: About
+
+    right:
+      - icon: linkedin
+        href: "https://www.linkedin.com/in/kelvinandikko/"
+
+  page-footer:
+    left: "Built with Quarto"
+    right: "Copyright © 2026 by Kelvin Andikko"
 
 format:
   html:
     theme: cosmo
+    css: styles.css
     toc: true
+    toc-location: right
+    page-layout: full
+
+editor: visual

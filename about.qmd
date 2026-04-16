@@ -1,0 +1,17 @@
+---
+title: "About"
+---
+
+This website was created for **ISSS608: Visual Analytics & Applications**.
+
+Its purpose is to document and present the visualisations, analysis, and coursework outputs that I have completed throughout the module. The site acts as a structured portfolio of my work, allowing different exercises and assignments to be organised into separate sections for easy navigation.
+
+The website was built using:
+
+- **Quarto** for website generation
+- **RStudio** for development
+- **R** for data visualisation and analysis
+- **GitHub** for version control
+- **Vercel** for deployment
+
+Through this website, I aim to present my coursework in a clear, organised, and accessible format.

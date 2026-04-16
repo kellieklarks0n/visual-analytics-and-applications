@@ -1,0 +1,35 @@
+---
+title: "Assignments"
+---
+
+<div class="section-header">
+  <p>This section contains the assignments completed for the module.</p>
+</div>
+
+<div class="exercise-list">
+
+<a href="assignments/assign2.html" class="exercise-link">
+<div class="exercise-card">
+
+### Assignment 2
+
+<div class="exercise-meta">Latest published</div>
+
+This exercise focuses on applied classroom visualisation techniques and chart comparisons.
+
+</div>
+</a>
+
+<a href="assignments/assign1.html" class="exercise-link">
+<div class="exercise-card">
+
+### Assignment 1
+
+<div class="exercise-meta">Earlier exercise</div>
+
+This exercise focuses on basic plotting and getting started with visual analytics tools.
+
+</div>
+</a>
+
+</div>

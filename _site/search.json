@@ -2,9 +2,9 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Exam Data Visualisation",
+    "title": "Home",
     "section": "",
-    "text": "library(readr) \nlibrary(ggplot2) \nlibrary(dplyr)\nThis does three things:"
+    "text": "Welcome to my coursework website for ISSS608: Visual Analytics & Applications.\nThis website showcases the visualisations, analysis, and exercises that I have completed throughout the module. It serves as a portfolio of my learning journey in visual analytics using Quarto and R.\n\nLinkedIn"
   },
   {
     "objectID": "index.html#bar-chart-of-gender",
@@ -40,5 +40,257 @@
     "title": "Exam Data Visualisation",
     "section": "10.1 English vs Maths",
     "text": "10.1 English vs Maths\nNow a relationship plot:\n\nggplot(exam_data, aes(x = ENGLISH, y = MATHS)) +\n  geom_point(alpha = 0.6) +\n  geom_smooth(method = \"lm\", se = FALSE) +\n  labs(\n    title = \"English vs Maths Scores\",\n    x = \"English Score\",\n    y = \"Maths Score\"\n  ) +\n  theme_minimal()\n\n`geom_smooth()` using formula = 'y ~ x'\n\n\n\n\n\n\n\n\n\nThis helps answer:\n\nDo students who score higher in English also tend to score higher in Maths?\nIs there a visible positive trend?"
+  },
+  {
+    "objectID": "index.html#overview",
+    "href": "index.html#overview",
+    "title": "Home",
+    "section": "Overview",
+    "text": "Overview\nThis website contains:\n\n\nTake-Home Exercise\nA collection of take-home assignments, with each page documenting the visualisations, methods, and insights developed for the module.\n\n\nIn-Class Exercise\nA collection of in-class exercise pages showing hands-on practice with data visualisation and analysis techniques.\n\n\nAbout\nA short page explaining the purpose of this website and the role it plays in documenting my coursework."
+  },
+  {
+    "objectID": "pre-lesson.html",
+    "href": "pre-lesson.html",
+    "title": "Pre-Module: Basic Visualisation using Exam Data dataset via Quarto",
+    "section": "",
+    "text": "This page gives an introduction to using Quarto to showcase different visualisation techniques.\nlibrary(readr) \nlibrary(ggplot2) \nlibrary(dplyr)\nThis does three things:"
+  },
+  {
+    "objectID": "pre-lesson.html#bar-chart-of-gender",
+    "href": "pre-lesson.html#bar-chart-of-gender",
+    "title": "Pre-Module: Basic Visualisation using Exam Data dataset via Quarto",
+    "section": "Bar chart of gender",
+    "text": "Bar chart of gender\nNow let’s start with the easiest plot.\n\nggplot(exam_data, aes(x = GENDER)) + geom_bar() + labs( \n  title = \"Number of Students by Gender\", \n  x = \"Gender\", \n  y = \"Count\" )\n\n\n\n\n\n\n\n\n\nWhat this does\n\nggplot(exam_data, aes(x = GENDER)) says: use exam_data and put GENDER on the x-axis\ngeom_bar() automatically counts how many students are in each gender category\nlabs() adds a chart title and axis labels"
+  },
+  {
+    "objectID": "pre-lesson.html#bar-chart-of-race",
+    "href": "pre-lesson.html#bar-chart-of-race",
+    "title": "Pre-Module: Basic Visualisation using Exam Data dataset via Quarto",
+    "section": "Bar chart of race",
+    "text": "Bar chart of race\nNow use the same idea for RACE:\n\nggplot(exam_data, aes(x = RACE, fill = RACE)) + geom_bar() + labs( \n  title = \"Number of Students by Race\", \n  x = \"Race\", \n  y = \"Count\" ) + \n  theme_minimal()\n\n\n\n\n\n\n\n\nThis shows how many students belong to each race category."
+  },
+  {
+    "objectID": "pre-lesson.html#histogram-of-maths-scores",
+    "href": "pre-lesson.html#histogram-of-maths-scores",
+    "title": "Pre-Module: Basic Visualisation using Exam Data dataset via Quarto",
+    "section": "Histogram of Maths scores",
+    "text": "Histogram of Maths scores\nNow let’s visualise a numerical variable.\n\nggplot(exam_data, aes(x = MATHS)) + geom_histogram(binwidth = 5, fill = \"steelblue\", color = \"white\") + labs( \n  title = \"Distribution of Maths Scores\", \n  x = \"Maths Score\", \n  y = \"Frequency\" ) + \n  theme_minimal()\n\n\n\n\n\n\n\n\n\nWhat this does\n\nx = MATHS puts maths marks on the x-axis\ngeom_histogram() groups the scores into intervals\nbinwidth = 10 means the bars cover ranges like 0–10, 10–20, 20–30, and so on\n\nThis helps you see:\n\nWhere most students’ maths scores lie\nWhether the distribution is spread out\nWhether there are very low or very high scores"
+  },
+  {
+    "objectID": "pre-lesson.html#boxplot-of-maths-by-gender",
+    "href": "pre-lesson.html#boxplot-of-maths-by-gender",
+    "title": "Pre-Module: Basic Visualisation using Exam Data dataset via Quarto",
+    "section": "Boxplot of Maths by Gender",
+    "text": "Boxplot of Maths by Gender\nNow let’s compare marks across categories.\n\nggplot(exam_data, aes(x = GENDER, y = MATHS, fill = GENDER)) + geom_boxplot(alpha = 0.7) + labs( \n  title = \"Maths Scores by Gender\", \n  x = \"Gender\", \n  y = \"Maths Score\" ) + \n  theme_minimal()\n\n\n\n\n\n\n\n\n\nWhy this is useful\nA boxplot helps you compare:\n\nMedian score\nSpread of scores\nPossible outliers\n\nSo instead of just counting students, you are now comparing their performance."
+  },
+  {
+    "objectID": "pre-lesson.html#english-vs-maths",
+    "href": "pre-lesson.html#english-vs-maths",
+    "title": "Pre-Module: Basic Visualisation using Exam Data dataset via Quarto",
+    "section": "English vs Maths",
+    "text": "English vs Maths\nNow a relationship plot:\n\nggplot(exam_data, aes(x = ENGLISH, y = MATHS)) +\n  geom_point(alpha = 0.6) +\n  geom_smooth(method = \"lm\", se = FALSE) +\n  labs(\n    title = \"English vs Maths Scores\",\n    x = \"English Score\",\n    y = \"Maths Score\"\n  ) +\n  theme_minimal()\n\n`geom_smooth()` using formula = 'y ~ x'\n\n\n\n\n\n\n\n\n\nThis helps answer:\n\nDo students who score higher in English also tend to score higher in Maths?\nIs there a visible positive trend?"
+  },
+  {
+    "objectID": "in-class.html",
+    "href": "in-class.html",
+    "title": "In-Class Exercises",
+    "section": "",
+    "text": "This section contains the in-class exercises completed for the module.\n\n\n\n\n\nExercise 2\n\nLatest published\n\nThis exercise focuses on applied classroom visualisation techniques and chart comparisons.\n\n\n\n\nExercise 1\n\nEarlier exercise\n\nThis exercise focuses on basic plotting and getting started with visual analytics tools."
+  },
+  {
+    "objectID": "take-home.html",
+    "href": "take-home.html",
+    "title": "Take-Home Exercises",
+    "section": "",
+    "text": "This section contains the take-home exercises completed for the module.\n\n\n\n\n\nExercise 2\n\nLatest published\n\nThis exercise focuses on interactive visual analysis, dashboard design, and exploratory data analysis. This exercise explores the fundamentals of visual analysis and bridges the gap between data and insights.\n\n\n\n\nExercise 1\n\nEarlier exercise\n\nThis exercise focuses on introductory visualisation techniques, basic charts, and first data storytelling tasks."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "This website was created for ISSS608: Visual Analytics & Applications.\nIts purpose is to document and present the visualisations, analysis, and coursework outputs that I have completed throughout the module. The site acts as a structured portfolio of my work, allowing different exercises and assignments to be organised into separate sections for easy navigation.\nThe website was built using:\n\nQuarto for website generation\nRStudio for development\nR for data visualisation and analysis\nGitHub for version control\nVercel for deployment\n\nThrough this website, I aim to present my coursework in a clear, organised, and accessible format."
+  },
+  {
+    "objectID": "index.html#latest-work-latest-work",
+    "href": "index.html#latest-work-latest-work",
+    "title": "Home",
+    "section": "{#latest-work} Latest Work",
+    "text": "{#latest-work} Latest Work\nHere are the most recently uploaded exercises from both sections.\n\n\nTake-Home Exercise\nLatest: Exercise 2\nA brief overview of the most recent take-home exercise and the visualisations completed.\nView Exercise\n\n\nIn-Class Exercise\nLatest: Exercise 2\nA brief overview of the most recent in-class exercise and the visualisations completed.\nView Exercise"
+  },
+  {
+    "objectID": "index.html#latest-work",
+    "href": "index.html#latest-work",
+    "title": "Home",
+    "section": "Latest Work",
+    "text": "Latest Work\nHere are the most recently uploaded exercises.\n\n\n\n\nHands-On Exercise\nLatest: Exercise 1\nThis exercise covers the introduction of ggplot2 and its various functions.\n\n\n\n\n\n\nIn-Class Exercise\nLatest: Exercise 1\nA brief overview of the most recent in-class exercise and the visualisations completed.\n\n\n\n\n\n\nAssignments\nLatest: Assignment 1\nA brief overview of the most recent assignment and the visualisations completed."
+  },
+  {
+    "objectID": "assignments.html",
+    "href": "assignments.html",
+    "title": "Assignments",
+    "section": "",
+    "text": "This section contains the assignments completed for the module.\n\n\n\n\n\nAssignment 2\n\nLatest published\n\nThis exercise focuses on applied classroom visualisation techniques and chart comparisons.\n\n\n\n\nAssignment 1\n\nEarlier exercise\n\nThis exercise focuses on basic plotting and getting started with visual analytics tools."
+  },
+  {
+    "objectID": "hands-on.html",
+    "href": "hands-on.html",
+    "title": "Hands-On Exercises",
+    "section": "",
+    "text": "This section contains the take-home exercises completed for the module.\n\n\n\n\n\nExercise 1\n\nDone on 15/04/2026\n\nThis exercise focuses on introduction of ggplot2 and exploring its various functions."
+  },
+  {
+    "objectID": "hands-on/exercise1.html",
+    "href": "hands-on/exercise1.html",
+    "title": "Hands-On Exercise 1",
+    "section": "",
+    "text": "This exercise looks to explore\nlibrary(readr) \nlibrary(ggplot2) \nlibrary(dplyr)\nThis does three things:"
+  },
+  {
+    "objectID": "hands-on/exercise1.html#bar-chart-of-gender",
+    "href": "hands-on/exercise1.html#bar-chart-of-gender",
+    "title": "Hands-On Exercise 1",
+    "section": "Bar chart of gender",
+    "text": "Bar chart of gender\nNow let’s start with the easiest plot.\n\nggplot(exam_data, aes(x = GENDER)) + geom_bar() + labs( \n  title = \"Number of Students by Gender\", \n  x = \"Gender\", \n  y = \"Count\" )\n\n\n\n\n\n\n\n\n\nWhat this does\n\nggplot(exam_data, aes(x = GENDER)) says: use exam_data and put GENDER on the x-axis\ngeom_bar() automatically counts how many students are in each gender category\nlabs() adds a chart title and axis labels"
+  },
+  {
+    "objectID": "hands-on/exercise1.html#bar-chart-of-race",
+    "href": "hands-on/exercise1.html#bar-chart-of-race",
+    "title": "Hands-On Exercise 1",
+    "section": "Bar chart of race",
+    "text": "Bar chart of race\nNow use the same idea for RACE:\n\nggplot(exam_data, aes(x = RACE, fill = RACE)) + geom_bar() + labs( \n  title = \"Number of Students by Race\", \n  x = \"Race\", \n  y = \"Count\" ) + \n  theme_minimal()\n\n\n\n\n\n\n\n\nThis shows how many students belong to each race category."
+  },
+  {
+    "objectID": "hands-on/exercise1.html#histogram-of-maths-scores",
+    "href": "hands-on/exercise1.html#histogram-of-maths-scores",
+    "title": "Hands-On Exercise 1",
+    "section": "Histogram of Maths scores",
+    "text": "Histogram of Maths scores\nNow let’s visualise a numerical variable.\n\nggplot(exam_data, aes(x = MATHS)) + geom_histogram(binwidth = 5, fill = \"steelblue\", color = \"white\") + labs( \n  title = \"Distribution of Maths Scores\", \n  x = \"Maths Score\", \n  y = \"Frequency\" ) + \n  theme_minimal()\n\n\n\n\n\n\n\n\n\nWhat this does\n\nx = MATHS puts maths marks on the x-axis\ngeom_histogram() groups the scores into intervals\nbinwidth = 10 means the bars cover ranges like 0–10, 10–20, 20–30, and so on\n\nThis helps you see:\n\nWhere most students’ maths scores lie\nWhether the distribution is spread out\nWhether there are very low or very high scores"
+  },
+  {
+    "objectID": "hands-on/exercise1.html#boxplot-of-maths-by-gender",
+    "href": "hands-on/exercise1.html#boxplot-of-maths-by-gender",
+    "title": "Hands-On Exercise 1",
+    "section": "Boxplot of Maths by Gender",
+    "text": "Boxplot of Maths by Gender\nNow let’s compare marks across categories.\n\nggplot(exam_data, aes(x = GENDER, y = MATHS, fill = GENDER)) + geom_boxplot(alpha = 0.7) + labs( \n  title = \"Maths Scores by Gender\", \n  x = \"Gender\", \n  y = \"Maths Score\" ) + \n  theme_minimal()\n\n\n\n\n\n\n\n\n\nWhy this is useful\nA boxplot helps you compare:\n\nMedian score\nSpread of scores\nPossible outliers\n\nSo instead of just counting students, you are now comparing their performance."
+  },
+  {
+    "objectID": "hands-on/exercise1.html#english-vs-maths",
+    "href": "hands-on/exercise1.html#english-vs-maths",
+    "title": "Hands-On Exercise 1",
+    "section": "English vs Maths",
+    "text": "English vs Maths\nNow a relationship plot:\n\nggplot(exam_data, aes(x = ENGLISH, y = MATHS)) +\n  geom_point(alpha = 0.6) +\n  geom_smooth(method = \"lm\", se = FALSE) +\n  labs(\n    title = \"English vs Maths Scores\",\n    x = \"English Score\",\n    y = \"Maths Score\"\n  ) +\n  theme_minimal()\n\n`geom_smooth()` using formula = 'y ~ x'\n\n\n\n\n\n\n\n\n\nThis helps answer:\n\nDo students who score higher in English also tend to score higher in Maths?\nIs there a visible positive trend?"
+  },
+  {
+    "objectID": "hands-on/exercise1.html#geom_bar",
+    "href": "hands-on/exercise1.html#geom_bar",
+    "title": "Hands-On Exercise 1",
+    "section": "geom_bar",
+    "text": "geom_bar\nNow let’s start with the easiest plot.\n\nggplot(data=exam_data, \n       aes(x=RACE)) +\n  geom_bar()"
+  },
+  {
+    "objectID": "hands-on/exercise1.html#geom_dotplot",
+    "href": "hands-on/exercise1.html#geom_dotplot",
+    "title": "Hands-On Exercise 1",
+    "section": "geom_dotplot",
+    "text": "geom_dotplot\n\nggplot(data=exam_data, \n       aes(x = MATHS)) +\n  geom_dotplot(dotsize = 0.5)\n\nBin width defaults to 1/30 of the range of the data. Pick better value with\n`binwidth`.\n\n\n\n\n\n\n\n\n\nNote: y scale is not very useful, in fact it is very misleading.\nThe following code below does 2 steps:\n\nscale_y_continuous is used to turn off the y-axis, and\nbinwidth argument is used to change the binwidth to 2.5\n\n\nggplot(data=exam_data, \n       aes(x = MATHS)) +\n  geom_dotplot(binwidth=2.5,         \n               dotsize = 0.5) +      \n  scale_y_continuous(NULL,           \n                     breaks = NULL)"
+  },
+  {
+    "objectID": "hands-on/exercise1.html#geom_histogram",
+    "href": "hands-on/exercise1.html#geom_histogram",
+    "title": "Hands-On Exercise 1",
+    "section": "geom_histogram()",
+    "text": "geom_histogram()\n\nggplot(data=exam_data, \n       aes(x = MATHS)) +\n  geom_histogram()       \n\n`stat_bin()` using `bins = 30`. Pick better value `binwidth`.\n\n\n\n\n\n\n\n\n\nIt is to note that the default bin is 30.\n\nModifying a geometric object by changing geom()\nThe following code chunk does the following:\n\nbins argument is used to change the number of bins to 20,\nfill argument is used to shade the histogram with light blue color, and\ncolor argument is used to change the outline colour of the bars in black\n\n\nggplot(data=exam_data, \n       aes(x= MATHS)) +\n  geom_histogram(bins=20,            \n                 color=\"black\",      \n                 fill=\"light blue\")  \n\n\n\n\n\n\n\n\n\n\nModifying a geometric object by changing aes()\nThe following code changes the fill of the histogram by using sub-group of `aesthetic()\n\nggplot(data=exam_data, \n       aes(x= MATHS, \n           fill = GENDER)) +\n  geom_histogram(bins=20, \n                 color=\"grey30\")"
+  },
+  {
+    "objectID": "hands-on/exercise1.html#geom_density",
+    "href": "hands-on/exercise1.html#geom_density",
+    "title": "Hands-On Exercise 1",
+    "section": "geom_density()",
+    "text": "geom_density()\nThis computes and plots the kernel density estimate, which is a smoothed version of the histogram.\nIt is a useflu alternative to the histogram for continuous data that comes from an underlying smooth distribution.\n\nggplot(data=exam_data, \n       aes(x = MATHS)) +\n  geom_density()\n\n\n\n\n\n\n\n\nThe next code plots 2 kernel density lines by using colour or fill arguments of aes()\n\nggplot(data=exam_data, \n       aes(x = MATHS, \n           colour = GENDER)) +\n  geom_density()"
+  },
+  {
+    "objectID": "hands-on/exercise1.html#geom_boxplot",
+    "href": "hands-on/exercise1.html#geom_boxplot",
+    "title": "Hands-On Exercise 1",
+    "section": "geom_boxplot()",
+    "text": "geom_boxplot()\n\nggplot(data=exam_data, \n       aes(y = MATHS,       \n           x= GENDER)) +    \n  geom_boxplot()            \n\n\n\n\n\n\n\n\nNotches are used in boxplots to help visually assess whether medians of distributions differ. If it does not overlap, it means that the medians are different.\n\nggplot(data=exam_data, \n       aes(y = MATHS, \n           x= GENDER)) +\n  geom_boxplot(notch=TRUE)"
+  },
+  {
+    "objectID": "hands-on/exercise1.html#geom_violin",
+    "href": "hands-on/exercise1.html#geom_violin",
+    "title": "Hands-On Exercise 1",
+    "section": "geom_violin",
+    "text": "geom_violin\n\nggplot(data=exam_data, \n       aes(y = MATHS, \n           x= GENDER)) +\n  geom_violin()"
+  },
+  {
+    "objectID": "hands-on/exercise1.html#geom_point",
+    "href": "hands-on/exercise1.html#geom_point",
+    "title": "Hands-On Exercise 1",
+    "section": "geom_point()",
+    "text": "geom_point()\nThis is to create scatterplot.\n\nggplot(data=exam_data, \n       aes(x= MATHS, \n           y=ENGLISH)) +\n  geom_point()"
+  },
+  {
+    "objectID": "hands-on/exercise1.html#combinatiation-of-geom-objects",
+    "href": "hands-on/exercise1.html#combinatiation-of-geom-objects",
+    "title": "Hands-On Exercise 1",
+    "section": "Combinatiation of geom objects",
+    "text": "Combinatiation of geom objects\nThe code below shows the plot of data points on the boxplot by using both geom_boxplot() and geom_point().\n\nggplot(data=exam_data, \n       aes(y = MATHS, \n           x= GENDER)) +\n  geom_boxplot() +                    \n  geom_point(position=\"jitter\", \n             size = 0.5)"
+  },
+  {
+    "objectID": "hands-on/exercise1.html#stat_summary",
+    "href": "hands-on/exercise1.html#stat_summary",
+    "title": "Hands-On Exercise 1",
+    "section": "stat_summary()",
+    "text": "stat_summary()\nThis adds mean values by using stat_summary() and overrides the default geom.\n\nggplot(data=exam_data, \n       aes(y = MATHS, x= GENDER)) +\n  geom_boxplot() +\n  stat_summary(geom = \"point\",       \n               fun = \"mean\",         \n               colour =\"red\",        \n               size=4)"
+  },
+  {
+    "objectID": "hands-on/exercise1.html#geom",
+    "href": "hands-on/exercise1.html#geom",
+    "title": "Hands-On Exercise 1",
+    "section": "geom()",
+    "text": "geom()\nThis adds mean values by using geom_() and overrides the default stats.\n\nggplot(data=exam_data, \n       aes(y = MATHS, x= GENDER)) +\n  geom_boxplot() +\n  geom_point(stat=\"summary\",        \n             fun=\"mean\",           \n             colour=\"red\",          \n             size=4)"
+  },
+  {
+    "objectID": "hands-on/exercise1.html#adding-best-fit-curve-on-a-scatterplot",
+    "href": "hands-on/exercise1.html#adding-best-fit-curve-on-a-scatterplot",
+    "title": "Hands-On Exercise 1",
+    "section": "Adding best-fit curve on a scatterplot",
+    "text": "Adding best-fit curve on a scatterplot\nThe code below shows geom_smooth() being used to plot a best-fit curve in the scatterplot. The default method used is loess\n\nggplot(data=exam_data, \n       aes(x= MATHS, y=ENGLISH)) +\n  geom_point() +\n  geom_smooth(size=0.5)\n\nWarning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.\nℹ Please use `linewidth` instead.\n\n\n`geom_smooth()` using method = 'loess' and formula = 'y ~ x'\n\n\n\n\n\n\n\n\n\nThe default smoothing method can be overridden as shown below.\n\nggplot(data=exam_data, \n       aes(x= MATHS, \n           y=ENGLISH)) +\n  geom_point() +\n  geom_smooth(method=lm, \n              linewidth=0.5)\n\n`geom_smooth()` using formula = 'y ~ x'"
+  },
+  {
+    "objectID": "hands-on/exercise1.html#facet_wrap",
+    "href": "hands-on/exercise1.html#facet_wrap",
+    "title": "Hands-On Exercise 1",
+    "section": "facet_wrap()",
+    "text": "facet_wrap()\nThis code wraps a 1-D sequence of panels into 2-D. This is generally a better use of screen space than facet_grid because most displays are roughly rectangular.\n\nggplot(data=exam_data, \n       aes(x= MATHS)) +\n  geom_histogram(bins=20) +\n    facet_wrap(~ CLASS)"
+  },
+  {
+    "objectID": "hands-on/exercise1.html#facet_grid",
+    "href": "hands-on/exercise1.html#facet_grid",
+    "title": "Hands-On Exercise 1",
+    "section": "facet_grid()",
+    "text": "facet_grid()\nThis code forms a matrix of panels defined by row and column facetting variables. It is most useful when you have two discrete variables, and all combinations of the variables exist in the data.\n\nggplot(data=exam_data, \n       aes(x= MATHS)) +\n  geom_histogram(bins=20) +\n    facet_grid(~ CLASS)"
+  },
+  {
+    "objectID": "hands-on/exercise1.html#working-with-coordinates",
+    "href": "hands-on/exercise1.html#working-with-coordinates",
+    "title": "Hands-On Exercise 1",
+    "section": "Working with Coordinates",
+    "text": "Working with Coordinates\n\nggplot(data=exam_data, \n       aes(x=RACE)) +\n  geom_bar()"
+  },
+  {
+    "objectID": "hands-on/exercise1.html#coord_flip",
+    "href": "hands-on/exercise1.html#coord_flip",
+    "title": "Hands-On Exercise 1",
+    "section": "coord_flip()",
+    "text": "coord_flip()\nFlips the horizontal bar chart into vertical bar chart\n\nggplot(data=exam_data, \n       aes(x=RACE)) +\n  geom_bar() +\n  coord_flip()"
+  },
+  {
+    "objectID": "hands-on/exercise1.html#changing-the-range-of-x-y-axis",
+    "href": "hands-on/exercise1.html#changing-the-range-of-x-y-axis",
+    "title": "Hands-On Exercise 1",
+    "section": "Changing the range of x & y-axis",
+    "text": "Changing the range of x & y-axis\nAs the scatterplot below is slightly misleading due to the axis range not being equal,\n\nggplot(data=exam_data, \n       aes(x= MATHS, y=ENGLISH)) +\n  geom_point() +\n  geom_smooth(method=lm, size=0.5)\n\n`geom_smooth()` using formula = 'y ~ x'\n\n\n\n\n\n\n\n\n\nthe code below fixes both axis range from 0 to 100.\n\nggplot(data=exam_data, \n       aes(x= MATHS, y=ENGLISH)) +\n  geom_point() +\n  geom_smooth(method=lm, \n              size=0.5) +  \n  coord_cartesian(xlim=c(0,100),\n                  ylim=c(0,100))\n\n`geom_smooth()` using formula = 'y ~ x'"
   }
 ]

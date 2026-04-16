@@ -1,0 +1,23 @@
+---
+title: "Hands-On Exercises"
+---
+
+<div class="section-header">
+  <p>This section contains the take-home exercises completed for the module.</p>
+</div>
+
+<div class="exercise-list">
+
+<a href="hands-on/exercise1.html" class="exercise-link">
+<div class="exercise-card">
+
+### Exercise 1
+
+<div class="exercise-meta">Done on 15/04/2026</div>
+
+This exercise focuses on introduction of ggplot2 and exploring its various functions.
+
+</div>
+</a>
+
+</div>

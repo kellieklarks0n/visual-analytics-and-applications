@@ -1,5 +1,26 @@
 {
   "index.qmd": {
     "index.html": "1d2217f5"
+  },
+  "pre-lesson.qmd": {
+    "pre-lesson.html": "0fed2d32"
+  },
+  "in-class.qmd": {
+    "in-class.html": "e119904d"
+  },
+  "about.qmd": {
+    "about.html": "2664fb86"
+  },
+  "take-home.qmd": {
+    "take-home.html": "bbf3ed5c"
+  },
+  "assignments.qmd": {
+    "assignments.html": "60d62eb3"
+  },
+  "hands-on/exercise1.qmd": {
+    "exercise1.html": "fb93f61d"
+  },
+  "hands-on.qmd": {
+    "hands-on.html": "8f1ed1a7"
   }
 }

@@ -1,0 +1,376 @@
+---
+title: "Hands-On Exercise 1"
+format: html
+editor: visual
+date: "2026-04-15"
+date-modified: "2026-04-15"
+---
+
+This exercise looks to explore 
+
+```{r, message=FALSE, warning=FALSE}
+library(readr) 
+library(ggplot2) 
+library(dplyr)
+```
+
+This does three things:
+
+-   `readr` reads the CSV
+-   `ggplot2` makes the charts
+-   `dplyr` helps with simple data handling
+
+------------------------------------------------------------------------
+
+# Read the CSV file
+
+Add this next chunk:
+
+```{r}
+exam_data <- read_csv("../data/Exam_data.csv")
+```
+
+This assumes your Quarto file and your CSV are in the **same folder**.
+
+If your CSV is in another folder, then you need the correct file path instead.
+
+------------------------------------------------------------------------
+
+# R Graphics VS ggplot
+
+First, we look at R Graphics
+
+```{r}
+hist(exam_data$MATHS)
+```
+
+Next, we look at ggplot2
+
+```{r}
+ggplot(data=exam_data, aes(x = MATHS)) +
+  geom_histogram(bins=10, 
+                 boundary = 100,
+                 color="black", 
+                 fill="grey") +
+  ggtitle("Distribution of Maths scores")
+```
+
+------------------------------------------------------------------------
+
+# Geometric Objects
+
+## geom_bar
+
+Now let’s start with the easiest plot.
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x=RACE)) +
+  geom_bar()
+```
+
+## geom_dotplot
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x = MATHS)) +
+  geom_dotplot(dotsize = 0.5)
+```
+
+Note: y scale is not very useful, in fact it is very misleading.
+
+The following code below does 2 steps:
+
+-   `scale_y_continuous` is used to turn off the y-axis, and
+-   binwidth argument is used to change the binwidth to 2.5
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x = MATHS)) +
+  geom_dotplot(binwidth=2.5,         
+               dotsize = 0.5) +      
+  scale_y_continuous(NULL,           
+                     breaks = NULL)  
+```
+## geom_histogram()
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x = MATHS)) +
+  geom_histogram()       
+```
+
+It is to note that the default bin is **30**.
+
+### Modifying a geometric object by changing geom()
+
+The following code chunk does the following:
+
+-   bins argument is used to change the number of bins to 20,
+-   fill argument is used to shade the histogram with light blue color, and
+-   color argument is used to change the outline colour of the bars in black
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x= MATHS)) +
+  geom_histogram(bins=20,            
+                 color="black",      
+                 fill="light blue")  
+```
+
+### Modifying a geometric object by changing aes()
+
+The following code changes the fill of the histogram by using sub-group of `aesthetic()
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x= MATHS, 
+           fill = GENDER)) +
+  geom_histogram(bins=20, 
+                 color="grey30")
+```
+
+## geom_density()
+
+This computes and plots the kernel density estimate, which is a smoothed version of the histogram.
+
+It is a useflu alternative to the histogram for continuous data that comes from an underlying smooth distribution.
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x = MATHS)) +
+  geom_density()
+```
+
+The next code plots 2 kernel density lines by using colour or fill arguments of `aes()`
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x = MATHS, 
+           colour = GENDER)) +
+  geom_density()
+```
+
+## geom_boxplot()
+
+```{r}
+ggplot(data=exam_data, 
+       aes(y = MATHS,       
+           x= GENDER)) +    
+  geom_boxplot()            
+```
+
+**Notches** are used in boxplots to help visually assess whether medians of distributions differ. If it does not overlap, it means that the medians are different.
+
+```{r}
+ggplot(data=exam_data, 
+       aes(y = MATHS, 
+           x= GENDER)) +
+  geom_boxplot(notch=TRUE)
+```
+
+## geom_violin
+
+```{r}
+ggplot(data=exam_data, 
+       aes(y = MATHS, 
+           x= GENDER)) +
+  geom_violin()
+```
+
+## geom_point()
+
+This is to create scatterplot.
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x= MATHS, 
+           y=ENGLISH)) +
+  geom_point()            
+```
+
+## Combinatiation of geom objects
+
+The code below shows the plot of data points on the boxplot by using both `geom_boxplot()` and `geom_point()`.
+
+```{r}
+ggplot(data=exam_data, 
+       aes(y = MATHS, 
+           x= GENDER)) +
+  geom_boxplot() +                    
+  geom_point(position="jitter", 
+             size = 0.5)        
+```
+
+------------------------------------------------------------------------
+
+# Working with stats in ggplot2
+
+## stat_summary()
+
+This adds mean values by using `stat_summary()` and overrides the default geom.
+
+```{r}
+ggplot(data=exam_data, 
+       aes(y = MATHS, x= GENDER)) +
+  geom_boxplot() +
+  stat_summary(geom = "point",       
+               fun = "mean",         
+               colour ="red",        
+               size=4)               
+```
+
+## geom()
+
+This adds mean values by using `geom_()` and overrides the default stats.
+
+```{r}
+ggplot(data=exam_data, 
+       aes(y = MATHS, x= GENDER)) +
+  geom_boxplot() +
+  geom_point(stat="summary",        
+             fun="mean",           
+             colour="red",          
+             size=4)          
+```
+
+## Adding best-fit curve on a scatterplot
+
+The code below shows `geom_smooth()` being used to plot a best-fit curve in the scatterplot. The default method used is loess
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x= MATHS, y=ENGLISH)) +
+  geom_point() +
+  geom_smooth(size=0.5)
+```
+
+The default smoothing method can be overridden as shown below.
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x= MATHS, 
+           y=ENGLISH)) +
+  geom_point() +
+  geom_smooth(method=lm, 
+              linewidth=0.5)
+```
+
+------------------------------------------------------------------------
+
+# Facets
+
+Facetting generates small multiples (sometimes also called trellis plot), each displaying a different subset of the data. They are an alternative to aesthetics for displaying additional discrete variables.
+
+## facet_wrap()
+
+This code wraps a 1-D sequence of panels into 2-D. This is generally a better use of screen space than facet_grid because most displays are roughly rectangular.
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x= MATHS)) +
+  geom_histogram(bins=20) +
+    facet_wrap(~ CLASS)
+```
+
+## facet_grid()
+
+This code forms a matrix of panels defined by row and column facetting variables. It is most useful when you have **two discrete variables**, and all combinations of the variables exist in the data.
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x= MATHS)) +
+  geom_histogram(bins=20) +
+    facet_grid(~ CLASS)
+```
+
+------------------------------------------------------------------------
+
+# Coordinates
+
+This group of functions map the position of objects onto the plane of the plot.
+
+## Working with Coordinates
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x=RACE)) +
+  geom_bar()
+```
+
+## coord_flip()
+
+Flips the horizontal bar chart into vertical bar chart
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x=RACE)) +
+  geom_bar() +
+  coord_flip()
+```
+
+## Changing the range of x & y-axis
+
+As the scatterplot below is slightly misleading due to the axis range not being equal,
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x= MATHS, y=ENGLISH)) +
+  geom_point() +
+  geom_smooth(method=lm, size=0.5)
+```
+
+the code below fixes both axis range from 0 to 100.
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x= MATHS, y=ENGLISH)) +
+  geom_point() +
+  geom_smooth(method=lm, 
+              size=0.5) +  
+  coord_cartesian(xlim=c(0,100),
+                  ylim=c(0,100))
+```
+
+------------------------------------------------------------------------
+
+# Themes
+
+Controlsd the elements of the graph not related to the data, like:
+
+-   background colour
+-   font size
+-   gridlines
+-   colour of labels
+
+The code below plots a horizontal bar chart using `theme_gray()`
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x=RACE)) +
+  geom_bar() +
+  coord_flip() +
+  theme_gray()
+```
+
+This code below plots the bar chart using `theme_classic()`
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x=RACE)) +
+  geom_bar() +
+  coord_flip() +
+  theme_classic()
+```
+
+This code below plots the bar chart using `theme_minimal()`
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x=RACE)) +
+  geom_bar() +
+  coord_flip() +
+  theme_minimal()
+```
+
+------------------------------------------------------------------------

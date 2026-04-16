@@ -1,0 +1,23 @@
+---
+title: "In-Class Exercises"
+format: html
+editor: visual
+---
+
+# In-Class Exercise
+
+This section contains the in-class exercises completed for the module.
+
+::: {.card-grid}
+::: {.info-card}
+### Exercise 1
+
+[View Exercise 1](in-class/exercise1.html)
+:::
+
+::: {.info-card}
+### Exercise 2
+
+[View Exercise 2](in-class/exercise2.html)
+:::
+:::
