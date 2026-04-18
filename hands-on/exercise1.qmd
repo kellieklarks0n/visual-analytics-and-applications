@@ -1,30 +1,23 @@
 ---
 title: "Hands-On Exercise 1"
+author: "Kelvin Andikko"
 format: html
 editor: visual
 date: "2026-04-15"
-date-modified: "2026-04-15"
+date-modified: "last-modified"
 ---
 
-This exercise looks to explore 
+This exercise looks to explore the fundamentals of visualisations with R.
 
 ```{r, message=FALSE, warning=FALSE}
-library(readr) 
-library(ggplot2) 
-library(dplyr)
+pacman::p_load(tidyverse)
 ```
-
-This does three things:
-
--   `readr` reads the CSV
--   `ggplot2` makes the charts
--   `dplyr` helps with simple data handling
 
 ------------------------------------------------------------------------
 
 # Read the CSV file
 
-Add this next chunk:
+This following code reads the CSV file that will be used for this exercise
 
 ```{r}
 exam_data <- read_csv("../data/Exam_data.csv")
