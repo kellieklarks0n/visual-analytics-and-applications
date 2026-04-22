@@ -36,14 +36,14 @@ Here are the most recently uploaded exercises.
 <div class="latest-grid">
 
 <div class="card-link">
-<a href="hands-on/exercise1.html" style="text-decoration:none; color:inherit;">
+<a href="hands-on/exercise2.html" style="text-decoration:none; color:inherit;">
 <div class="latest-card">
 
 ### Hands-On Exercise
 
-**Latest:** Exercise 1
+**Latest:** Exercise 2
 
-This exercise covers the introduction of ggplot2 and its various functions.
+This exercise covers ggplot2 extensions that would improve the visualisation of the plots.
 </div>
 </a>
 </div>

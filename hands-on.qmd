@@ -11,6 +11,18 @@ title: "Hands-On Exercises"
 <a href="hands-on/exercise1.html" class="exercise-link">
 <div class="exercise-card">
 
+### Exercise 2
+
+<div class="exercise-meta">Done on 22/04/2026</div>
+
+This exercise explores more extensions of ggplot2, focusing on the visual aspects that makes visualisations more appealing.
+
+</div>
+</a>
+
+<a href="hands-on/exercise1.html" class="exercise-link">
+<div class="exercise-card">
+
 ### Exercise 1
 
 <div class="exercise-meta">Done on 15/04/2026</div>

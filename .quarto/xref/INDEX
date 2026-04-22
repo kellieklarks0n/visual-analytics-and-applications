@@ -22,5 +22,8 @@
   },
   "hands-on.qmd": {
     "hands-on.html": "8f1ed1a7"
+  },
+  "hands-on/exercise2.qmd": {
+    "exercise2.html": "8b25143e"
   }
 }
