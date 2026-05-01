@@ -16,13 +16,15 @@ website:
             href: hands-on/exercise1.qmd
           - text: Exercise 2
             href: hands-on/exercise2.qmd
+          - text: Exercise 3
+            href: hands-on/exercise3.qmd
 
       - text: In-Class Exercise
         menu:
           - text: Overview
             href: in-class.qmd
           - text: Exercise 1
-            href: in-class/exercise1.qmd
+            href: "https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExercise1_17772813239940/Dashboard1?publish=yes"
           - text: Exercise 2
             href: in-class/exercise2.qmd
 

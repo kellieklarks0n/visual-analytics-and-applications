@@ -8,6 +8,18 @@ title: "Hands-On Exercises"
 
 <div class="exercise-list">
 
+<a href="hands-on/exercise3.html" class="exercise-link">
+<div class="exercise-card">
+
+### Exercise 3
+
+<div class="exercise-meta">Done on 29/04/2026</div>
+
+This exercise explores both interactive and animated data visualisations, using multiple extensions.
+
+</div>
+</a>
+
 <a href="hands-on/exercise1.html" class="exercise-link">
 <div class="exercise-card">
 

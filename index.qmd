@@ -36,20 +36,21 @@ Here are the most recently uploaded exercises.
 <div class="latest-grid">
 
 <div class="card-link">
-<a href="hands-on/exercise2.html" style="text-decoration:none; color:inherit;">
+<a href="hands-on/exercise3.html" style="text-decoration:none; color:inherit;">
 <div class="latest-card">
 
 ### Hands-On Exercise
 
-**Latest:** Exercise 2
+**Latest:** Exercise 3
 
-This exercise covers ggplot2 extensions that would improve the visualisation of the plots.
+This exercise covers ggplot2 extensions that would allow the data visualisations to be interactive and animated.
+
 </div>
 </a>
 </div>
 
 <div class="card-link">
-<a href="in-class/exercise1.html" style="text-decoration:none; color:inherit;">
+<a href="https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExercise1_17772813239940/Dashboard1?publish=yes" style="text-decoration:none; color:inherit;">
 <div class="latest-card">
 
 ### In-Class Exercise

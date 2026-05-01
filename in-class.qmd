@@ -22,14 +22,14 @@ This exercise focuses on applied classroom visualisation techniques and chart co
 </div>
 </a>
 
-<a href="in-class/exercise1.html" class="exercise-link">
+<a href="https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExercise1_17772813239940/Dashboard1?publish=yes" class="exercise-link">
 <div class="exercise-card">
 
 ### Exercise 1
 
 <div class="exercise-meta">Earlier exercise</div>
 
-This exercise focuses on basic plotting and getting started with visual analytics tools.
+This introductory exercise exposes the basic use of Tableau and its elementary functions.
 
 </div>
 </a>
