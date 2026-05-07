@@ -36,28 +36,28 @@ Here are the most recently uploaded exercises.
 <div class="latest-grid">
 
 <div class="card-link">
-<a href="hands-on/exercise3.html" style="text-decoration:none; color:inherit;">
+<a href="hands-on/exercise4.html" style="text-decoration:none; color:inherit;">
 <div class="latest-card">
 
 ### Hands-On Exercise
 
-**Latest:** Exercise 3
+**Latest:** Exercise 4
 
-This exercise covers ggplot2 extensions that would allow the data visualisations to be interactive and animated.
+This exercise covers the fundamentals of visual analytics, in the area of comparisons, distributions, statistical analysis, and uncertainty.
 
 </div>
 </a>
 </div>
 
 <div class="card-link">
-<a href="https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExercise1_17772813239940/Dashboard1?publish=yes" style="text-decoration:none; color:inherit;">
+<a href="https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExercise3b_17777067088260/PopulationPyramidofSingaporebyPlanningArea2025?publish=yes" style="text-decoration:none; color:inherit;">
 <div class="latest-card">
 
 ### In-Class Exercise
 
-**Latest:** Exercise 1
+**Latest:** Exercise 2B
 
-A brief overview of the most recent in-class exercise and the visualisations completed.
+This exercise shows the visual distribution done via Tableau on the population pyramid for Singapore.
 
 </div>
 </a>
@@ -71,7 +71,7 @@ A brief overview of the most recent in-class exercise and the visualisations com
 
 **Latest:** Assignment 1
 
-A brief overview of the most recent assignment and the visualisations completed.
+Yet to begin!
 
 </div>
 </a>

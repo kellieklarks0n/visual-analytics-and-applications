@@ -10,14 +10,28 @@ editor: visual
 
 <div class="exercise-list">
 
-<a href="in-class/exercise2.html" class="exercise-link">
+<a href="https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExercise3b_17777067088260/PopulationPyramidofSingaporebyPlanningArea2025?publish=yes" class="exercise-link">
 <div class="exercise-card">
 
-### Exercise 2
+### Exercise 2B
 
-<div class="exercise-meta">Latest published</div>
+<div class="exercise-meta">Published on 2 May 2026</div>
 
-This exercise focuses on applied classroom visualisation techniques and chart comparisons.
+This exercise focuses on creating a population pyramid in Tableau, using the population of Singapore as an example.
+
+</div>
+</a>
+
+<div class="exercise-list">
+
+<a href="https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExercise3_17777053254330/SuperstoreSalesandProfitReport?publish=yes" class="exercise-link">
+<div class="exercise-card">
+
+### Exercise 2A
+
+<div class="exercise-meta">Published on 2 May 2026</div>
+
+This exercise focuses on Tableau, in the area of interactive and animated data visualisation.
 
 </div>
 </a>
@@ -27,7 +41,7 @@ This exercise focuses on applied classroom visualisation techniques and chart co
 
 ### Exercise 1
 
-<div class="exercise-meta">Earlier exercise</div>
+<div class="exercise-meta">Published on 25 April 2026</div>
 
 This introductory exercise exposes the basic use of Tableau and its elementary functions.
 
