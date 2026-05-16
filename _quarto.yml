@@ -20,6 +20,8 @@ website:
             href: hands-on/exercise3.qmd
           - text: Exercise 4
             href: hands-on/exercise4.qmd
+          - text: Exercise 5
+            href: hands-on/exercise5.qmd
 
       - text: In-Class Exercise
         menu:
@@ -31,8 +33,18 @@ website:
             href: "https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExercise3_17777053254330/SuperstoreSalesandProfitReport?publish=yes"
           - text: Exercise 2B
             href: "https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExercise3b_17777067088260/PopulationPyramidofSingaporebyPlanningArea2025?publish=yes"
+          - text: Exercise 3A
+            href: "https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExericse4a/ExamDataofPrimary3Students?publish=yes"
+          - text: Exercise 3B
+            href: "https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExericse4b/FoodServiceKPIReport?publish=yes"
             
-
+      - text: Take-Home Exercise 1
+        menu: 
+          - text: Technical Report
+            href: take-home-1/technical-report.qmd
+          - text: Executive Summary
+            href: take-home-1/exec-summary.qmd
+      
       - text: Assignments
         menu:
           - text: Overview

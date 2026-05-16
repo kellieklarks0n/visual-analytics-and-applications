@@ -1,0 +1,2203 @@
+---
+title: "Hands-On Exercise 5"
+author: "Kelvin Andikko"
+date: "2026-05-11"
+date-modified: "last-modified"
+format: html
+editor: visual
+---
+
+This hands-on exercise will be broken down into 5 parts:
+
+1.    Ternary Plot
+2.    Visual Correlation Analysis
+3.    Visual Multivariate Analysis **with Heatmap**
+4.    Visual Multivariate Analysis **with Parallel Coordinates Plot**
+5.    Visualising Treemaps
+
+------------------------------------------------------------------------
+
+# Visual Correlation Analysis: What is it?
+
+visual correlation analysis as part of using data to understand relationships between multiple variables. In this exercise, correlation matrices, scatterplot matrices and corrgrams will be used to identify the direction, strength and structure of relationships among variables.
+
+In this exercise, the following R packages will be used:
+
+-   `readr`: importing csv into R
+-   `corrplot`: creating corrgrams and visualising correlation matrices
+-   `ggstatsplot`: creating correlation matrix visualisations with statistical information
+-   `tidyverse`: R packages for modern data science and visual communication
+
+The code block below checks that the above packages are installed and loaded into the R working environment.
+
+```{r, warning=FALSE, message=FALSE}
+pacman::p_load(corrplot, ggstatsplot, tidyverse)
+```
+
+The next code block imports the CSV file for this exercise:
+
+```{r}
+wine <- read_csv("../data/wine_quality.csv") %>%
+  mutate(type = as.factor(type))
+
+wine_num <- wine %>%
+  select(where(is.numeric)) %>%
+  select(-quality)
+```
+
+From the code chunk above:
+
+1.  `read_csv()` is used to import the wine quality data into R.
+2.  `mutate()` is used to convert `type` into a factor variable, since it represents wine category.
+3.  `select(where(is.numeric))` is used to keep only numerical variables.
+4.  `select(-quality)` is used to remove the wine quality score so that the correlation analysis focuses on the physicochemical attributes.
+
+------------------------------------------------------------------------
+
+# Understanding visual correlation analysis
+
+Correlation analysis is used to measure the direction and strength of the relationship between two variables. The value of a correlation coefficient ranges from -1 to 1.
+
+In general, the interpretation is as follows:
+
+-   A value close to 1 suggests a strong positive linear relationship.
+-   A value close to -1 suggests a strong negative linear relationship.
+-   A value close to 0 suggests little or no linear relationship.
+
+When there are many numerical variables, it is useful to compute the correlations between each pair of variables. These pairwise relationships can then be shown as a correlation matrix or scatterplot matrix.
+
+There are three main reasons why a correlation matrix is useful:
+
+1.  It helps to reveal the relationship between many variables pair by pair.
+2.  It can be used as an input into other statistical analyses, such as factor analysis or regression modelling.
+3.  It can be used as a diagnostic tool, especially when checking whether several variables are highly correlated with one another.
+
+In this hands-on exercise, the following methods will be explored:
+
+-   creating scatterplot matrices using `pairs()`
+-   visualising correlation matrices using `ggcorrmat()`
+-   comparing correlation structures by group using `grouped_ggcorrmat()`
+-   creating corrgrams using the `corrplot` package
+-   customising corrgrams by changing geometry, layout, significance testing and ordering
+
+------------------------------------------------------------------------
+
+# Building correlation matrix using the `pairs()` method
+
+There is more than one way to build a scatterplot matrix in R. In this section, the base R function `pairs()` will be used to create scatterplot matrices for the wine quality data.
+
+A scatterplot matrix is useful because it shows the relationship between each pair of numerical variables in one visual output. This gives a quick overview of possible positive, negative or weak relationships.
+
+## Building a basic scatterplot matrix
+
+The code chunk below plots a basic scatterplot matrix using the numerical wine attributes.
+
+```{r}
+pairs(wine_num)
+```
+
+Studying both the code chunk and the scatterplot matrix that is generated, there are 2 things to note:
+
+1.  The input of `pairs()` can be either a matrix or data frame.
+2.  Each cell in the matrix shows a scatterplot between two numerical variables.
+
+Although this method is simple, the plot can become difficult to read when there are many observations or when many variables are included.
+
+## Drawing the lower corner of the scatterplot matrix
+
+A correlation matrix is symmetric. This means that the lower half and upper half of the matrix contain the same pairwise relationships, only in opposite positions.
+
+Therefore, it is common to display only one half of the matrix.
+
+The code chunk below removes the upper panel and displays only the lower half of the scatterplot matrix.
+
+```{r}
+pairs(wine_num, 
+      upper.panel = NULL)
+```
+
+From the code chunk above:
+
+-   `upper.panel = NULL` removes the upper half of the matrix.
+-   This makes the visualisation less crowded.
+-   The lower half is enough to interpret the pairwise relationships.
+
+Similarly, the code chunk below removes the lower panel and displays only the upper half of the scatterplot matrix.
+
+```{r}
+pairs(wine_num, 
+      lower.panel = NULL)
+```
+
+From the code chunk above:
+
+-   `lower.panel = NULL` removes the lower half of the matrix.
+-   The remaining upper half still contains the same pairwise relationship information.
+-   This is useful when we want a cleaner version of the full scatterplot matrix.
+
+## Including correlation coefficients in the scatterplot matrix
+
+Instead of showing only scatterplots, it is also possible to include correlation coefficients in the scatterplot matrix.
+
+First, the code chunk below creates a helper function called `panel.cor()`.
+
+```{r}
+panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor, ...) {
+  usr <- par("usr")
+  on.exit(par(usr))
+  par(usr = c(0, 1, 0, 1))
+  r <- abs(cor(x, y, use = "complete.obs"))
+  txt <- format(c(r, 0.123456789), digits = digits)[1]
+  txt <- paste(prefix, txt, sep = "")
+  
+  if(missing(cex.cor)) {
+    cex.cor <- 0.8 / strwidth(txt)
+  }
+  
+  text(0.5, 0.5, txt, cex = cex.cor * (1 + r) / 2)
+}
+```
+
+The code chunk below uses `panel.cor()` to place the correlation coefficients in the upper panel.
+
+```{r}
+pairs(wine_num,
+      upper.panel = panel.cor)
+```
+
+What can we learn from this makeover?
+
+1.  `upper.panel = panel.cor` replaces the scatterplots in the upper panel with correlation coefficients.
+2.  Larger values are displayed with larger text size.
+3.  This allows both the scatterplot pattern and numerical strength of the relationship to be shown in one visualisation.
+
+------------------------------------------------------------------------
+
+# Visualising correlation matrix using `ggcorrmat()`
+
+One limitation of the scatterplot matrix is that it can become visually cluttered when the dataset contains many observations. In such cases, a corrgram is a more compact way to display the correlation matrix.
+
+In this section, the `ggcorrmat()` function from the `ggstatsplot` package will be used to create a correlation matrix visualisation.
+
+## Building a basic correlation matrix with `ggcorrmat()`
+
+The code chunk below creates a basic correlation matrix using `ggcorrmat()`.
+
+```{r}
+ggstatsplot::ggcorrmat(
+  data = wine_num
+)
+```
+
+The following information can be obtained from the correlation matrix:
+
+-   correlation direction
+-   correlation strength
+-   statistical significance
+-   overall structure of relationships between variables
+
+Compared with the base R `pairs()` method, `ggcorrmat()` presents the correlation matrix in a more polished and statistical format.
+
+## Aesthetic makeover for `ggcorrmat()`
+
+The code chunk below improves the basic correlation matrix by adding aesthetic customisation, hierarchical ordering, title and subtitle.
+
+```{r}
+ggstatsplot::ggcorrmat(
+  data = wine_num,
+  ggcorrplot.args = list(
+    outline.color = "black",
+    hc.order = TRUE,
+    tl.cex = 10
+  ),
+  title = "Correlogram for wine quality dataset",
+  subtitle = "Correlation matrix of selected wine attributes"
+)
+```
+
+What is added into the code chunk above that improves the visuals of the correlation matrix?
+
+1.  `outline.color = "black"` adds a clear outline around the matrix cells.
+2.  `hc.order = TRUE` arranges similar variables closer together through hierarchical clustering.
+3.  `tl.cex = 10` adjusts the text size of the variable labels.
+4.  `title` and `subtitle` are used to improve the context of the visualisation.
+
+## Customising the text size
+
+At times, we may want to adjust the text size of the correlation matrix to improve readability.
+
+The code chunk below shows how this can be done by using `ggplot.component`.
+
+```{r}
+ggstatsplot::ggcorrmat(
+  data = wine_num,
+  ggcorrplot.args = list(
+    outline.color = "black",
+    hc.order = TRUE,
+    tl.cex = 10
+  ),
+  ggplot.component = list(
+    theme(
+      text = element_text(size = 5),
+      axis.text.x = element_text(size = 8),
+      axis.text.y = element_text(size = 8)
+    )
+  ),
+  title = "Correlogram for wine quality dataset",
+  subtitle = "Correlation matrix with customised text size"
+)
+```
+
+From the code chunk above:
+
+-   `ggplot.component` allows additional `ggplot2` theme settings to be passed into the plot.
+-   `text = element_text(size = 5)` changes the general text size.
+-   `axis.text.x` and `axis.text.y` change the text size of the axis labels.
+
+------------------------------------------------------------------------
+
+# Building multiple correlation matrices by wine type
+
+Since `ggstatsplot` extends `ggplot2`, it supports more advanced visualisation workflows. However, faceting is not done directly inside `ggcorrmat()`. Instead, the function `grouped_ggcorrmat()` is used to create grouped correlation matrix visualisations.
+
+In this section, correlation matrices will be generated separately for each wine type.
+
+The code chunk below creates grouped correlation matrices for red and white wine.
+
+```{r}
+grouped_ggcorrmat(
+  data = wine %>%
+    select(all_of(names(wine_num)), type),
+  cor.vars = 1:ncol(wine_num),
+  grouping.var = type,
+  type = "robust",
+  p.adjust.method = "holm",
+  plotgrid.args = list(ncol = 2),
+  ggcorrplot.args = list(
+    outline.color = "black",
+    hc.order = TRUE,
+    tl.cex = 10
+  ),
+  annotation.args = list(
+    tag_levels = "a",
+    title = "Correlogram for wine quality dataset",
+    subtitle = "Correlation matrices are shown separately by wine type",
+    caption = "Dataset: Wine quality data"
+  )
+)
+```
+
+Things to learn from the code chunk above:
+
+1.  `grouping.var = type` is used to split the correlation matrix by wine type.
+2.  `type = "robust"` uses a robust correlation method.
+3.  `p.adjust.method = "holm"` adjusts the p-values for multiple comparison.
+4.  `plotgrid.args = list(ncol = 2)` arranges the grouped plots into two columns.
+5.  `annotation.args` is used to add title, subtitle, caption and plot tags.
+
+This visualisation is useful because it allows us to compare whether red and white wines have similar or different correlation structures.
+
+------------------------------------------------------------------------
+
+# Visualising correlation matrix using the `corrplot` package
+
+The `corrplot` package provides another way to visualise correlation matrices. It is useful because it offers many layout, geometry and ordering options.
+
+Before plotting the corrgram, the correlation matrix must first be computed.
+
+## Computing the correlation matrix
+
+The code chunk below computes the correlation matrix of the numerical wine attributes.
+
+```{r}
+wine_cor <- cor(wine_num, 
+                use = "complete.obs")
+```
+
+From the code chunk above:
+
+-   `cor()` is used to compute the pairwise correlation coefficients.
+-   `use = "complete.obs"` ensures that only complete observations are used.
+-   The computed correlation matrix is saved as `wine_cor`.
+
+## Getting started with `corrplot()`
+
+The code chunk below plots the corrgram using the default settings of `corrplot()`.
+
+```{r}
+corrplot(wine_cor)
+```
+
+From the plot generated:
+
+1.  The default visual object is a circle.
+2.  The default layout is a full symmetric matrix.
+3.  The default colour scheme uses a diverging colour scale.
+4.  Positive correlations and negative correlations are shown using different colours.
+5.  Stronger correlations are represented by darker and larger symbols.
+
+## Working with visual geometrics
+
+The `corrplot` package supports several visual geometrics through the `method` argument. Examples include:
+
+-   `"circle"`
+-   `"square"`
+-   `"ellipse"`
+-   `"number"`
+-   `"shade"`
+-   `"color"`
+-   `"pie"`
+
+The code chunk below changes the visual geometry from the default circle to ellipse.
+
+```{r}
+corrplot(wine_cor,
+         method = "ellipse")
+```
+
+What can we learn from this makeover?
+
+1.  `method = "ellipse"` changes how the correlation values are encoded.
+2.  The shape and direction of the ellipse help to show the strength and direction of the correlation.
+3.  Different methods can be used depending on the intended visual emphasis.
+
+## Working with layout
+
+The `corrplot()` function supports three main layout types:
+
+-   `"full"`
+-   `"upper"`
+-   `"lower"`
+
+The default layout is `"full"`, which shows the full correlation matrix. Since the correlation matrix is symmetric, it is often cleaner to show only the upper or lower half.
+
+The code chunk below displays only the lower half of the corrgram.
+
+```{r}
+corrplot(wine_cor,
+         method = "ellipse",
+         type = "lower")
+```
+
+The code chunk below improves the layout further by removing the diagonal and changing the text label colour.
+
+```{r}
+corrplot(wine_cor,
+         method = "ellipse",
+         type = "lower",
+         diag = FALSE,
+         tl.col = "black")
+```
+
+From the code chunk above:
+
+-   `type = "lower"` displays only the lower half of the matrix.
+-   `diag = FALSE` removes the diagonal values.
+-   `tl.col = "black"` changes the text label colour to black.
+
+This makes the corrgram cleaner and easier to interpret.
+
+## Working with mixed layout
+
+A mixed layout allows one half of the corrgram to use a visual encoding while the other half uses numerical values.
+
+The code chunk below creates a mixed corrgram.
+
+```{r}
+corrplot.mixed(wine_cor,
+               lower = "ellipse",
+               upper = "number",
+               tl.pos = "lt",
+               diag = "l",
+               tl.col = "black")
+```
+
+From the code chunk above:
+
+1.  `lower = "ellipse"` displays ellipses in the lower half of the matrix.
+2.  `upper = "number"` displays numerical correlation values in the upper half.
+3.  `tl.pos = "lt"` places the text labels on the left and top.
+4.  `diag = "l"` controls the appearance of the diagonal.
+5.  `tl.col = "black"` changes the text label colour to black.
+
+This is useful because it combines visual interpretation and numerical precision in one plot.
+
+------------------------------------------------------------------------
+
+# Combining corrgram with significance testing
+
+In correlation analysis, it is not enough to look only at the size of the correlation coefficient. We may also want to know whether the correlation is statistically significant.
+
+In this section, a helper function is used to compute the p-values and confidence intervals for each pair of variables.
+
+## Computing significance values
+
+The code chunk below creates a helper function to compute significance values for each correlation pair.
+
+```{r}
+cor_mtest <- function(mat, conf.level = 0.95) {
+  mat <- as.matrix(mat)
+  n <- ncol(mat)
+  
+  p.mat <- lowCI.mat <- uppCI.mat <- matrix(NA, n, n)
+  diag(p.mat) <- 0
+  diag(lowCI.mat) <- diag(uppCI.mat) <- 1
+  
+  for (i in 1:(n - 1)) {
+    for (j in (i + 1):n) {
+      tmp <- cor.test(mat[, i], mat[, j], conf.level = conf.level)
+      
+      p.mat[i, j] <- p.mat[j, i] <- tmp$p.value
+      lowCI.mat[i, j] <- lowCI.mat[j, i] <- tmp$conf.int[1]
+      uppCI.mat[i, j] <- uppCI.mat[j, i] <- tmp$conf.int[2]
+    }
+  }
+  
+  colnames(p.mat) <- rownames(p.mat) <- colnames(mat)
+  colnames(lowCI.mat) <- rownames(lowCI.mat) <- colnames(mat)
+  colnames(uppCI.mat) <- rownames(uppCI.mat) <- colnames(mat)
+  
+  list(p = p.mat,
+       lowCI = lowCI.mat,
+       uppCI = uppCI.mat)
+}
+
+wine_sig <- cor_mtest(wine_num, 
+                      conf.level = .95)
+```
+
+From the code chunk above:
+
+-   `cor.test()` is used to test the correlation between each pair of variables.
+-   The p-values are stored in `p.mat`.
+-   The lower and upper confidence intervals are stored in `lowCI.mat` and `uppCI.mat`.
+-   The output is saved as `wine_sig`.
+
+## Plotting a corrgram with significance test
+
+The code chunk below uses the p-value matrix in the corrgram.
+
+```{r}
+corrplot(wine_cor,
+         method = "number",
+         type = "lower",
+         diag = FALSE,
+         tl.col = "black",
+         tl.srt = 45,
+         p.mat = wine_sig$p,
+         sig.level = .05)
+```
+
+From the code chunk above:
+
+1.  `p.mat = wine_sig$p` supplies the p-value matrix to `corrplot()`.
+2.  `sig.level = .05` sets the significance level at 5%.
+3.  `method = "number"` displays the correlation coefficients directly.
+4.  `tl.srt = 45` rotates the text labels for readability.
+
+This plot helps us to identify which correlation pairs are statistically significant and which ones should be interpreted more cautiously.
+
+------------------------------------------------------------------------
+
+# Reordering a corrgram
+
+Reordering a corrgram is useful because it helps to reveal hidden patterns within the correlation matrix. Instead of keeping the original variable order, similar variables can be placed closer together.
+
+The `corrplot` package supports several ordering methods:
+
+-   `"AOE"`: angular order of eigenvectors
+-   `"FPC"`: first principal component order
+-   `"hclust"`: hierarchical clustering order
+-   `"alphabet"`: alphabetical order
+
+## Reordering by angular order of eigenvectors
+
+The code chunk below reorders the mixed corrgram using the `"AOE"` method.
+
+```{r}
+corrplot.mixed(wine_cor,
+               lower = "ellipse",
+               upper = "number",
+               tl.pos = "lt",
+               diag = "l",
+               order = "AOE",
+               tl.col = "black")
+```
+
+What can we learn from this makeover?
+
+1.  `order = "AOE"` changes the variable ordering using angular order of eigenvectors.
+2.  Variables with similar correlation patterns are placed closer together.
+3.  This makes the corrgram easier to read when looking for clusters of related variables.
+
+## Reordering using hierarchical clustering
+
+The code chunk below reorders the corrgram using hierarchical clustering and draws rectangles around the clusters.
+
+```{r}
+corrplot(wine_cor,
+         method = "ellipse",
+         tl.pos = "lt",
+         tl.col = "black",
+         order = "hclust",
+         hclust.method = "ward.D",
+         addrect = 3)
+```
+
+From the code chunk above:
+
+-   `order = "hclust"` arranges the variables based on hierarchical clustering.
+-   `hclust.method = "ward.D"` specifies the clustering method.
+-   `addrect = 3` draws rectangles around three clusters.
+
+This is useful when we want to identify groups of variables that behave similarly in terms of their correlation patterns.
+
+------------------------------------------------------------------------
+
+# Summary of visual correlation analysis methods
+
+In this hands-on exercise, several methods of visual correlation analysis have been explored.
+
+The `pairs()` method provides a simple way to build scatterplot matrices and inspect pairwise relationships directly. However, it can become crowded when there are many observations or many variables.
+
+The `ggcorrmat()` method provides a cleaner and more statistical visualisation of the correlation matrix. It is useful when the goal is to present the correlation structure in a polished format with statistical information.
+
+The `grouped_ggcorrmat()` method allows the correlation matrix to be compared across groups. In this exercise, it was used to compare correlation structures between wine types.
+
+The `corrplot` package provides the most flexible corrgram customisation. It supports different geometries, layouts, mixed displays, significance testing and variable reordering.
+
+Overall, visual correlation analysis is useful because it helps us understand how variables are related to one another before moving into more advanced modelling or statistical analysis.
+
+------------------------------------------------------------------------
+
+# Ternary Plot
+
+In this part of the hands-on exercise, we will be exploring the use of ternary plots for visualising three-part compositional data. In this exercise, population structure data will be used to show how the proportions of young, economically active and old residents can be represented within a triangular coordinate system.
+
+The following R packages will be used:
+
+-   `readr`: importing csv into R
+-   `dplyr`: preparing and transforming the data
+-   `tidyr`: reshaping the data from long format into wide format
+-   `ggtern`: an extension of `ggplot2` designed for creating static ternary plots
+-   `plotly`: used in creating an interactive ternary plot
+-   `knitr`: used in building a static HTML table
+-   `tidyverse`: R packages for modern data science and visual communication
+
+The code block below checks that the above packages are installed and loaded into the R working environment.
+
+```{r, warning=FALSE, message=FALSE}
+pacman::p_load(plotly, ggtern, tidyverse, knitr)
+```
+
+The next code block imports the CSV file for this exercise:
+
+```{r}
+pop_data <- read_csv("../data/respopagsex2000to2018_tidy.csv")
+```
+
+From the code chunk above:
+
+1.  `read_csv()` is used to import the population data into R.
+2.  The imported data is saved as a tibble data frame called `pop_data`.
+3.  This dataset will be used to derive the three population groups required for the ternary plot.
+
+------------------------------------------------------------------------
+
+# Understanding ternary plots
+
+A ternary plot is used to visualise data that is made up of three related components. The three components should represent parts of a whole. For example, a population can be divided into young, economically active and old residents.
+
+The ternary plot is displayed as a triangle. Each corner of the triangle represents one of the three components. A point inside the triangle shows the relative composition of the three components.
+
+There are three important things to note when reading a ternary plot:
+
+1.  Each point represents one observation.
+2.  The three values for each point are interpreted together.
+3.  The three components are usually expressed as proportions that add up to 1.
+
+In this hands-on exercise, the ternary plot will be used to visualise the age structure of Singapore residents in 2018.
+
+The overall workflow for creating the ternary plot is as follows:
+
+-   Import the population dataset.
+-   Reshape the data so that each age group becomes a separate column.
+-   Derive the young, economically active and old population measures.
+-   Convert the three measures into proportions.
+-   Create a static ternary plot using `ggtern()`.
+-   Create an interactive ternary plot using `plot_ly()`.
+
+------------------------------------------------------------------------
+
+# Data preparation for ternary plot
+
+Before building the ternary plot, the dataset must be prepared so that the three population components can be calculated.
+
+In this section, three new measures will be created:
+
+-   `YOUNG`: the population count for younger residents
+-   `ACTIVE`: the population count for economically active residents
+-   `OLD`: the population count for older residents
+
+The code chunk below reshapes the data and derives the required measures.
+
+```{r}
+agpop_mutated <- pop_data %>%
+  mutate(`Year` = as.character(Year)) %>%
+  spread(AG, Population) %>%
+  mutate(YOUNG = rowSums(.[4:8], na.rm = TRUE)) %>%
+  mutate(ACTIVE = rowSums(.[9:16], na.rm = TRUE)) %>%
+  mutate(OLD = rowSums(.[17:21], na.rm = TRUE)) %>%
+  mutate(TOTAL = rowSums(.[22:24], na.rm = TRUE)) %>%
+  filter(Year == 2018) %>%
+  filter(TOTAL > 0) %>%
+  mutate(YOUNG_PROP = YOUNG / TOTAL,
+         ACTIVE_PROP = ACTIVE / TOTAL,
+         OLD_PROP = OLD / TOTAL)
+```
+
+From the code chunk above:
+
+1.  `mutate()` is used to convert `Year` into a character variable.
+2.  `spread()` is used to reshape the dataset so that the age groups become separate columns.
+3.  `rowSums()` is used to calculate the total number of residents in each age group category.
+4.  `filter(Year == 2018)` keeps only the observations from 2018.
+5.  `filter(TOTAL > 0)` removes observations with no population count.
+6.  `YOUNG_PROP`, `ACTIVE_PROP` and `OLD_PROP` are derived by dividing each population group by `TOTAL`.
+
+The code chunk below displays the first few rows of the prepared data.
+
+```{r}
+knitr::kable(head(agpop_mutated), format = "html")
+```
+
+This table is useful because it allows us to inspect whether the population measures have been created correctly before plotting the ternary diagram.
+
+------------------------------------------------------------------------
+
+# Plotting ternary diagram with `ggtern`
+
+In this section, a static ternary plot will be created using the `ggtern` package.
+
+The `ggtern` package extends the grammar of graphics used by `ggplot2`. Instead of using only the usual x-axis and y-axis, `ggtern` allows us to map three variables onto a triangular coordinate system.
+
+## Building a basic ternary plot
+
+The code chunk below creates a basic ternary plot using the three derived population proportions.
+
+```{r}
+ggtern(data = agpop_mutated,
+       aes(x = YOUNG_PROP,
+           y = ACTIVE_PROP,
+           z = OLD_PROP)) +
+  geom_point()
+```
+
+Studying both the code chunk and the ternary plot that is generated, there are 3 things to note:
+
+1.  `x = YOUNG_PROP` maps the young population proportion onto one ternary axis.
+2.  `y = ACTIVE_PROP` maps the economically active population proportion onto the second ternary axis.
+3.  `z = OLD_PROP` maps the old population proportion onto the third ternary axis.
+
+Each point in the plot represents one observation from the prepared population dataset. The position of the point is determined by the relative proportions of the three age groups.
+
+## Aesthetic makeover for `ggtern`
+
+The basic plot is useful for checking that the ternary diagram works. However, it does not provide enough context for presentation purposes.
+
+The code chunk below improves the ternary plot by adding a title, axis labels and a cleaner theme.
+
+```{r}
+ggtern(data = agpop_mutated,
+       aes(x = YOUNG_PROP,
+           y = ACTIVE_PROP,
+           z = OLD_PROP)) +
+  geom_point(alpha = 0.6) +
+  labs(title = "Population Structure of Singapore Residents, 2018",
+       x = "Young Population",
+       y = "Economically Active Population",
+       z = "Old Population") +
+  theme_rgbw()
+```
+
+What is added into the code chunk above that improves the visuals of the ternary plot?
+
+1.  `alpha = 0.6` makes the plotted points slightly transparent.
+2.  `labs()` is used to add a plot title and edit the three ternary axis labels.
+3.  `theme_rgbw()` is used to apply a cleaner ternary plot theme.
+
+This version is easier to interpret because the three axes are labelled clearly and the purpose of the plot is stated in the title.
+
+## Adding stronger visual context to the ternary plot
+
+We can continue to refine the static ternary plot by increasing point size and adjusting the theme.
+
+The code chunk below shows a more presentation-ready version of the ternary plot.
+
+```{r}
+ggtern(data = agpop_mutated,
+       aes(x = YOUNG_PROP,
+           y = ACTIVE_PROP,
+           z = OLD_PROP)) +
+  geom_point(size = 2,
+             alpha = 0.7,
+             colour = "steelblue") +
+  labs(title = "Ternary Plot of Singapore Resident Age Structure, 2018",
+       subtitle = "Each point shows the relative share of young, economically active and old residents",
+       x = "Young",
+       y = "Economically Active",
+       z = "Old") +
+  theme_rgbw()
+```
+
+From the code chunk above:
+
+-   `size = 2` makes the points easier to see.
+-   `colour = "steelblue"` changes the colour of the plotted points.
+-   `subtitle` adds more explanation to the chart.
+-   The three axis labels are shortened to improve readability.
+
+This plot helps us examine how population structures differ across observations. Points that are closer to one corner have a higher share of that specific population group.
+
+------------------------------------------------------------------------
+
+# Plotting interactive ternary diagram with `plotly`
+
+Static ternary plots are useful for presentation, but interactive ternary plots are useful for exploration. With an interactive plot, the user can hover over the points to inspect the values more closely.
+
+In this section, an interactive ternary plot will be created using the `plot_ly()` function from the `plotly` package.
+
+## Creating reusable labels and axis settings
+
+Before building the interactive ternary plot, two helper functions will be created.
+
+The first helper function is used to create the annotation label. The second helper function is used to format the ternary axes.
+
+```{r}
+label <- function(txt) {
+  list(
+    text = txt,
+    x = 0.1, y = 1,
+    ax = 0, ay = 0,
+    xref = "paper", yref = "paper",
+    align = "center",
+    font = list(family = "serif", size = 15, color = "white"),
+    bgcolor = "#b3b3b3", bordercolor = "black", borderwidth = 2
+  )
+}
+
+axis <- function(txt) {
+  list(
+    title = txt,
+    tickformat = ".0%",
+    tickfont = list(size = 10)
+  )
+}
+```
+
+From the code chunk above:
+
+1.  `label()` creates a reusable annotation object for the plot title label.
+2.  `axis()` creates a reusable formatting object for each ternary axis.
+3.  `tickformat = ".0%"` formats the ternary axes as percentages.
+
+The code chunk below stores the three formatted ternary axes in a list.
+
+```{r}
+ternaryAxes <- list(
+  aaxis = axis("Young"),
+  baxis = axis("Economically Active"),
+  caxis = axis("Old")
+)
+```
+
+## Building the interactive ternary plot
+
+The code chunk below creates an interactive ternary plot using `plot_ly()`.
+
+```{r}
+plot_ly(
+  agpop_mutated,
+  a = ~YOUNG_PROP,
+  b = ~ACTIVE_PROP,
+  c = ~OLD_PROP,
+  type = "scatterternary",
+  mode = "markers",
+  marker = list(size = 6,
+                color = "black"),
+  text = ~paste("Year:", Year,
+                "<br>Young:", round(YOUNG_PROP * 100, 1), "%",
+                "<br>Economically Active:", round(ACTIVE_PROP * 100, 1), "%",
+                "<br>Old:", round(OLD_PROP * 100, 1), "%"),
+  hoverinfo = "text"
+) %>%
+  layout(
+    annotations = label("Population Structure, 2018"),
+    ternary = ternaryAxes
+  )
+```
+
+What can we learn from the code chunk above?
+
+1.  `type = "scatterternary"` tells Plotly to build a ternary scatterplot.
+2.  `a`, `b` and `c` are used instead of the usual `x` and `y` aesthetics.
+3.  `mode = "markers"` displays the observations as points.
+4.  `marker` controls the size and colour of the plotted points.
+5.  `text` defines the information that appears when the user hovers over a point.
+6.  `layout()` adds the annotation label and ternary axis settings.
+
+This interactive version is more useful for exploration because the exact composition can be inspected using the hover tooltip.
+
+------------------------------------------------------------------------
+
+# Summary of ternary plot methods
+
+To summarise, ternary plots were used to visualise three-part compositional data.
+
+The data preparation step is important because ternary plots require three related measures. In this exercise, the original population dataset was reshaped and transformed into three age-structure measures: young, economically active and old. These measures were then converted into proportions so that they could be interpreted as parts of a whole.
+
+The `ggtern()` method provides a convenient way to create static ternary plots using a syntax that is similar to `ggplot2`. This makes it suitable for presentation and reporting when the main objective is to show the overall structure clearly.
+
+The `plot_ly()` method provides an interactive alternative. This is useful when users need to hover over points and inspect the underlying values in more detail.
+
+Overall, ternary plots are useful when the purpose of the analysis is to compare the relative composition of three components at the same time.
+
+------------------------------------------------------------------------
+
+# Visual Multivariate Analysis with Heatmaps
+
+For this part of the exercise, we will be exploring heatmaps as a method for visualising and analysing multivariate data. In this exercise, the World Happiness 2018 dataset will be used to show how heatmaps can reveal patterns across countries and indicators through colour intensity, clustering and interactive exploration.
+
+The following R packages will be used:
+
+-   `readr`: importing csv into R
+-   `dplyr`: selecting and preparing variables for analysis
+-   `seriation`: improving the ordering of rows and columns in heatmaps
+-   `dendextend`: supporting dendrogram analysis and cluster exploration
+-   `heatmaply`: creating interactive heatmaps
+-   `knitr`: used in building a static HTML table
+-   `tidyverse`: R packages for modern data science and visual communication
+
+The code block below checks that the above packages are installed and loaded into the R working environment.
+
+```{r, warning=FALSE, message=FALSE}
+pacman::p_load(seriation, dendextend, heatmaply, tidyverse, knitr)
+```
+
+The next code block imports the CSV file for this exercise:
+
+```{r}
+wh <- read_csv("../data/WHData-2018.csv")
+```
+
+From the code chunk above:
+
+1.  `read_csv()` is used to import the World Happiness 2018 data into R.
+2.  The imported dataset is saved as a tibble data frame called `wh`.
+3.  This dataset will be prepared into a numerical matrix before it can be used for heatmap visualisation.
+
+------------------------------------------------------------------------
+
+# Understanding heatmaps
+
+A heatmap is a visualisation method that represents values through colour intensity. When it is applied to a tabular dataset, variables are usually placed along the columns while observations are placed along the rows. Each cell is coloured based on the magnitude of its value.
+
+Heatmaps are useful for multivariate data analysis because they allow many values to be compared at the same time. Instead of reading individual numbers from a table, we can use colour patterns to identify whether observations are similar, whether variables behave similarly and whether there are any visible clusters.
+
+There are three main reasons why heatmaps are useful:
+
+1.  They help to reveal patterns across many variables and observations.
+2.  They allow observations and variables to be compared visually.
+3.  They can be combined with clustering to identify groups with similar profiles.
+
+In this hands-on exercise, the following methods will be explored:
+
+-   preparing the World Happiness 2018 dataset for heatmap visualisation
+-   transforming a data frame into a matrix
+-   creating static heatmaps using the base R `heatmap()` function
+-   creating interactive heatmaps using `heatmaply()`
+-   applying scaling, normalising and percentising methods
+-   comparing manual and statistical clustering approaches
+-   improving row and column ordering using seriation
+-   customising heatmap colours, labels and layout
+
+------------------------------------------------------------------------
+
+# Importing and preparing the data
+
+Before creating a heatmap, the dataset must be prepared carefully. A heatmap usually requires a numerical matrix. This means that non-numerical columns, such as country names, should not be included in the matrix values. However, country names can still be used as row labels.
+
+## Setting country names as row labels
+
+The code chunk below converts the imported tibble into a data frame and sets the country name as the row label.
+
+```{r}
+wh <- as.data.frame(wh)
+
+row.names(wh) <- wh$Country
+```
+
+From the code chunk above:
+
+-   `as.data.frame()` converts the imported tibble into a base R data frame.
+-   `row.names()` replaces the default row numbers with country names.
+-   This makes the heatmap easier to interpret because each row can be identified by country.
+
+## Selecting the variables for heatmap analysis
+
+The code chunk below selects the variables needed for heatmap visualisation.
+
+```{r}
+wh1 <- dplyr::select(wh, c(3, 7:12))
+```
+
+From the code chunk above:
+
+1.  `dplyr::select()` is used to choose the relevant numerical variables.
+2.  The selected columns are saved as a new data frame called `wh1`.
+3.  These variables represent the main World Happiness score and related indicators.
+
+The code chunk below displays the first few rows of the prepared data.
+
+```{r}
+knitr::kable(head(wh1), format = "html")
+```
+
+This table is useful because it allows us to inspect the selected variables before transforming them into a matrix.
+
+## Transforming the data frame into a matrix
+
+The data is currently stored as a data frame. However, the heatmap functions used in this exercise require the input data to be in matrix format.
+
+The code chunk below transforms the selected data frame into a matrix.
+
+```{r}
+wh_matrix <- data.matrix(wh1)
+```
+
+From the code chunk above:
+
+-   `data.matrix()` converts the selected numerical data into matrix format.
+-   The output matrix is saved as `wh_matrix`.
+-   The row names are retained as country names.
+
+------------------------------------------------------------------------
+
+# Creating static heatmaps with base R
+
+There are many R functions and packages that can be used to create static heatmaps. Some common examples include:
+
+-   `heatmap()` from base R stats
+-   `heatmap.2()` from the `gplots` package
+-   `pheatmap()` from the `pheatmap` package
+-   `ComplexHeatmap` from Bioconductor
+-   `superheat` for exploring complex datasets
+
+In this section, the base R `heatmap()` function will be used to create static heatmaps.
+
+## Plotting a basic heatmap without clustering
+
+The code chunk below creates a basic heatmap without row and column dendrograms.
+
+```{r}
+wh_heatmap <- heatmap(wh_matrix,
+                      Rowv = NA,
+                      Colv = NA)
+```
+
+From the code chunk above:
+
+1.  `heatmap()` is used to create the static heatmap.
+2.  `Rowv = NA` removes row clustering.
+3.  `Colv = NA` removes column clustering.
+
+This produces a heatmap that follows the original row and column order of the matrix. It is useful when we want to inspect the raw layout of the data before applying any clustering.
+
+## Plotting a clustered heatmap
+
+By default, `heatmap()` produces a clustered heatmap. This means that the rows and columns are reordered based on similarity.
+
+The code chunk below creates a clustered heatmap using the default settings.
+
+```{r}
+wh_heatmap <- heatmap(wh_matrix)
+```
+
+From the generated heatmap, there are 2 things to note:
+
+1.  The rows and columns are reordered based on clustering.
+2.  Dendrograms are shown to indicate the similarity structure between rows and columns.
+
+A clustered heatmap is useful because it helps to identify groups of countries and indicators that have similar patterns.
+
+## Scaling the heatmap by column
+
+When variables are measured on different scales, some variables may dominate the heatmap. For example, one variable may have much larger values than another variable. This makes it difficult to compare patterns across variables.
+
+To address this issue, the data can be scaled by column.
+
+The code chunk below normalises the matrix column-wise.
+
+```{r}
+wh_heatmap <- heatmap(wh_matrix,
+                      scale = "column",
+                      cexRow = 0.6,
+                      cexCol = 0.8,
+                      margins = c(10, 4))
+```
+
+What can we learn from this makeover?
+
+1.  `scale = "column"` standardises the variables by column.
+2.  `cexRow = 0.6` reduces the font size of the row labels.
+3.  `cexCol = 0.8` adjusts the font size of the column labels.
+4.  `margins = c(10, 4)` gives more space for the axis labels.
+
+This version is more useful for comparing variables because the values are placed on a more comparable scale.
+
+------------------------------------------------------------------------
+
+# Creating interactive heatmaps with `heatmaply`
+
+Static heatmaps are useful for reporting. However, interactive heatmaps are more useful for exploration because users can hover over cells, inspect values and interact with the visualisation.
+
+In this section, the `heatmaply` package will be used to create interactive heatmaps.
+
+## Building a basic interactive heatmap
+
+The code chunk below creates a basic interactive heatmap using `heatmaply()`.
+
+```{r}
+heatmaply(wh_matrix)
+```
+
+Studying both the code chunk and the interactive heatmap that is generated, there are 3 things to note:
+
+1.  `heatmaply()` automatically creates an interactive heatmap.
+2.  Row labels are placed on the right side of the heatmap by default.
+3.  The dendrograms help to show how observations and variables are clustered.
+
+This interactive heatmap allows users to inspect cell values more closely by hovering over the visualisation.
+
+------------------------------------------------------------------------
+
+# Data transformation for heatmaps
+
+When analysing multivariate data, it is common for variables to be measured on different scales. For example, one variable may range from 0 to 1, while another variable may use a different numerical range.
+
+If the values are not transformed, variables with larger numerical ranges may dominate the heatmap. Therefore, transformation is important before interpreting multivariate patterns.
+
+In this section, three transformation methods will be explored:
+
+-   scaling
+-   normalising
+-   percentising
+
+## Scaling method
+
+Scaling is suitable when the variables are assumed to come from distributions that can be compared using standardised values. It subtracts the mean and divides by the standard deviation.
+
+The code chunk below scales the variable values column-wise.
+
+```{r}
+heatmaply(wh_matrix,
+          scale = "column")
+```
+
+From the code chunk above:
+
+1.  `scale = "column"` applies scaling to each variable.
+2.  Each value is interpreted relative to its column mean and standard deviation.
+3.  This makes variables more comparable across columns.
+
+## Normalising method
+
+Normalising is useful when the variables have different ranges and do not necessarily follow a normal distribution. It brings the values into a 0 to 1 scale.
+
+The code chunk below applies the normalising method before plotting the heatmap.
+
+```{r}
+heatmaply(normalize(wh_matrix))
+```
+
+From the code chunk above:
+
+-   `normalize()` rescales the values into a comparable range.
+-   The original shape of the distribution is still preserved.
+-   This is useful when the goal is to compare relative patterns across variables.
+
+## Percentising method
+
+Percentising converts the values into empirical percentiles. This is similar to ranking, but the values are expressed as the proportion of observations that fall at or below a given value.
+
+The code chunk below applies the percentising method before plotting the heatmap.
+
+```{r}
+heatmaply(percentize(wh_matrix))
+```
+
+From the code chunk above:
+
+1.  `percentize()` converts the values into empirical percentile values.
+2.  Each value becomes easier to interpret as a relative position.
+3.  This is useful when we want to compare each country against the distribution of all countries.
+
+------------------------------------------------------------------------
+
+# Working with clustering algorithms
+
+Clustering helps to group similar observations and variables together. In heatmap analysis, clustering is often used to reorder the rows and columns so that patterns become easier to identify.
+
+The `heatmaply()` function supports different distance measures and hierarchical clustering methods.
+
+Some important arguments include:
+
+-   `dist_method`: specifies the method used to measure dissimilarity
+-   `hclust_method`: specifies the hierarchical clustering method
+-   `k_row`: specifies the number of row clusters to show
+
+## Manual approach
+
+In the manual approach, the distance measure and clustering method are selected by the analyst.
+
+The code chunk below creates a heatmap using Euclidean distance and Ward's method.
+
+```{r}
+heatmaply(normalize(wh_matrix),
+          dist_method = "euclidean",
+          hclust_method = "ward.D")
+```
+
+From the code chunk above:
+
+1.  `dist_method = "euclidean"` calculates dissimilarity using Euclidean distance.
+2.  `hclust_method = "ward.D"` applies Ward's hierarchical clustering method.
+3.  `normalize(wh_matrix)` ensures that the values are comparable before clustering.
+
+This approach is useful when the analyst already has a suitable clustering method in mind.
+
+## Statistical approach
+
+Instead of choosing the clustering method manually, we can use statistical support to compare clustering methods.
+
+The code chunk below computes the distance matrix for the normalised World Happiness data.
+
+```{r}
+wh_d <- dist(normalize(wh_matrix),
+             method = "euclidean")
+```
+
+The next code chunk uses `dend_expend()` to compare clustering methods.
+
+```{r}
+dend_expend(wh_d)[[3]]
+```
+
+From the output table:
+
+-   different hierarchical clustering methods are compared
+-   the `optim` value is used to assess the quality of each method
+-   the method with the higher optimum value is usually preferred
+
+The next code chunk uses the average linkage method to create a hierarchical clustering object.
+
+```{r}
+wh_clust <- hclust(wh_d,
+                   method = "average")
+```
+
+After deciding on the clustering method, the next step is to determine the number of clusters.
+
+```{r}
+num_k <- find_k(wh_clust)
+
+plot(num_k)
+```
+
+From the plot generated, we can inspect the suggested number of clusters. If the result suggests that three clusters are suitable, this can be reflected in the heatmap.
+
+The code chunk below creates the interactive heatmap using the statistical clustering results.
+
+```{r}
+heatmaply(normalize(wh_matrix),
+          dist_method = "euclidean",
+          hclust_method = "average",
+          k_row = 3)
+```
+
+What can we learn from the statistical approach?
+
+1.  The distance matrix is computed first.
+2.  Different clustering methods are compared using `dend_expend()`.
+3.  `find_k()` helps to identify a suitable number of clusters.
+4.  The selected clustering method and number of clusters are then used in `heatmaply()`.
+
+------------------------------------------------------------------------
+
+# Improving row and column ordering with seriation
+
+One issue with hierarchical clustering is that the dendrogram does not always produce a unique row order. Branches of the dendrogram can be rotated without changing the clustering structure. However, different rotations can make the heatmap easier or harder to interpret.
+
+Seriation helps to find a better ordering of rows and columns so that similar observations are placed closer together.
+
+## Applying Optimal Leaf Ordering
+
+The code chunk below applies Optimal Leaf Ordering to the heatmap.
+
+```{r}
+heatmaply(normalize(wh_matrix),
+          seriate = "OLO")
+```
+
+From the code chunk above:
+
+-   `seriate = "OLO"` applies Optimal Leaf Ordering.
+-   The ordering is chosen to reduce dissimilarity between adjacent leaves.
+-   This can make the heatmap pattern easier to read.
+
+## Applying Gruvaeus and Wainer ordering
+
+The code chunk below applies the Gruvaeus and Wainer method.
+
+```{r}
+heatmaply(normalize(wh_matrix),
+          seriate = "GW")
+```
+
+This method aims to improve ordering in a similar way to Optimal Leaf Ordering, but it uses a different algorithm.
+
+## Applying mean ordering
+
+The code chunk below applies mean ordering.
+
+```{r}
+heatmaply(normalize(wh_matrix),
+          seriate = "mean")
+```
+
+From the code chunk above:
+
+-   `seriate = "mean"` orders the values based on their mean.
+-   This provides an alternative ordering approach.
+-   It may be useful when we want a simpler ordering rule.
+
+## Turning seriation off
+
+The code chunk below turns off seriation.
+
+```{r}
+heatmaply(normalize(wh_matrix),
+          seriate = "none")
+```
+
+From the code chunk above:
+
+-   `seriate = "none"` removes seriation-based ordering.
+-   This allows us to compare the effect of seriation against the non-seriated heatmap.
+-   It is useful for checking how much the ordering method changes the visual pattern.
+
+------------------------------------------------------------------------
+
+# Working with colour palettes
+
+The default colour palette used by `heatmaply()` is visually effective. However, different colour palettes can be used to improve visual clarity or match a reporting style.
+
+The code chunk below applies the Blues colour palette to the heatmap.
+
+```{r}
+heatmaply(normalize(wh_matrix),
+          seriate = "none",
+          colors = Blues)
+```
+
+What can we learn from this makeover?
+
+1.  `colors = Blues` changes the colour palette of the heatmap.
+2.  `seriate = "none"` keeps the ordering from seriation turned off.
+3.  The colour palette affects how strongly differences between values are perceived.
+
+When choosing colours for heatmaps, it is important to ensure that the palette supports interpretation rather than distracting from the data pattern.
+
+------------------------------------------------------------------------
+
+# Finishing the interactive heatmap
+
+The final heatmap can be improved by adjusting the number of row clusters, margins, font sizes, title and axis labels.
+
+The code chunk below creates a more presentation-ready interactive heatmap.
+
+```{r}
+heatmaply(normalize(wh_matrix),
+          Colv = NA,
+          seriate = "none",
+          colors = Blues,
+          k_row = 5,
+          margins = c(NA, 200, 60, NA),
+          fontsize_row = 4,
+          fontsize_col = 5,
+          main = "World Happiness Score and Variables by Country, 2018 \n Data Transformation using Normalise Method",
+          xlab = "World Happiness Indicators",
+          ylab = "World Countries")
+```
+
+From the code chunk above:
+
+1.  `Colv = NA` removes column clustering.
+2.  `k_row = 5` groups the rows into five clusters.
+3.  `margins = c(NA, 200, 60, NA)` gives more space for the heatmap labels.
+4.  `fontsize_row = 4` adjusts the country label size.
+5.  `fontsize_col = 5` adjusts the indicator label size.
+6.  `main` adds the heatmap title.
+7.  `xlab` and `ylab` add the axis labels.
+
+This final version is more suitable for presentation because it has clearer labels, controlled clustering and a more readable layout.
+
+------------------------------------------------------------------------
+
+# Summary of heatmap methods
+
+What are the key takeaways from this? 
+
+The base R `heatmap()` method provides a simple way to create static heatmaps. It is useful for quick exploration, especially when checking the effect of clustering and scaling. However, it is less suitable when users need to inspect individual cell values interactively.
+
+The `heatmaply()` method provides an interactive alternative that supports hovering, clustering, transformation and customisation. It is useful when the objective is to explore multivariate patterns in more detail.
+
+The transformation step is important because the variables in a multivariate dataset may be measured on different scales. Scaling, normalising and percentising help to make the values more comparable before clustering and visual interpretation.
+
+The clustering and seriation steps help to improve the structure of the heatmap. Clustering groups similar countries together, while seriation improves the ordering of rows and columns so that patterns are easier to detect.
+
+Overall, heatmaps are useful because they combine table-like structure with visual encoding. This makes them effective for identifying patterns, similarities and clusters across many observations and variables at the same time.
+
+
+------------------------------------------------------------------------
+
+# Visual Multivariate Analysis with Parallel Coordinate Plots
+
+For this second last part of the exercise, we will be exploring visual multivariate analysis with the use of parallel coordinates plots. In this exercise, the World Happiness 2018 dataset will be used to understand how multiple numerical variables can be compared together in a single visualisation.
+
+The following R packages will be used:
+
+-   `readr`: importing csv into R
+-   `dplyr`: preparing and selecting variables from the data
+-   `ggplot2`: supporting additional visual customisation for static plots
+-   `GGally`: creating static parallel coordinates plots with `ggparcoord()`
+-   `parallelPlot`: creating interactive parallel coordinates plots
+-   `tidyverse`: R packages for modern data science and visual communication
+
+The code block below checks that the above packages are installed and loaded into the R working environment.
+
+```{r, warning=FALSE, message=FALSE}
+pacman::p_load(GGally, parallelPlot, tidyverse)
+```
+
+The next code block imports the CSV file for this exercise:
+
+```{r}
+wh <- read_csv("../data/WHData-2018.csv")
+```
+
+From the code chunk above:
+
+1.  `read_csv()` is used to import the World Happiness 2018 data into R.
+2.  The imported dataset is saved as a tibble data frame called `wh`.
+3.  This dataset will be used to visualise how different happiness-related variables vary across countries and regions.
+
+------------------------------------------------------------------------
+
+# Understanding parallel coordinates plot
+
+A parallel coordinates plot is used to visualise multivariate numerical data. Instead of using only one x-axis and one y-axis, each variable is represented as a vertical axis. Each observation is then shown as a line that passes through the value of each variable.
+
+This makes the plot useful when we want to compare several numerical variables at the same time. For example, in the World Happiness dataset, a country can be compared based on happiness score, GDP per capita, social support, healthy life expectancy, freedom, generosity and perceptions of corruption.
+
+There are three important things to note when reading a parallel coordinates plot:
+
+1.  Each vertical axis represents one numerical variable.
+2.  Each line represents one observation, such as one country.
+3.  Similar line patterns may suggest similar multivariate profiles.
+
+Parallel coordinates plots are especially useful for exploratory analysis. They are less suitable for communicating a simple message to a general audience, but they are useful when we want to detect multivariate patterns, compare groups or identify clusters.
+
+In this hands-on exercise, the following methods will be explored:
+
+-   plotting a basic static parallel coordinates plot using `ggparcoord()`
+-   adding grouping, scaling and boxplots to improve interpretation
+-   faceting the plot by region
+-   rotating and adjusting axis labels
+-   plotting interactive parallel coordinates plots using `parallelPlot()`
+-   changing the colour scheme and adding histograms to the interactive plot
+
+------------------------------------------------------------------------
+
+# Plotting static parallel coordinates plot
+
+In this section, static parallel coordinates plots will be created by using the `ggparcoord()` function from the `GGally` package.
+
+The `ggparcoord()` function is designed to work with multivariate numerical data. It allows multiple variables to be displayed together, making it easier to compare the overall profile of observations.
+
+## Plotting a basic parallel coordinates plot
+
+The code chunk below creates a basic static parallel coordinates plot using the selected World Happiness variables.
+
+```{r}
+ggparcoord(data = wh,
+           columns = c(7:12))
+```
+
+Studying both the code chunk and the plot that is generated, there are 2 things to note:
+
+1.  `data = wh` tells R to use the World Happiness dataset.
+2.  `columns = c(7:12)` selects the numerical variables that will be shown as the parallel axes.
+
+Although this basic plot shows the structure of the data, it is difficult to interpret because the lines overlap heavily. The variables may also be measured on different scales, which makes direct comparison harder.
+
+## Aesthetic makeover #1: adding grouping, scaling and boxplot
+
+The basic plot can be improved by adding grouping, scaling, transparency and boxplots. This makes it easier to compare patterns across regions.
+
+The code chunk below shows how this is done:
+
+```{r}
+ggparcoord(data = wh,
+           columns = c(7:12),
+           groupColumn = 2,
+           scale = "uniminmax",
+           alphaLines = 0.2,
+           boxplot = TRUE,
+           title = "Parallel Coordinates Plot of World Happiness Variables")
+```
+
+What can we learn from this makeover?
+
+1.  `groupColumn = 2` colours the lines based on the second column in the dataset, which represents the region.
+2.  `scale = "uniminmax"` rescales each selected variable so that its minimum value becomes 0 and its maximum value becomes 1.
+3.  `alphaLines = 0.2` reduces the opacity of the lines so that overlapping lines are less visually overwhelming.
+4.  `boxplot = TRUE` adds boxplots to each variable axis.
+5.  `title` adds a descriptive title to the plot.
+
+The scaling step is important because parallel coordinates plots compare multiple variables on the same visual space. Without scaling, variables with larger numerical ranges may dominate the visual interpretation.
+
+## Aesthetic makeover #2: creating small multiples by region
+
+Since `ggparcoord()` extends the `ggplot2` framework, it can be combined with other `ggplot2` functions. One useful option is to use `facet_wrap()` to create one plot for each region.
+
+The code chunk below creates multiple parallel coordinates plots by region.
+
+```{r}
+ggparcoord(data = wh,
+           columns = c(7:12),
+           groupColumn = 2,
+           scale = "uniminmax",
+           alphaLines = 0.2,
+           boxplot = TRUE,
+           title = "Multiple Parallel Coordinates Plots of World Happiness Variables by Region") +
+  facet_wrap(~ Region)
+```
+
+From the code chunk above:
+
+-   `facet_wrap(~ Region)` creates one small multiple plot for each geographical region.
+-   This allows the multivariate pattern of countries to be compared within each region.
+-   It also reduces the problem of having too many lines in a single plot.
+
+This version is useful when the goal is to compare regional patterns. However, some of the x-axis labels may overlap because the variable names are long.
+
+## Aesthetic makeover #3: rotating x-axis text labels
+
+To improve readability, the x-axis labels can be rotated by using the `theme()` function from `ggplot2`.
+
+The code chunk below rotates the x-axis labels by 30 degrees.
+
+```{r}
+ggparcoord(data = wh,
+           columns = c(7:12),
+           groupColumn = 2,
+           scale = "uniminmax",
+           alphaLines = 0.2,
+           boxplot = TRUE,
+           title = "Multiple Parallel Coordinates Plots of World Happiness Variables by Region") +
+  facet_wrap(~ Region) +
+  theme(axis.text.x = element_text(angle = 30))
+```
+
+What is added into the code chunk above that improves the visuals of the plot?
+
+1.  `theme()` is used to customise the appearance of the plot.
+2.  `axis.text.x` refers specifically to the x-axis text labels.
+3.  `element_text(angle = 30)` rotates the labels by 30 degrees.
+
+This makes the variable names easier to read, especially when the plot contains several long axis labels.
+
+## Aesthetic makeover #4: adjusting rotated x-axis text labels
+
+Rotating the x-axis labels improves readability, but the labels may still overlap with the plot area. This can be improved by adjusting the horizontal justification of the text.
+
+The code chunk below rotates and adjusts the x-axis labels.
+
+```{r}
+ggparcoord(data = wh,
+           columns = c(7:12),
+           groupColumn = 2,
+           scale = "uniminmax",
+           alphaLines = 0.2,
+           boxplot = TRUE,
+           title = "Multiple Parallel Coordinates Plots of World Happiness Variables by Region") +
+  facet_wrap(~ Region) +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+
+From the code chunk above:
+
+-   `angle = 30` rotates the labels.
+-   `hjust = 1` adjusts the horizontal position of the labels.
+-   The combination helps to reduce overlap between the text labels and the plot area.
+
+This final static version is more readable because it combines scaling, grouping, faceting and axis label adjustment.
+
+------------------------------------------------------------------------
+
+# Plotting interactive parallel coordinates plot
+
+Static parallel coordinates plots are useful for reporting, but interactive parallel coordinates plots are useful for exploration. With interactivity, users can hover, click and inspect multivariate patterns more closely.
+
+In this section, the `parallelPlot()` function from the `parallelPlot` package will be used to create interactive parallel coordinates plots.
+
+Before building the interactive plot, the dataset is prepared by selecting the happiness score and the selected numerical explanatory variables.
+
+```{r}
+wh_parallel <- wh %>%
+  select("Happiness score", c(7:12))
+```
+
+From the code chunk above:
+
+1.  `select()` is used to keep only the variables needed for the interactive parallel coordinates plot.
+2.  `"Happiness score"` is included as one of the axes.
+3.  `c(7:12)` selects the happiness-related explanatory variables.
+4.  The prepared data is saved as `wh_parallel`.
+
+## Building a basic interactive parallel coordinates plot
+
+The code chunk below creates a basic interactive parallel coordinates plot.
+
+```{r}
+parallelPlot(wh_parallel,
+             width = 320,
+             height = 250)
+```
+
+Studying the code chunk above:
+
+-   `parallelPlot()` is used to create the interactive parallel coordinates plot.
+-   `width` controls the width of the html widget.
+-   `height` controls the height of the html widget.
+
+This plot allows users to interact with the parallel coordinates display. However, some of the axis labels may still be difficult to read because they are long.
+
+## Rotating the axis labels
+
+The code chunk below rotates the axis labels by using the `rotateTitle` argument.
+
+```{r}
+parallelPlot(wh_parallel,
+             rotateTitle = TRUE)
+```
+
+From the code chunk above:
+
+1.  `rotateTitle = TRUE` rotates the axis titles.
+2.  This helps to reduce overlap between the variable names.
+3.  The plot becomes easier to use when the variables have longer labels.
+
+One useful interactive feature of `parallelPlot()` is that a user can click on a variable axis. Once a variable is selected, the line colour changes according to the values of that variable. This makes it easier to inspect how high and low values flow across the other axes.
+
+## Changing the colour scheme
+
+The default colour scheme can be changed by using the `continuousCS` argument. This is useful when we want the colour gradient to better support the interpretation of high and low values.
+
+The code chunk below changes the continuous colour scheme.
+
+```{r}
+parallelPlot(wh_parallel,
+             continuousCS = "YlOrRd",
+             rotateTitle = TRUE)
+```
+
+What can we learn from this makeover?
+
+1.  `continuousCS = "YlOrRd"` changes the continuous colour scale to a yellow-orange-red palette.
+2.  `rotateTitle = TRUE` keeps the axis labels readable.
+3.  The colour gradient helps to highlight the selected variable more clearly when the plot is explored interactively.
+
+## Adding histograms to the parallel coordinates plot
+
+Another useful feature of `parallelPlot()` is the ability to show histograms along the axes. This helps users understand the distribution of values for each variable.
+
+The code chunk below creates a logical vector to turn on histogram visibility for all variables.
+
+```{r}
+histoVisibility <- rep(TRUE, ncol(wh_parallel))
+```
+
+The code chunk below adds histograms to the interactive parallel coordinates plot.
+
+```{r}
+parallelPlot(wh_parallel,
+             rotateTitle = TRUE,
+             histoVisibility = histoVisibility)
+```
+
+From the code chunk above:
+
+-   `rep(TRUE, ncol(wh_parallel))` creates a vector of `TRUE` values for all columns in the selected dataset.
+-   `histoVisibility = histoVisibility` turns on the histogram display for all selected variables.
+-   The histograms help to show the distribution of values along each variable axis.
+
+This interactive version is useful because it combines multivariate comparison with distribution information.
+
+------------------------------------------------------------------------
+
+# Summary of parallel coordinates plot methods
+
+If you find it too wordy, here are the key takeaways:
+
+The static `ggparcoord()` method provides a way to compare multiple variables across many observations. The basic version gives a quick overview of the selected variables, while the improved version adds grouping, scaling, transparency and boxplots. These additions make the plot more interpretable.
+
+Faceting with `facet_wrap()` allows the plot to be split by region. This makes regional comparison easier because each region is displayed as its own small multiple. Rotating and adjusting the x-axis labels also improves readability when the variable names are long.
+
+The interactive `parallelPlot()` method provides an exploratory alternative. Users can interact with the plot, select variables, change colour emphasis and inspect the distribution of variables using histograms.
+
+Overall, parallel coordinates plots are useful when the objective is to compare several numerical variables together and identify multivariate patterns across observations.
+
+------------------------------------------------------------------------
+
+# Treemap Visualisation
+
+In this last part of the hands-on exercise, we will be exploring treemap visualisation as part of using multivariate data to represent hierarchy, size and colour in a compact visual form. In this exercise, private residential property transaction records will be prepared and visualised using static and interactive treemap methods.
+
+The following R packages will be used:
+
+-   `readr`: importing csv into R
+-   `dplyr`: preparing and summarising transaction-level data
+-   `ggplot2`: building treemap visualisations using the grammar of graphics
+-   `treemap`: creating static treemaps with hierarchical structure
+-   `treemapify`: creating treemaps using `ggplot2` syntax
+-   `d3treeR`: creating interactive treemaps
+-   `knitr`: used in building a static HTML table
+-   `tidyverse`: R packages for modern data science and visual communication
+
+The code block below checks that the above packages are installed and loaded into the R working environment.
+
+```{r, warning=FALSE, message=FALSE}
+pacman::p_load(treemap, treemapify, tidyverse, knitr)
+```
+
+Since `d3treeR` is not always available from CRAN, the code chunk below can be used to install it from GitHub when needed.
+
+```{r, eval=FALSE}
+install.packages("devtools")
+devtools::install_github("timelyportfolio/d3treeR")
+```
+
+The next code block imports the CSV file for this exercise:
+
+```{r}
+realis2018 <- read_csv("../data/realis2018.csv")
+```
+
+From the code chunk above:
+
+1.  `read_csv()` is used to import the private residential property transaction records into R.
+2.  The imported tibble data frame is saved as `realis2018`.
+3.  The dataset is still in transaction-level form, therefore further data wrangling is needed before it can be used for treemap visualisation.
+
+------------------------------------------------------------------------
+
+# Understanding treemap visualisation
+
+A treemap is a data visualisation method that represents hierarchical data using nested rectangles. Each rectangle represents a category, and the size of the rectangle is usually mapped to a numerical variable.
+
+In this exercise, treemaps will be used to visualise private residential property transactions. The hierarchy will be organised using planning region, planning area and project name.
+
+There are three key ideas in a treemap:
+
+1.  The hierarchy controls how rectangles are nested.
+2.  The size of each rectangle represents a selected numerical measure.
+3.  The colour of each rectangle can represent either a category or another numerical measure.
+
+Treemaps are useful when the dataset contains many categories and the objective is to compare their relative size. However, they must be designed carefully because colour, hierarchy and size can affect how the viewer interprets the chart.
+
+In this hands-on exercise, the following methods will be explored:
+
+-   preparing transaction records into a summarised treemap structure
+-   creating static treemaps with the `treemap` package
+-   using `vSize`, `vColor` and `type` arguments correctly
+-   adjusting colour palettes for numerical values
+-   changing treemap layout algorithms
+-   designing treemaps with `treemapify`
+-   creating an interactive treemap using `d3treeR`
+
+------------------------------------------------------------------------
+
+# Data wrangling for treemap visualisation
+
+The original dataset is highly disaggregated because each row represents a property transaction. This format is useful for detailed transaction analysis, but it is not directly suitable for a treemap.
+
+Before plotting the treemap, the data must be summarised into meaningful groups.
+
+In this exercise, the transaction records will be grouped by:
+
+-   `Project Name`
+-   `Planning Region`
+-   `Planning Area`
+-   `Property Type`
+-   `Type of Sale`
+
+The following summary measures will then be calculated:
+
+-   total number of units sold
+-   total area sold
+-   median unit price
+-   median transacted price
+
+## Grouped summaries without using the pipe
+
+The code chunk below shows how grouped summaries can be created without using the pipe operator.
+
+```{r}
+realis2018_grouped <- group_by(realis2018,
+                               `Project Name`,
+                               `Planning Region`,
+                               `Planning Area`,
+                               `Property Type`,
+                               `Type of Sale`)
+
+realis2018_summarised <- summarise(realis2018_grouped,
+                                   `Total Unit Sold` = sum(`No. of Units`, na.rm = TRUE),
+                                   `Total Area` = sum(`Area (sqm)`, na.rm = TRUE),
+                                   `Median Unit Price ($ psm)` = median(`Unit Price ($ psm)`, na.rm = TRUE),
+                                   `Median Transacted Price` = median(`Transacted Price ($)`, na.rm = TRUE),
+                                   .groups = "drop")
+```
+
+From the code chunk above:
+
+1.  `group_by()` is used to group the transaction records by project and geographic hierarchy.
+2.  `summarise()` is used to calculate the summary measures for each group.
+3.  `sum()` is used to calculate the total number of units sold and total area.
+4.  `median()` is used to calculate the median unit price and median transacted price.
+5.  `na.rm = TRUE` removes missing values before the calculations are performed.
+
+Although this method works, it requires intermediate data frames to be created. This can make the workflow longer than necessary.
+
+## Grouped summaries with the pipe
+
+The code chunk below performs the same data wrangling steps using the pipe operator.
+
+```{r}
+realis2018_summarised <- realis2018 %>%
+  group_by(`Project Name`,
+           `Planning Region`,
+           `Planning Area`,
+           `Property Type`,
+           `Type of Sale`) %>%
+  summarise(`Total Unit Sold` = sum(`No. of Units`, na.rm = TRUE),
+            `Total Area` = sum(`Area (sqm)`, na.rm = TRUE),
+            `Median Unit Price ($ psm)` = median(`Unit Price ($ psm)`, na.rm = TRUE),
+            `Median Transacted Price` = median(`Transacted Price ($)`, na.rm = TRUE),
+            .groups = "drop")
+```
+
+What can we learn from the code chunk above?
+
+1.  The pipe operator `%>%` makes the workflow easier to read from top to bottom.
+2.  The dataset is grouped first, then summarised.
+3.  The output is saved as `realis2018_summarised`.
+4.  The final data frame is more suitable for treemap visualisation because each row now represents a summarised group rather than a single transaction.
+
+The code chunk below displays the first few rows of the summarised data.
+
+```{r}
+knitr::kable(head(realis2018_summarised), format = "html")
+```
+
+This table is useful because it allows us to check whether the data has been grouped and summarised correctly before plotting.
+
+------------------------------------------------------------------------
+
+# Designing treemap with the `treemap` package
+
+The `treemap` package is designed specifically for creating treemaps in R. It provides several arguments that control the hierarchy, rectangle size, colour mapping and layout.
+
+In this section, the treemap will focus on resale condominium transactions.
+
+The code chunk below filters the summarised data to keep only resale condominium records.
+
+```{r}
+realis2018_selected <- realis2018_summarised %>%
+  filter(`Property Type` == "Condominium",
+         `Type of Sale` == "Resale")
+```
+
+From the code chunk above:
+
+-   `filter()` is used to keep only condominium transactions.
+-   `filter()` is also used to keep only resale transactions.
+-   The filtered data frame is saved as `realis2018_selected`.
+
+## Building a basic treemap
+
+The code chunk below creates a basic treemap using the `treemap()` function.
+
+```{r}
+treemap(realis2018_selected,
+        index = c("Planning Region", "Planning Area", "Project Name"),
+        vSize = "Total Unit Sold",
+        vColor = "Median Unit Price ($ psm)",
+        title = "Resale Condominium by Planning Region and Area, 2018",
+        title.legend = "Median Unit Price (S$ per sq. m)")
+```
+
+Studying both the code chunk and the treemap that is generated, there are 3 things to note:
+
+1.  `index` defines the hierarchy used in the treemap.
+2.  `vSize` maps the size of each rectangle to `Total Unit Sold`.
+3.  `vColor` identifies the variable that can be used for colouring the rectangles.
+
+However, the colour mapping in the basic treemap may not represent median unit price correctly. This is because the `type` argument has not been defined. When `type` is not stated, the function may colour the rectangles based on the hierarchy instead of the numerical variable.
+
+## Working with `vColor` and `type`
+
+To ensure that the rectangle colours represent the numerical values in `vColor`, the `type` argument should be specified.
+
+The code chunk below uses `type = "value"`.
+
+```{r}
+treemap(realis2018_selected,
+        index = c("Planning Region", "Planning Area", "Project Name"),
+        vSize = "Total Unit Sold",
+        vColor = "Median Unit Price ($ psm)",
+        type = "value",
+        title = "Resale Condominium by Planning Region and Area, 2018",
+        title.legend = "Median Unit Price (S$ per sq. m)")
+```
+
+What can we learn from this makeover?
+
+1.  `type = "value"` tells the function to colour the rectangles based on the numerical values in `vColor`.
+2.  Higher and lower median unit prices are shown using different colour intensities.
+3.  The legend now becomes meaningful because it describes the range of median unit prices.
+
+This version is more appropriate when the purpose of the treemap is to compare both the number of units sold and the median unit price.
+
+------------------------------------------------------------------------
+
+# Working with colours in `treemap`
+
+Colour selection is important in treemap design because colour is used to encode an additional variable. In this exercise, colour is used to represent median unit price.
+
+The `treemap()` function provides different colour mapping types. Two common types are:
+
+-   `"value"`
+-   `"manual"`
+
+The `"value"` type treats the palette as a diverging scale. This is useful when the variable has meaningful positive and negative values. The `"manual"` type maps the data range more directly to the colour palette.
+
+## The value type treemap
+
+The code chunk below creates a value type treemap using the `RdYlBu` palette.
+
+```{r}
+treemap(realis2018_selected,
+        index = c("Planning Region", "Planning Area", "Project Name"),
+        vSize = "Total Unit Sold",
+        vColor = "Median Unit Price ($ psm)",
+        type = "value",
+        palette = "RdYlBu",
+        title = "Resale Condominium by Planning Region and Area, 2018",
+        title.legend = "Median Unit Price (S$ per sq. m)")
+```
+
+From the code chunk above:
+
+-   `palette = "RdYlBu"` applies a diverging colour palette.
+-   `type = "value"` maps median unit price to colour.
+-   Since median unit price is always positive, one side of the diverging palette may not be fully used.
+
+This is useful to note because a diverging palette is usually more suitable when the data has a meaningful centre, such as zero.
+
+## The manual type treemap
+
+The code chunk below creates a manual type treemap using the same diverging palette.
+
+```{r}
+treemap(realis2018_selected,
+        index = c("Planning Region", "Planning Area", "Project Name"),
+        vSize = "Total Unit Sold",
+        vColor = "Median Unit Price ($ psm)",
+        type = "manual",
+        palette = "RdYlBu",
+        title = "Resale Condominium by Planning Region and Area, 2018",
+        title.legend = "Median Unit Price (S$ per sq. m)")
+```
+
+What can we learn from the code chunk above?
+
+1.  `type = "manual"` maps the data range more directly to the chosen palette.
+2.  A diverging palette may become confusing when the variable is only positive.
+3.  This is because viewers may interpret opposite colours as having opposite meanings, even when the data does not contain negative values.
+
+To avoid this issue, a sequential palette can be used instead.
+
+The code chunk below uses the `Blues` palette.
+
+```{r}
+treemap(realis2018_selected,
+        index = c("Planning Region", "Planning Area", "Project Name"),
+        vSize = "Total Unit Sold",
+        vColor = "Median Unit Price ($ psm)",
+        type = "manual",
+        palette = "Blues",
+        title = "Resale Condominium by Planning Region and Area, 2018",
+        title.legend = "Median Unit Price (S$ per sq. m)")
+```
+
+From the code chunk above:
+
+-   `palette = "Blues"` applies a sequential colour palette.
+-   Sequential palettes are more suitable when the variable moves from low to high.
+-   This makes the treemap easier to interpret because darker and lighter shades represent different price levels.
+
+------------------------------------------------------------------------
+
+# Working with treemap layout
+
+The layout of a treemap controls how the rectangles are arranged. The `treemap()` function supports different layout algorithms.
+
+Two common layout algorithms are:
+
+-   `"squarified"`
+-   `"pivotSize"`
+
+The `"squarified"` algorithm attempts to create rectangles with better aspect ratios. This means that the rectangles are less likely to become too long or too narrow.
+
+The `"pivotSize"` algorithm also considers the ordering of rectangles. This can be useful when the placement of rectangles matters for interpretation.
+
+## Using the squarified algorithm
+
+The code chunk below creates a treemap using the squarified algorithm.
+
+```{r}
+treemap(realis2018_selected,
+        index = c("Planning Region", "Planning Area", "Project Name"),
+        vSize = "Total Unit Sold",
+        vColor = "Median Unit Price ($ psm)",
+        type = "manual",
+        palette = "Blues",
+        algorithm = "squarified",
+        title = "Resale Condominium by Planning Region and Area, 2018",
+        title.legend = "Median Unit Price (S$ per sq. m)")
+```
+
+What can we learn from this makeover?
+
+1.  `algorithm = "squarified"` changes the rectangle placement method.
+2.  The layout is designed to produce rectangles with more balanced shapes.
+3.  This can improve readability when there are many small categories.
+
+## Using `sortID` with pivot size layout
+
+When the `"pivotSize"` algorithm is used, the `sortID` argument can be used to determine how the rectangles are ordered.
+
+The code chunk below uses median transacted price to sort the treemap rectangles.
+
+```{r}
+treemap(realis2018_selected,
+        index = c("Planning Region", "Planning Area", "Project Name"),
+        vSize = "Total Unit Sold",
+        vColor = "Median Unit Price ($ psm)",
+        type = "manual",
+        palette = "Blues",
+        algorithm = "pivotSize",
+        sortID = "Median Transacted Price",
+        title = "Resale Condominium by Planning Region and Area, 2018",
+        title.legend = "Median Unit Price (S$ per sq. m)")
+```
+
+From the code chunk above:
+
+-   `algorithm = "pivotSize"` uses the pivot size layout.
+-   `sortID = "Median Transacted Price"` controls the ordering of the rectangles.
+-   This allows the treemap to be arranged based on another numerical measure.
+
+This is useful when we want the position of rectangles to reflect a meaningful ordering instead of only the hierarchy.
+
+------------------------------------------------------------------------
+
+# Designing treemap using `treemapify`
+
+The `treemapify` package allows treemaps to be created using `ggplot2` syntax. This is useful because it fits naturally into the grammar of graphics workflow.
+
+In `treemapify`, the rectangle size is mapped using the `area` aesthetic, while colour is mapped using the `fill` aesthetic.
+
+## Designing a basic treemap
+
+The code chunk below creates a basic treemap using `treemapify`.
+
+```{r}
+ggplot(data = realis2018_selected,
+       aes(area = `Total Unit Sold`,
+           fill = `Median Unit Price ($ psm)`),
+       layout = "scol",
+       start = "bottomleft") +
+  geom_treemap() +
+  scale_fill_gradient(low = "light blue", high = "blue") +
+  labs(title = "Resale Condominium Transactions, 2018",
+       fill = "Median Unit Price")
+```
+
+From the code chunk above:
+
+1.  `area = Total Unit Sold` maps rectangle size to total units sold.
+2.  `fill = Median Unit Price ($ psm)` maps colour to median unit price.
+3.  `geom_treemap()` draws the treemap rectangles.
+4.  `scale_fill_gradient()` applies a colour gradient from light blue to blue.
+
+This method is useful when we want to design a treemap using familiar `ggplot2` functions.
+
+## Defining hierarchy by planning region
+
+The code chunk below adds a hierarchy by grouping the treemap using planning region.
+
+```{r}
+ggplot(data = realis2018_selected,
+       aes(area = `Total Unit Sold`,
+           fill = `Median Unit Price ($ psm)`,
+           subgroup = `Planning Region`),
+       start = "topleft") +
+  geom_treemap() +
+  labs(title = "Resale Condominium by Planning Region, 2018",
+       fill = "Median Unit Price")
+```
+
+What can we learn from the code chunk above?
+
+1.  `subgroup = Planning Region` creates a higher-level grouping in the treemap.
+2.  The treemap still uses total units sold to determine rectangle size.
+3.  The treemap still uses median unit price to determine colour.
+
+## Defining hierarchy by planning region and planning area
+
+The code chunk below adds a second level of hierarchy using planning area.
+
+```{r}
+ggplot(data = realis2018_selected,
+       aes(area = `Total Unit Sold`,
+           fill = `Median Unit Price ($ psm)`,
+           subgroup = `Planning Region`,
+           subgroup2 = `Planning Area`)) +
+  geom_treemap() +
+  labs(title = "Resale Condominium by Planning Region and Planning Area, 2018",
+       fill = "Median Unit Price")
+```
+
+From the code chunk above:
+
+-   `subgroup` is used for the planning region.
+-   `subgroup2` is used for the planning area.
+-   This creates a more detailed hierarchy within the treemap.
+
+## Adding boundary lines
+
+When a treemap has multiple hierarchy levels, boundary lines can help distinguish between groups.
+
+The code chunk below adds boundary lines for planning region and planning area.
+
+```{r}
+ggplot(data = realis2018_selected,
+       aes(area = `Total Unit Sold`,
+           fill = `Median Unit Price ($ psm)`,
+           subgroup = `Planning Region`,
+           subgroup2 = `Planning Area`)) +
+  geom_treemap() +
+  geom_treemap_subgroup2_border(colour = "gray40",
+                                size = 2) +
+  geom_treemap_subgroup_border(colour = "gray20") +
+  labs(title = "Resale Condominium Treemap with Hierarchical Boundaries, 2018",
+       fill = "Median Unit Price")
+```
+
+What is added into the code chunk above that improves the visuals of the treemap?
+
+1.  `geom_treemap_subgroup2_border()` adds boundary lines for the second hierarchy level.
+2.  `geom_treemap_subgroup_border()` adds boundary lines for the first hierarchy level.
+3.  The boundaries make the hierarchy clearer and improve interpretability.
+
+------------------------------------------------------------------------
+
+# Designing interactive treemap using `d3treeR`
+
+Static treemaps are useful for reports, but interactive treemaps are useful when the viewer needs to explore the hierarchy more closely.
+
+The `d3treeR` package can be used to convert a treemap object into an interactive treemap.
+
+## Creating a treemap object
+
+The code chunk below creates a treemap object and saves it as `tm`.
+
+```{r}
+tm <- treemap(realis2018_summarised,
+              index = c("Planning Region", "Planning Area"),
+              vSize = "Total Unit Sold",
+              vColor = "Median Unit Price ($ psm)",
+              type = "value",
+              title = "Private Residential Property Sold, 2018",
+              title.legend = "Median Unit Price (S$ per sq. m)")
+```
+
+From the code chunk above:
+
+1.  The hierarchy is defined by planning region and planning area.
+2.  The rectangle size is mapped to total units sold.
+3.  The rectangle colour is mapped to median unit price.
+4.  The treemap output is saved as `tm`.
+
+## Creating an interactive treemap
+
+The code chunk below uses `d3tree()` to create an interactive treemap.
+
+```{r}
+if (requireNamespace("d3treeR", quietly = TRUE)) {
+  library(d3treeR)
+  d3tree(tm, rootname = "Singapore")
+} else {
+  message("The d3treeR package is not installed. Run the installation code above before creating the interactive treemap.")
+}
+```
+
+From the code chunk above:
+
+-   `requireNamespace()` checks whether `d3treeR` is installed.
+-   `library(d3treeR)` loads the package when it is available.
+-   `d3tree()` converts the treemap object into an interactive treemap.
+-   `rootname = "Singapore"` defines the root label of the hierarchy.
+
+This interactive version is useful because the viewer can explore the hierarchy more directly.
+
+------------------------------------------------------------------------
+
+# Summary of treemap visualisation methods
+
+So, what can we learn from this part of the exercise?
+
+The data wrangling section showed why transaction-level data must be summarised before plotting a treemap. The use of `group_by()` and `summarise()` allowed the transaction records to be converted into a structure where each row represents a meaningful group.
+
+The `treemap()` method provides a flexible way to build static treemaps. It allows the user to control hierarchy with `index`, rectangle size with `vSize`, colour with `vColor` and colour mapping with `type`.
+
+The colour section highlighted why the choice of palette matters. Diverging palettes are more suitable when the values have a meaningful centre, while sequential palettes are more appropriate when the values move from low to high.
+
+The `treemapify` method provides a `ggplot2`-style approach to treemap design. This makes it easier to use familiar grammar of graphics syntax, especially when adding hierarchy and boundary lines.
+
+Finally, the `d3treeR` method provides an interactive treemap option. This is useful when users need to explore nested categories rather than only view a static summary.
+
+Overall, treemaps are useful when the goal is to show hierarchical structure, relative size and an additional numerical variable within a compact visualisation.

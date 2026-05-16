@@ -36,42 +36,42 @@ Here are the most recently uploaded exercises.
 <div class="latest-grid">
 
 <div class="card-link">
-<a href="hands-on/exercise4.html" style="text-decoration:none; color:inherit;">
+<a href="hands-on/exercise5.html" style="text-decoration:none; color:inherit;">
 <div class="latest-card">
 
 ### Hands-On Exercise
 
-**Latest:** Exercise 4
+**Latest:** Exercise 5
 
-This exercise covers the fundamentals of visual analytics, in the area of comparisons, distributions, statistical analysis, and uncertainty.
+This exercise explores visual multivariate analysis, using different plots and visualisation with different R packages.
 
 </div>
 </a>
 </div>
 
 <div class="card-link">
-<a href="https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExercise3b_17777067088260/PopulationPyramidofSingaporebyPlanningArea2025?publish=yes" style="text-decoration:none; color:inherit;">
+<a href="https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExericse4b/FoodServiceKPIReport?publish=yes" style="text-decoration:none; color:inherit;">
 <div class="latest-card">
 
 ### In-Class Exercise
 
-**Latest:** Exercise 2B
+**Latest:** Exercise 3B
 
-This exercise shows the visual distribution done via Tableau on the population pyramid for Singapore.
+This exercise explores the use of a stacked bar chart for a food service KPI report in Tableau.
 
 </div>
 </a>
 </div>
 
 <div class="card-link">
-<a href="assignments/assign1.html" style="text-decoration:none; color:inherit;">
+<a href="take-home-1/technical-report.html" style="text-decoration:none; color:inherit;">
 <div class="latest-card">
 
-### Assignments
+### Take-Home Exercise
 
-**Latest:** Assignment 1
+**Latest:** Take-Home Exercise 1
 
-Yet to begin!
+Please wait until Next Sunday!
 
 </div>
 </a>

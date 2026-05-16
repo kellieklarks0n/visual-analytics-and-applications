@@ -8,6 +8,18 @@ title: "Hands-On Exercises"
 
 <div class="exercise-list">
 
+<a href="hands-on/exercise5.html" class="exercise-link">
+<div class="exercise-card">
+
+### Exercise 5
+
+<div class="exercise-meta">Published on 11 May 2026</div>
+
+This exercise explores visual multivariate analysis with ternary plot, treemap visualisation, visual correlation analysis and doing multivariate analysis with both heatmap and parallel coordinates plot.
+
+</div>
+</a>
+
 <a href="hands-on/exercise4.html" class="exercise-link">
 <div class="exercise-card">
 

@@ -4,48 +4,82 @@ format: html
 editor: visual
 ---
 
-<div class="section-header">
-  <p>This section contains the in-class exercises completed for the module.</p>
-</div>
+::: section-header
+<p>This section contains the in-class exercises completed for the module.</p>
+:::
 
-<div class="exercise-list">
+:::::::::: exercise-list
+<a href="https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExericse4b/FoodServiceKPIReport?publish=yes" class="exercise-link">
 
-<a href="https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExercise3b_17777067088260/PopulationPyramidofSingaporebyPlanningArea2025?publish=yes" class="exercise-link">
-<div class="exercise-card">
+:::: exercise-card
+### Exercise 3B
 
-### Exercise 2B
+::: exercise-meta
+Published on 8 May 2026
+:::
 
-<div class="exercise-meta">Published on 2 May 2026</div>
+This exercise showcases the use of a stacked bar chart for a food service KPI report in Tableau.
+::::
 
-This exercise focuses on creating a population pyramid in Tableau, using the population of Singapore as an example.
-
-</div>
 </a>
 
-<div class="exercise-list">
+:::::::::: exercise-list
+<a href="https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExericse4a/ExamDataofPrimary3Students?publish=yes" class="exercise-link">
 
+:::: exercise-card
+### Exercise 3A
+
+::: exercise-meta
+Published on 8 May 2026
+:::
+
+This exercise shows distributions of an exam data of Primary 3 students, using boxplots and histograms via Tableau.
+::::
+
+</a>
+
+:::::::::: exercise-list
+<a href="https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExercise3b_17777067088260/PopulationPyramidofSingaporebyPlanningArea2025?publish=yes" class="exercise-link">
+
+:::: exercise-card
+### Exercise 2B
+
+::: exercise-meta
+Published on 2 May 2026
+:::
+
+This exercise focuses on creating a population pyramid in Tableau, using the population of Singapore as an example.
+::::
+
+</a>
+
+::::::: exercise-list
 <a href="https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExercise3_17777053254330/SuperstoreSalesandProfitReport?publish=yes" class="exercise-link">
-<div class="exercise-card">
 
+:::: exercise-card
 ### Exercise 2A
 
-<div class="exercise-meta">Published on 2 May 2026</div>
+::: exercise-meta
+Published on 2 May 2026
+:::
 
 This exercise focuses on Tableau, in the area of interactive and animated data visualisation.
+::::
 
-</div>
 </a>
 
 <a href="https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExercise1_17772813239940/Dashboard1?publish=yes" class="exercise-link">
-<div class="exercise-card">
 
+:::: exercise-card
 ### Exercise 1
 
-<div class="exercise-meta">Published on 25 April 2026</div>
+::: exercise-meta
+Published on 25 April 2026
+:::
 
 This introductory exercise exposes the basic use of Tableau and its elementary functions.
+::::
 
-</div>
 </a>
-
-</div>
+:::::::
+::::::::::
