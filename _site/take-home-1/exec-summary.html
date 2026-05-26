@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.37">
+
+  <title>exec-summary</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/reveal.css">
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto-0427d8d92a431aa6a6430e53ec02a470.css">
+  <link href="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+  <link href="../site_libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+
+  <script src="../site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+
+  <link href="../site_libs/ggiraphjs-0.9.4/girafe.css" rel="stylesheet">
+
+  <script src="../site_libs/ggiraphjs-0.9.4/girafe.js"></script>
+
+  <script src="../site_libs/girafe-binding-0.9.6/girafe.js"></script>
+
+  <link href="../site_libs/liberation-sans-0.5.0/css/liberation-sans.css" rel="stylesheet">
+
+  <link href="../site_libs/liberation-serif-0.5.0/css/liberation-serif.css" rel="stylesheet">
+
+  <link href="../site_libs/liberation-mono-0.5.0/css/liberation-mono.css" rel="stylesheet">
+
+  <script src="../site_libs/plotly-binding-4.12.0/plotly.js"></script>
+
+  <script src="../site_libs/typedarray-0.1/typedarray.min.js"></script>
+
+  <script src="../site_libs/jquery-3.5.1/jquery.min.js"></script>
+
+  <link href="../site_libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet">
+
+  <script src="../site_libs/crosstalk-1.2.2/js/crosstalk.min.js"></script>
+
+  <link href="../site_libs/plotly-htmlwidgets-css-2.25.2/plotly-htmlwidgets.css" rel="stylesheet">
+
+  <script src="../site_libs/plotly-main-2.25.2/plotly-latest.min.js"></script>
+
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+
+<section id="executive-summary-motor-insurance-portfolio-performance" class="slide level2 center">
+<h2>Executive Summary: Motor Insurance Portfolio Performance</h2>
+<div class="subtitle">
+<p>Visual analytics of profitability and claims volatility, 2022 to 2024</p>
+</div>
+<div class="metric-grid">
+<div class="metric-card">
+<div class="value">
+<p>354K</p>
+</div>
+<div class="label">
+<p>policy-year records</p>
+</div>
+</div>
+<div class="metric-card">
+<div class="value">
+<p>70.3%</p>
+</div>
+<div class="label">
+<p>overall loss ratio</p>
+</div>
+</div>
+<div class="metric-card">
+<div class="value">
+<p>2022 to 2024</p>
+</div>
+<div class="label">
+<p>analysis period</p>
+</div>
+</div>
+</div>
+<p><br></p>
+<p><strong>Prepared by:</strong> Kelvin Andikko<br>
+<strong>Module:</strong> ISSS608 - Visual Analytics &amp; Applications</p>
+<aside class="notes">
+<p>This executive summary presents the main findings from the motor insurance portfolio analysis. The purpose is to help management understand where profitability is weakening, which segments show higher claims volatility, and how visual analytics can support portfolio monitoring. I will focus on business implications rather than code-level detail.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<style>
+.reveal .slide h2 {
+  font-size: 1.25em;
+  font-weight: 700;
+}
+.reveal .subtitle {
+  color: #555555;
+  font-size: 0.72em;
+  margin-top: -0.4em;
+}
+.reveal .metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.7rem;
+  margin-top: 0.8rem;
+}
+.reveal .metric-card {
+  border: 1px solid #dddddd;
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+  background: #fafafa;
+}
+.reveal .metric-card .value {
+  font-size: 1.25em;
+  font-weight: 700;
+  color: #222222;
+}
+.reveal .metric-card .label {
+  font-size: 0.58em;
+  color: #666666;
+}
+.reveal .takeaway {
+  border-left: 5px solid #555555;
+  padding: 0.5rem 0.9rem;
+  background: #f7f7f7;
+  font-size: 0.74em;
+}
+.reveal .small-list li {
+  font-size: 0.72em;
+  margin-bottom: 0.25rem;
+}
+</style>
+</section>
+<section id="contents" class="slide level2">
+<h2>Contents</h2>
+<div class="columns">
+<div class="column" style="width:48%;">
+<ol type="1">
+<li>Portfolio movement<br>
+</li>
+<li>Profitability trend<br>
+</li>
+<li>Premium and claims distribution<br>
+</li>
+<li>Claim cost composition<br>
+</li>
+<li>Policy-level profitability drivers</li>
+</ol>
+</div><div class="column" style="width:48%;">
+<ol start="6" type="1">
+<li>Status and payment behaviour<br>
+</li>
+<li>Multivariate risk segmentation<br>
+</li>
+<li>Statistical and uncertainty-aware validation<br>
+</li>
+<li>Management implications<br>
+</li>
+<li>Recommended monitoring approach</li>
+</ol>
+</div></div>
+<aside class="notes">
+<p>The presentation follows a management decision flow. I first establish how the portfolio changed over time, then move into profitability and claims volatility. After that, I use segment-level visuals to show where underperformance is concentrated, before concluding with implications for pricing, underwriting, claims management, and portfolio monitoring.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="portfolio-growth-created-a-larger-risk-base" class="slide level2">
+<h2>1. Portfolio growth created a larger risk base</h2>
+<div class="columns">
+<div class="column" style="width:65%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="exec-summary_files/figure-revealjs/portfolio-overview-slide-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:35%;">
+<div class="takeaway">
+<p>The portfolio expanded strongly across the three-year observation period, but incurred claims also grew materially. This means growth needs to be assessed together with profitability, not in isolation.</p>
+</div>
+<ul class="small-list">
+<li>
+Policy count increased sharply by 2024.
+</li>
+<li>
+Premium increased with portfolio size.
+</li>
+<li>
+Incurred claims also increased, creating profitability pressure.
+</li>
+</ul>
+</div></div>
+<aside class="notes">
+<p>The portfolio expanded substantially from 2022 to 2024. Policy count, exposure, premium, and incurred claims all increased. This is positive from a business growth perspective, but growth alone does not confirm profitability. The key concern is whether premium growth was sufficient to absorb the increase in incurred claims. This motivates the next slide, where loss ratio is used as the main profitability indicator.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="profitability-weakened-in-2024" class="slide level2">
+<h2>2. Profitability weakened in 2024</h2>
+<div class="columns">
+<div class="column" style="width:67%;">
+<div class="cell">
+<div class="cell-output-display">
+<div class="girafe html-widget html-fill-item" id="htmlwidget-0daba89975c6aec888db" style="width:100%;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-0daba89975c6aec888db">{"x":{"html":"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' class='ggiraph-svg' role='graphics-document' id='svg_b4cb5c52077631f5' viewBox='0 0 662.4 374.4'>\n <defs id='svg_b4cb5c52077631f5_defs'>\n  <clipPath id='svg_b4cb5c52077631f5_c1'>\n   <rect x='0' y='0' width='662.4' height='374.4'/>\n  <\/clipPath>\n  <clipPath id='svg_b4cb5c52077631f5_c2'>\n   <rect x='53.61' y='54.68' width='590.86' height='282.06'/>\n  <\/clipPath>\n <\/defs>\n <g id='svg_b4cb5c52077631f5_rootg' class='ggiraph-svg-rootg'>\n  <g clip-path='url(#svg_b4cb5c52077631f5_c1)'>\n   <rect x='0' y='0' width='662.4' height='374.4' fill='#FFFFFF' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' class='ggiraph-svg-bg'/>\n   <rect x='0' y='-0' width='662.4' height='374.4' fill='#FFFFFF' fill-opacity='1' stroke='none'/>\n  <\/g>\n  <g clip-path='url(#svg_b4cb5c52077631f5_c2)'>\n   <polyline points='53.61,323.92 644.47,323.92' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='53.61,265.64 644.47,265.64' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='53.61,207.36 644.47,207.36' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='53.61,149.09 644.47,149.09' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='53.61,90.81 644.47,90.81' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='80.47,336.74 80.47,54.68' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='349.04,336.74 349.04,54.68' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='617.61,336.74 617.61,54.68' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <line x1='53.61' y1='90.81' x2='644.47' y2='90.81' stroke='#666666' stroke-opacity='1' stroke-width='1.16' stroke-dasharray='4,4' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline id='svg_b4cb5c52077631f5_e1' points='80.47,170.94 349.04,169.00 617.61,149.87' fill='none' stroke='#000000' stroke-opacity='1' stroke-width='2.13' stroke-linejoin='round' stroke-linecap='butt' title='Year: 2022&amp;lt;br&amp;gt;Premium: $18,697,928&amp;lt;br&amp;gt;Incurred: $12,270,105&amp;lt;br&amp;gt;Loss ratio: 65.6%&amp;lt;br&amp;gt;Claim frequency: 0.302' data-id='2022'/>\n   <circle id='svg_b4cb5c52077631f5_e2' cx='80.47' cy='170.94' r='3.49pt' fill='#000000' fill-opacity='1' stroke='#000000' stroke-opacity='1' stroke-width='0.77' stroke-linejoin='round' stroke-linecap='round' title='Year: 2022&amp;lt;br&amp;gt;Premium: $18,697,928&amp;lt;br&amp;gt;Incurred: $12,270,105&amp;lt;br&amp;gt;Loss ratio: 65.6%&amp;lt;br&amp;gt;Claim frequency: 0.302' data-id='2022'/>\n   <circle id='svg_b4cb5c52077631f5_e3' cx='349.04' cy='169' r='3.49pt' fill='#000000' fill-opacity='1' stroke='#000000' stroke-opacity='1' stroke-width='0.77' stroke-linejoin='round' stroke-linecap='round' title='Year: 2023&amp;lt;br&amp;gt;Premium: $35,344,308&amp;lt;br&amp;gt;Incurred: $23,488,354&amp;lt;br&amp;gt;Loss ratio: 66.5%&amp;lt;br&amp;gt;Claim frequency: 0.305' data-id='2023'/>\n   <circle id='svg_b4cb5c52077631f5_e4' cx='617.61' cy='149.87' r='3.49pt' fill='#000000' fill-opacity='1' stroke='#000000' stroke-opacity='1' stroke-width='0.77' stroke-linejoin='round' stroke-linecap='round' title='Year: 2024&amp;lt;br&amp;gt;Premium: $51,037,433&amp;lt;br&amp;gt;Incurred: $38,106,351&amp;lt;br&amp;gt;Loss ratio: 74.7%&amp;lt;br&amp;gt;Claim frequency: 0.312' data-id='2024'/>\n  <\/g>\n  <g clip-path='url(#svg_b4cb5c52077631f5_c1)'>\n   <text x='34.37' y='327.21' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>0%<\/text>\n   <text x='29.04' y='268.94' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>25%<\/text>\n   <text x='29.04' y='210.66' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>50%<\/text>\n   <text x='29.04' y='152.38' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>75%<\/text>\n   <text x='23.7' y='94.11' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>100%<\/text>\n   <text x='69.8' y='348.71' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>2022<\/text>\n   <text x='338.37' y='348.71' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>2023<\/text>\n   <text x='606.94' y='348.71' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>2024<\/text>\n   <text x='336.36' y='361.95' font-size='9pt' font-weight='bold' font-family='Liberation Sans'>Year<\/text>\n   <text transform='translate(18.22,224.38) rotate(-90.00)' font-size='9pt' font-weight='bold' font-family='Liberation Sans'>Loss ratio<\/text>\n   <text x='53.61' y='32.48' font-size='7.92pt' font-family='Liberation Sans'>The dashed line represents a 100% underwriting break-even point before<\/text>\n   <text x='53.61' y='44.52' font-size='7.92pt' font-family='Liberation Sans'>expenses.<\/text>\n   <text x='53.61' y='18.62' font-size='9.45pt' font-weight='bold' font-family='Liberation Sans'>Loss ratio increased in 2024<\/text>\n  <\/g>\n <\/g>\n<\/svg>","js":null,"uid":"svg_b4cb5c52077631f5","ratio":1.769230769230769,"settings":{"tooltip":{"css":".tooltip_SVGID_ { background-color: rgba(255, 255, 255, 0.88);\n        color: black;\n        border: 1px solid rgba(80, 80, 80, 0.35);\n        border-radius: 4px;\n        padding: 6px;\n        font-size: 12px; ; position:absolute;pointer-events:none;z-index:9999;}","placement":"doc","opacity":0.9,"offx":10,"offy":10,"use_cursor_pos":true,"use_fill":false,"use_stroke":false,"delay_over":200,"delay_out":500},"hover":{"css":".hover_data_SVGID_ { fill:orange;stroke:black;cursor:pointer; }\ntext.hover_data_SVGID_ { stroke:none;fill:orange; }\ncircle.hover_data_SVGID_ { fill:orange;stroke:black; }\nline.hover_data_SVGID_, polyline.hover_data_SVGID_ { fill:none;stroke:orange; }\nrect.hover_data_SVGID_, polygon.hover_data_SVGID_, path.hover_data_SVGID_ { fill:orange;stroke:none; }\nimage.hover_data_SVGID_ { stroke:orange; }","reactive":true,"nearest_distance":null,"linked":false},"hover_inv":{"css":""},"hover_key":{"css":".hover_key_SVGID_ { fill:orange;stroke:black;cursor:pointer; }\ntext.hover_key_SVGID_ { stroke:none;fill:orange; }\ncircle.hover_key_SVGID_ { fill:orange;stroke:black; }\nline.hover_key_SVGID_, polyline.hover_key_SVGID_ { fill:none;stroke:orange; }\nrect.hover_key_SVGID_, polygon.hover_key_SVGID_, path.hover_key_SVGID_ { fill:orange;stroke:none; }\nimage.hover_key_SVGID_ { stroke:orange; }","reactive":true},"hover_theme":{"css":".hover_theme_SVGID_ { fill:orange;stroke:black;cursor:pointer; }\ntext.hover_theme_SVGID_ { stroke:none;fill:orange; }\ncircle.hover_theme_SVGID_ { fill:orange;stroke:black; }\nline.hover_theme_SVGID_, polyline.hover_theme_SVGID_ { fill:none;stroke:orange; }\nrect.hover_theme_SVGID_, polygon.hover_theme_SVGID_, path.hover_theme_SVGID_ { fill:orange;stroke:none; }\nimage.hover_theme_SVGID_ { stroke:orange; }","reactive":true},"select":{"css":".select_data_SVGID_ { fill:red;stroke:black;cursor:pointer; }\ntext.select_data_SVGID_ { stroke:none;fill:red; }\ncircle.select_data_SVGID_ { fill:red;stroke:black; }\nline.select_data_SVGID_, polyline.select_data_SVGID_ { fill:none;stroke:red; }\nrect.select_data_SVGID_, polygon.select_data_SVGID_, path.select_data_SVGID_ { fill:red;stroke:none; }\nimage.select_data_SVGID_ { stroke:red; }","type":"multiple","only_shiny":true,"selected":[],"linked":false},"select_inv":{"css":""},"select_key":{"css":".select_key_SVGID_ { fill:red;stroke:black;cursor:pointer; }\ntext.select_key_SVGID_ { stroke:none;fill:red; }\ncircle.select_key_SVGID_ { fill:red;stroke:black; }\nline.select_key_SVGID_, polyline.select_key_SVGID_ { fill:none;stroke:red; }\nrect.select_key_SVGID_, polygon.select_key_SVGID_, path.select_key_SVGID_ { fill:red;stroke:none; }\nimage.select_key_SVGID_ { stroke:red; }","type":"single","only_shiny":true,"selected":[]},"select_theme":{"css":".select_theme_SVGID_ { fill:red;stroke:black;cursor:pointer; }\ntext.select_theme_SVGID_ { stroke:none;fill:red; }\ncircle.select_theme_SVGID_ { fill:red;stroke:black; }\nline.select_theme_SVGID_, polyline.select_theme_SVGID_ { fill:none;stroke:red; }\nrect.select_theme_SVGID_, polygon.select_theme_SVGID_, path.select_theme_SVGID_ { fill:red;stroke:none; }\nimage.select_theme_SVGID_ { stroke:red; }","type":"single","only_shiny":true,"selected":[]},"zoom":{"min":1,"max":1,"duration":300,"default_on":false},"toolbar":{"position":"topright","pngname":"diagram","tooltips":null,"fixed":false,"hidden":[],"delay_over":200,"delay_out":500},"sizing":{"rescale":true,"width":1}}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</div><div class="column" style="width:33%;">
+<div class="metric-grid" style="grid-template-columns: 1fr;">
+<div class="metric-card">
+<div class="value">
+<p>65.6%</p>
+</div>
+<div class="label">
+<p>2022 loss ratio</p>
+</div>
+</div>
+<div class="metric-card">
+<div class="value">
+<p>66.5%</p>
+</div>
+<div class="label">
+<p>2023 loss ratio</p>
+</div>
+</div>
+<div class="metric-card">
+<div class="value">
+<p>74.7%</p>
+</div>
+<div class="label">
+<p>2024 loss ratio</p>
+</div>
+</div>
+</div>
+</div></div>
+<aside class="notes">
+<p>The portfolio remained below the 100% underwriting break-even line in all three years. However, the loss ratio increased from about 65.6% in 2022 to 74.7% in 2024. This is a meaningful deterioration because it indicates that incurred claims grew faster than premium. The management question is therefore not whether the portfolio is loss-making overall, but where the worsening performance is concentrated.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="premium-and-claims-distributions-are-uneven" class="slide level2">
+<h2>3. Premium and claims distributions are uneven</h2>
+<div class="columns">
+<div class="column" style="width:67%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="exec-summary_files/figure-revealjs/distribution-slide-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:33%;">
+<div class="takeaway">
+<p>The portfolio has many low-premium policies and a smaller number of positive incurred claim records with potentially high costs.</p>
+</div>
+<ul class="small-list">
+<li>
+Median premium is lower than mean premium.
+</li>
+<li>
+Most policies have no incurred claims.
+</li>
+<li>
+Positive incurred amounts are highly skewed.
+</li>
+</ul>
+</div></div>
+<aside class="notes">
+<p>The premium distribution is right-skewed, with most policies concentrated in lower premium ranges. Incurred claims are even more uneven. Many policy-year records have no incurred claim, while positive incurred claims show a long-tailed distribution. This pattern is typical of insurance portfolios and explains why the analysis separates claim frequency from claim severity instead of relying only on average incurred amounts.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="claims-cost-is-concentrated-in-liability-and-property-components" class="slide level2">
+<h2>4. Claims cost is concentrated in liability and property components</h2>
+<div class="columns">
+<div class="column" style="width:68%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="exec-summary_files/figure-revealjs/claim-composition-slide-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:32%;">
+<div class="takeaway">
+<p>Claims management attention should be concentrated where most incurred cost is generated.</p>
+</div>
+<ul class="small-list">
+<li>
+Liability injury and liability property are major contributors.
+</li>
+<li>
+Property incurred is also material.
+</li>
+<li>
+Smaller claim types are less influential at portfolio level.
+</li>
+</ul>
+</div></div>
+<aside class="notes">
+<p>This chart shows that incurred cost is not evenly spread across claim types. Liability and property-related claims dominate total incurred amounts. From a management perspective, this helps prioritise where claim control, fraud detection, repair cost management, or pricing review should be focused. Smaller claim types are still relevant, but they have less influence on aggregate portfolio profitability.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="policy-type-is-a-major-profitability-driver" class="slide level2">
+<h2>5. Policy type is a major profitability driver</h2>
+<div class="columns">
+<div class="column" style="width:68%;">
+<div class="cell">
+<div class="cell-output-display">
+<div class="girafe html-widget html-fill-item" id="htmlwidget-60b10ff21d52d3aff950" style="width:100%;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-60b10ff21d52d3aff950">{"x":{"html":"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' class='ggiraph-svg' role='graphics-document' id='svg_0daba89975c6aec8' viewBox='0 0 662.4 381.6'>\n <defs id='svg_0daba89975c6aec8_defs'>\n  <clipPath id='svg_0daba89975c6aec8_c1'>\n   <rect x='0' y='0' width='662.4' height='381.6'/>\n  <\/clipPath>\n  <clipPath id='svg_0daba89975c6aec8_c2'>\n   <rect x='70.11' y='54.68' width='574.35' height='248.07'/>\n  <\/clipPath>\n <\/defs>\n <g id='svg_0daba89975c6aec8_rootg' class='ggiraph-svg-rootg'>\n  <g clip-path='url(#svg_0daba89975c6aec8_c1)'>\n   <rect x='0' y='0' width='662.4' height='381.6' fill='#FFFFFF' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' class='ggiraph-svg-bg'/>\n   <rect x='-0' y='-0' width='662.4' height='381.6' fill='#FFFFFF' fill-opacity='1' stroke='none'/>\n  <\/g>\n  <g clip-path='url(#svg_0daba89975c6aec8_c2)'>\n   <polyline points='70.11,274.12 644.47,274.12' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='70.11,226.42 644.47,226.42' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='70.11,178.71 644.47,178.71' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='70.11,131.01 644.47,131.01' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='70.11,83.30 644.47,83.30' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='96.22,302.75 96.22,54.68' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='220.54,302.75 220.54,54.68' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='344.86,302.75 344.86,54.68' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='469.18,302.75 469.18,54.68' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='593.50,302.75 593.50,54.68' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <line x1='445.78' y1='302.75' x2='445.78' y2='54.68' stroke='#595959' stroke-opacity='1' stroke-width='1.16' stroke-dasharray='1,3' stroke-linejoin='round' stroke-linecap='butt'/>\n   <line x1='593.5' y1='302.75' x2='593.5' y2='54.68' stroke='#737373' stroke-opacity='1' stroke-width='1.16' stroke-dasharray='4,4' stroke-linejoin='round' stroke-linecap='butt'/>\n   <circle id='svg_0daba89975c6aec8_e1' cx='411.39' cy='226.42' r='5.09pt' fill='#000000' fill-opacity='0.85' stroke='#000000' stroke-opacity='0.85' stroke-width='0.77' stroke-linejoin='round' stroke-linecap='round' title='Policy type: CC&amp;lt;br&amp;gt;Policy count: 204,636&amp;lt;br&amp;gt;Exposure: 144,235&amp;lt;br&amp;gt;Premium: $49,801,769&amp;lt;br&amp;gt;Incurred: $31,563,559&amp;lt;br&amp;gt;Loss ratio: 63.4%&amp;lt;br&amp;gt;Claim frequency: 0.221&amp;lt;br&amp;gt;Claim severity: $991' data-id='CC'/>\n   <circle id='svg_0daba89975c6aec8_e2' cx='463.37' cy='131.01' r='3.73pt' fill='#000000' fill-opacity='0.85' stroke='#000000' stroke-opacity='0.85' stroke-width='0.77' stroke-linejoin='round' stroke-linecap='round' title='Policy type: COMP_E&amp;lt;br&amp;gt;Policy count: 91,199&amp;lt;br&amp;gt;Exposure: 65,040&amp;lt;br&amp;gt;Premium: $35,712,392&amp;lt;br&amp;gt;Incurred: $26,367,076&amp;lt;br&amp;gt;Loss ratio: 73.8%&amp;lt;br&amp;gt;Claim frequency: 0.410&amp;lt;br&amp;gt;Claim severity: $988' data-id='COMP_E'/>\n   <circle id='svg_0daba89975c6aec8_e3' cx='562.96' cy='83.3' r='2.08pt' fill='#000000' fill-opacity='0.85' stroke='#000000' stroke-opacity='0.85' stroke-width='0.77' stroke-linejoin='round' stroke-linecap='round' title='Policy type: COMP_N&amp;lt;br&amp;gt;Policy count: 16,181&amp;lt;br&amp;gt;Exposure: 12,342&amp;lt;br&amp;gt;Premium: $10,344,550&amp;lt;br&amp;gt;Incurred: $9,709,281&amp;lt;br&amp;gt;Loss ratio: 93.9%&amp;lt;br&amp;gt;Claim frequency: 1.046&amp;lt;br&amp;gt;Claim severity: $752' data-id='COMP_N'/>\n   <circle id='svg_0daba89975c6aec8_e4' cx='366.15' cy='274.12' r='1.09pt' fill='#000000' fill-opacity='0.85' stroke='#000000' stroke-opacity='0.85' stroke-width='0.77' stroke-linejoin='round' stroke-linecap='round' title='Policy type: TP&amp;lt;br&amp;gt;Policy count: 5,757&amp;lt;br&amp;gt;Exposure: 3,803&amp;lt;br&amp;gt;Premium: $1,019,549&amp;lt;br&amp;gt;Incurred: $553,434&amp;lt;br&amp;gt;Loss ratio: 54.3%&amp;lt;br&amp;gt;Claim frequency: 0.133&amp;lt;br&amp;gt;Claim severity: $1,092' data-id='TP'/>\n   <circle id='svg_0daba89975c6aec8_e5' cx='440.1' cy='178.71' r='2.64pt' fill='#000000' fill-opacity='0.85' stroke='#000000' stroke-opacity='0.85' stroke-width='0.77' stroke-linejoin='round' stroke-linecap='round' title='Policy type: TPG&amp;lt;br&amp;gt;Policy count: 36,367&amp;lt;br&amp;gt;Exposure: 24,905&amp;lt;br&amp;gt;Premium: $8,201,409&amp;lt;br&amp;gt;Incurred: $5,671,461&amp;lt;br&amp;gt;Loss ratio: 69.2%&amp;lt;br&amp;gt;Claim frequency: 0.207&amp;lt;br&amp;gt;Claim severity: $1,100' data-id='TPG'/>\n  <\/g>\n  <g clip-path='url(#svg_0daba89975c6aec8_c1)'>\n   <text x='52.48' y='277.42' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>TP<\/text>\n   <text x='50.88' y='229.72' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>CC<\/text>\n   <text x='45.02' y='182.01' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>TPG<\/text>\n   <text x='24.23' y='134.3' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>COMP_E<\/text>\n   <text x='23.7' y='86.6' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>COMP_N<\/text>\n   <text x='89.29' y='314.72' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>0%<\/text>\n   <text x='210.94' y='314.72' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>25%<\/text>\n   <text x='335.26' y='314.72' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>50%<\/text>\n   <text x='459.58' y='314.72' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>75%<\/text>\n   <text x='581.23' y='314.72' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>100%<\/text>\n   <text x='328.62' y='327.96' font-size='9pt' font-weight='bold' font-family='Liberation Sans'>Loss ratio<\/text>\n   <text transform='translate(18.22,210.39) rotate(-90.00)' font-size='9pt' font-weight='bold' font-family='Liberation Sans'>Policy type<\/text>\n   <text x='270.69' y='361.15' font-size='9pt' font-family='Liberation Sans'>Exposure<\/text>\n   <circle cx='336.02' cy='357.02' r='3.39pt' fill='#000000' fill-opacity='0.85' stroke='#000000' stroke-opacity='0.85' stroke-width='0.77' stroke-linejoin='round' stroke-linecap='round'/>\n   <circle cx='394.6' cy='357.02' r='4.4pt' fill='#000000' fill-opacity='0.85' stroke='#000000' stroke-opacity='0.85' stroke-width='0.77' stroke-linejoin='round' stroke-linecap='round'/>\n   <text x='350.64' y='360.32' font-size='7.2pt' font-family='Liberation Sans'>50,000<\/text>\n   <text x='409.21' y='360.32' font-size='7.2pt' font-family='Liberation Sans'>100,000<\/text>\n   <text x='70.11' y='32.48' font-size='7.92pt' font-family='Liberation Sans'>Point size represents exposure. Dotted line shows overall loss ratio; dashed<\/text>\n   <text x='70.11' y='44.52' font-size='7.92pt' font-family='Liberation Sans'>line shows 100% loss ratio.<\/text>\n   <text x='70.11' y='18.62' font-size='9.45pt' font-weight='bold' font-family='Liberation Sans'>Profitability differs materially across policy types<\/text>\n  <\/g>\n <\/g>\n<\/svg>","js":null,"uid":"svg_0daba89975c6aec8","ratio":1.735849056603773,"settings":{"tooltip":{"css":".tooltip_SVGID_ { background-color: rgba(255, 255, 255, 0.88);\n        color: black;\n        border: 1px solid rgba(80, 80, 80, 0.35);\n        border-radius: 4px;\n        padding: 6px;\n        font-size: 12px; ; position:absolute;pointer-events:none;z-index:9999;}","placement":"doc","opacity":0.9,"offx":10,"offy":10,"use_cursor_pos":true,"use_fill":false,"use_stroke":false,"delay_over":200,"delay_out":500},"hover":{"css":".hover_data_SVGID_ { fill:orange;stroke:black;cursor:pointer; }\ntext.hover_data_SVGID_ { stroke:none;fill:orange; }\ncircle.hover_data_SVGID_ { fill:orange;stroke:black; }\nline.hover_data_SVGID_, polyline.hover_data_SVGID_ { fill:none;stroke:orange; }\nrect.hover_data_SVGID_, polygon.hover_data_SVGID_, path.hover_data_SVGID_ { fill:orange;stroke:none; }\nimage.hover_data_SVGID_ { stroke:orange; }","reactive":true,"nearest_distance":null,"linked":false},"hover_inv":{"css":""},"hover_key":{"css":".hover_key_SVGID_ { fill:orange;stroke:black;cursor:pointer; }\ntext.hover_key_SVGID_ { stroke:none;fill:orange; }\ncircle.hover_key_SVGID_ { fill:orange;stroke:black; }\nline.hover_key_SVGID_, polyline.hover_key_SVGID_ { fill:none;stroke:orange; }\nrect.hover_key_SVGID_, polygon.hover_key_SVGID_, path.hover_key_SVGID_ { fill:orange;stroke:none; }\nimage.hover_key_SVGID_ { stroke:orange; }","reactive":true},"hover_theme":{"css":".hover_theme_SVGID_ { fill:orange;stroke:black;cursor:pointer; }\ntext.hover_theme_SVGID_ { stroke:none;fill:orange; }\ncircle.hover_theme_SVGID_ { fill:orange;stroke:black; }\nline.hover_theme_SVGID_, polyline.hover_theme_SVGID_ { fill:none;stroke:orange; }\nrect.hover_theme_SVGID_, polygon.hover_theme_SVGID_, path.hover_theme_SVGID_ { fill:orange;stroke:none; }\nimage.hover_theme_SVGID_ { stroke:orange; }","reactive":true},"select":{"css":".select_data_SVGID_ { fill:red;stroke:black;cursor:pointer; }\ntext.select_data_SVGID_ { stroke:none;fill:red; }\ncircle.select_data_SVGID_ { fill:red;stroke:black; }\nline.select_data_SVGID_, polyline.select_data_SVGID_ { fill:none;stroke:red; }\nrect.select_data_SVGID_, polygon.select_data_SVGID_, path.select_data_SVGID_ { fill:red;stroke:none; }\nimage.select_data_SVGID_ { stroke:red; }","type":"multiple","only_shiny":true,"selected":[],"linked":false},"select_inv":{"css":""},"select_key":{"css":".select_key_SVGID_ { fill:red;stroke:black;cursor:pointer; }\ntext.select_key_SVGID_ { stroke:none;fill:red; }\ncircle.select_key_SVGID_ { fill:red;stroke:black; }\nline.select_key_SVGID_, polyline.select_key_SVGID_ { fill:none;stroke:red; }\nrect.select_key_SVGID_, polygon.select_key_SVGID_, path.select_key_SVGID_ { fill:red;stroke:none; }\nimage.select_key_SVGID_ { stroke:red; }","type":"single","only_shiny":true,"selected":[]},"select_theme":{"css":".select_theme_SVGID_ { fill:red;stroke:black;cursor:pointer; }\ntext.select_theme_SVGID_ { stroke:none;fill:red; }\ncircle.select_theme_SVGID_ { fill:red;stroke:black; }\nline.select_theme_SVGID_, polyline.select_theme_SVGID_ { fill:none;stroke:red; }\nrect.select_theme_SVGID_, polygon.select_theme_SVGID_, path.select_theme_SVGID_ { fill:red;stroke:none; }\nimage.select_theme_SVGID_ { stroke:red; }","type":"single","only_shiny":true,"selected":[]},"zoom":{"min":1,"max":1,"duration":300,"default_on":false},"toolbar":{"position":"topright","pngname":"diagram","tooltips":null,"fixed":false,"hidden":[],"delay_over":200,"delay_out":500},"sizing":{"rescale":true,"width":1}}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</div><div class="column" style="width:32%;">
+<div class="takeaway">
+<p>Policy type segmentation is essential because performance differs materially across products.</p>
+</div>
+<ul class="small-list">
+<li>
+<strong>COMP_N</strong> has the weakest loss ratio, around 93.9%.
+</li>
+<li>
+<strong>COMP_E</strong> is also above the portfolio average.
+</li>
+<li>
+<strong>TP</strong> has the lowest loss ratio, around 54.3%.
+</li>
+</ul>
+</div></div>
+<aside class="notes">
+<p>Policy type is one of the clearest profitability drivers. COMP_N has the weakest loss ratio, close to 94%, while TP has the lowest loss ratio at around 54%. COMP_E is also above the portfolio average. This suggests that product-level pricing and underwriting review is necessary. It would be risky to manage the portfolio only using aggregate loss ratio because product segments behave very differently.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="cancelled-policies-are-a-high-risk-management-signal" class="slide level2">
+<h2>6. Cancelled policies are a high-risk management signal</h2>
+<div class="columns">
+<div class="column" style="width:60%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="exec-summary_files/figure-revealjs/policy-status-slide-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:40%;">
+<div class="metric-grid" style="grid-template-columns: 1fr;">
+<div class="metric-card">
+<div class="value">
+<p>64.4%</p>
+</div>
+<div class="label">
+<p>active policy loss ratio</p>
+</div>
+</div>
+<div class="metric-card">
+<div class="value">
+<p>128.0%</p>
+</div>
+<div class="label">
+<p>cancelled policy loss ratio</p>
+</div>
+</div>
+</div>
+<p><br></p>
+<div class="takeaway">
+<p>Cancellation status should be monitored as a risk indicator, although the relationship should be interpreted as association rather than causation.</p>
+</div>
+</div></div>
+<aside class="notes">
+<p>Cancelled policies have a much weaker loss ratio than active policies. The cancelled group is above 100%, which means it is loss-making before considering expenses. This does not prove that cancellation causes poor performance. It may reflect adverse behaviour, policy lifecycle effects, or timing differences. However, it is a strong operational signal that should be included in portfolio monitoring and underwriting review.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="payment-behaviour-and-bonus-score-reveal-different-risk-patterns" class="slide level2">
+<h2>7. Payment behaviour and bonus score reveal different risk patterns</h2>
+
+<img data-src="exec-summary_files/figure-revealjs/payment-bonus-slide-1.png" style="width:100.0%" class="r-stretch"><aside class="notes">
+<p>Payment frequency and bonus score help explain risk in different ways. Annual payment policies have the lowest loss ratio, while semiannual policies show a higher loss ratio and quarterly policies show higher claim frequency. Bonus score also separates risk groups, with weaker scores generally linked to higher frequency or severity. These variables are useful because they help distinguish whether poorer profitability is driven by claim occurrence, claim cost, or both.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="risk-is-concentrated-in-specific-product-history-combinations" class="slide level2">
+<h2>8. Risk is concentrated in specific product-history combinations</h2>
+<div class="columns">
+<div class="column" style="width:70%;">
+<div class="cell">
+<div class="cell-output-display">
+<div class="girafe html-widget html-fill-item" id="htmlwidget-146a92ae43f7513e4de1" style="width:100%;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-146a92ae43f7513e4de1">{"x":{"html":"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' class='ggiraph-svg' role='graphics-document' id='svg_88db60b10ff21d52' viewBox='0 0 684 388.8'>\n <defs id='svg_88db60b10ff21d52_defs'>\n  <clipPath id='svg_88db60b10ff21d52_c1'>\n   <rect x='0' y='0' width='684' height='388.8'/>\n  <\/clipPath>\n  <clipPath id='svg_88db60b10ff21d52_c2'>\n   <rect x='70.11' y='56.25' width='595.95' height='239.14'/>\n  <\/clipPath>\n <\/defs>\n <g id='svg_88db60b10ff21d52_rootg' class='ggiraph-svg-rootg'>\n  <g clip-path='url(#svg_88db60b10ff21d52_c1)'>\n   <rect x='0' y='0' width='684' height='388.8' fill='#FFFFFF' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' class='ggiraph-svg-bg'/>\n   <rect x='-0' y='0' width='684' height='388.8' fill='#FFFFFF' fill-opacity='1' stroke='none'/>\n  <\/g>\n  <g clip-path='url(#svg_88db60b10ff21d52_c2)'>\n   <polyline points='70.11,267.79 666.07,267.79' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='70.11,221.81 666.07,221.81' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='70.11,175.82 666.07,175.82' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='70.11,129.83 666.07,129.83' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='70.11,83.84 666.07,83.84' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='181.85,295.39 181.85,56.25' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='368.09,295.39 368.09,56.25' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='554.33,295.39 554.33,56.25' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <rect id='svg_88db60b10ff21d52_e1' x='88.74' y='244.8' width='186.24' height='45.99' fill='#E9EDBF' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Policy type: CC&amp;lt;br&amp;gt;Bonus score: B&amp;lt;br&amp;gt;Exposure: 1,580&amp;lt;br&amp;gt;Premium: $1,168,699&amp;lt;br&amp;gt;Incurred: $711,164&amp;lt;br&amp;gt;Loss ratio: 60.9%&amp;lt;br&amp;gt;Claim frequency: 0.413' data-id='CC B'/>\n   <rect id='svg_88db60b10ff21d52_e2' x='274.97' y='244.8' width='186.24' height='45.99' fill='#EDF1BF' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Policy type: CC&amp;lt;br&amp;gt;Bonus score: G&amp;lt;br&amp;gt;Exposure: 139,946&amp;lt;br&amp;gt;Premium: $47,116,574&amp;lt;br&amp;gt;Incurred: $29,541,915&amp;lt;br&amp;gt;Loss ratio: 62.7%&amp;lt;br&amp;gt;Claim frequency: 0.216' data-id='CC G'/>\n   <rect id='svg_88db60b10ff21d52_e3' x='461.21' y='244.8' width='186.24' height='45.99' fill='#FED599' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Policy type: CC&amp;lt;br&amp;gt;Bonus score: N&amp;lt;br&amp;gt;Exposure: 2,710&amp;lt;br&amp;gt;Premium: $1,516,496&amp;lt;br&amp;gt;Incurred: $1,310,480&amp;lt;br&amp;gt;Loss ratio: 86.4%&amp;lt;br&amp;gt;Claim frequency: 0.336' data-id='CC N'/>\n   <rect id='svg_88db60b10ff21d52_e4' x='88.74' y='198.81' width='186.24' height='45.99' fill='#FED499' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Policy type: COMP_E&amp;lt;br&amp;gt;Bonus score: B&amp;lt;br&amp;gt;Exposure: 624&amp;lt;br&amp;gt;Premium: $616,206&amp;lt;br&amp;gt;Incurred: $533,692&amp;lt;br&amp;gt;Loss ratio: 86.6%&amp;lt;br&amp;gt;Claim frequency: 0.789' data-id='COMP_E B'/>\n   <rect id='svg_88db60b10ff21d52_e5' x='274.97' y='198.81' width='186.24' height='45.99' fill='#FFF7B8' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Policy type: COMP_E&amp;lt;br&amp;gt;Bonus score: G&amp;lt;br&amp;gt;Exposure: 63,367&amp;lt;br&amp;gt;Premium: $34,310,639&amp;lt;br&amp;gt;Incurred: $25,191,601&amp;lt;br&amp;gt;Loss ratio: 73.4%&amp;lt;br&amp;gt;Claim frequency: 0.404' data-id='COMP_E G'/>\n   <rect id='svg_88db60b10ff21d52_e6' x='461.21' y='198.81' width='186.24' height='45.99' fill='#FFE1A4' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Policy type: COMP_E&amp;lt;br&amp;gt;Bonus score: N&amp;lt;br&amp;gt;Exposure: 1,049&amp;lt;br&amp;gt;Premium: $785,547&amp;lt;br&amp;gt;Incurred: $641,783&amp;lt;br&amp;gt;Loss ratio: 81.7%&amp;lt;br&amp;gt;Claim frequency: 0.580' data-id='COMP_E N'/>\n   <rect id='svg_88db60b10ff21d52_e7' x='88.74' y='152.82' width='186.24' height='45.99' fill='#FFEFB1' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Policy type: COMP_N&amp;lt;br&amp;gt;Bonus score: B&amp;lt;br&amp;gt;Exposure: 416&amp;lt;br&amp;gt;Premium: $676,141&amp;lt;br&amp;gt;Incurred: $516,632&amp;lt;br&amp;gt;Loss ratio: 76.4%&amp;lt;br&amp;gt;Claim frequency: 1.463' data-id='COMP_N B'/>\n   <rect id='svg_88db60b10ff21d52_e8' x='274.97' y='152.82' width='186.24' height='45.99' fill='#FCBD85' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Policy type: COMP_N&amp;lt;br&amp;gt;Bonus score: G&amp;lt;br&amp;gt;Exposure: 11,469&amp;lt;br&amp;gt;Premium: $9,064,881&amp;lt;br&amp;gt;Incurred: $8,635,115&amp;lt;br&amp;gt;Loss ratio: 95.3%&amp;lt;br&amp;gt;Claim frequency: 1.018' data-id='COMP_N G'/>\n   <rect id='svg_88db60b10ff21d52_e9' x='461.21' y='152.82' width='186.24' height='45.99' fill='#FDC58C' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Policy type: COMP_N&amp;lt;br&amp;gt;Bonus score: N&amp;lt;br&amp;gt;Exposure: 457&amp;lt;br&amp;gt;Premium: $603,528&amp;lt;br&amp;gt;Incurred: $557,533&amp;lt;br&amp;gt;Loss ratio: 92.4%&amp;lt;br&amp;gt;Claim frequency: 1.350' data-id='COMP_N N'/>\n   <rect id='svg_88db60b10ff21d52_e10' x='274.97' y='106.83' width='186.24' height='45.99' fill='#DFE6BF' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Policy type: TP&amp;lt;br&amp;gt;Bonus score: G&amp;lt;br&amp;gt;Exposure: 3,625&amp;lt;br&amp;gt;Premium: $932,962&amp;lt;br&amp;gt;Incurred: $528,359&amp;lt;br&amp;gt;Loss ratio: 56.6%&amp;lt;br&amp;gt;Claim frequency: 0.131' data-id='TP G'/>\n   <rect id='svg_88db60b10ff21d52_e11' x='461.21' y='106.83' width='186.24' height='45.99' fill='#AABDBD' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Policy type: TP&amp;lt;br&amp;gt;Bonus score: N&amp;lt;br&amp;gt;Exposure: 121&amp;lt;br&amp;gt;Premium: $58,787&amp;lt;br&amp;gt;Incurred: $20,142&amp;lt;br&amp;gt;Loss ratio: 34.3%&amp;lt;br&amp;gt;Claim frequency: 0.181' data-id='TP N'/>\n   <rect id='svg_88db60b10ff21d52_e12' x='88.74' y='60.85' width='186.24' height='45.99' fill='#D7191C' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Policy type: TPG&amp;lt;br&amp;gt;Bonus score: B&amp;lt;br&amp;gt;Exposure: 402&amp;lt;br&amp;gt;Premium: $297,237&amp;lt;br&amp;gt;Incurred: $433,474&amp;lt;br&amp;gt;Loss ratio: 145.8%&amp;lt;br&amp;gt;Claim frequency: 0.390' data-id='TPG B'/>\n   <rect id='svg_88db60b10ff21d52_e13' x='274.97' y='60.85' width='186.24' height='45.99' fill='#F8F9BF' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Policy type: TPG&amp;lt;br&amp;gt;Bonus score: G&amp;lt;br&amp;gt;Exposure: 23,962&amp;lt;br&amp;gt;Premium: $7,599,838&amp;lt;br&amp;gt;Incurred: $5,105,892&amp;lt;br&amp;gt;Loss ratio: 67.2%&amp;lt;br&amp;gt;Claim frequency: 0.201' data-id='TPG G'/>\n   <rect id='svg_88db60b10ff21d52_e14' x='461.21' y='60.85' width='186.24' height='45.99' fill='#C0CEBE' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Policy type: TPG&amp;lt;br&amp;gt;Bonus score: N&amp;lt;br&amp;gt;Exposure: 541&amp;lt;br&amp;gt;Premium: $304,333&amp;lt;br&amp;gt;Incurred: $132,095&amp;lt;br&amp;gt;Loss ratio: 43.4%&amp;lt;br&amp;gt;Claim frequency: 0.326' data-id='TPG N'/>\n   <text x='173.32' y='270.73' font-size='6.4pt' font-family='Liberation Sans'>61%<\/text>\n   <text x='359.55' y='270.73' font-size='6.4pt' font-family='Liberation Sans'>63%<\/text>\n   <text x='545.79' y='270.73' font-size='6.4pt' font-family='Liberation Sans'>86%<\/text>\n   <text x='173.32' y='224.74' font-size='6.4pt' font-family='Liberation Sans'>87%<\/text>\n   <text x='359.55' y='224.74' font-size='6.4pt' font-family='Liberation Sans'>73%<\/text>\n   <text x='545.79' y='224.74' font-size='6.4pt' font-family='Liberation Sans'>82%<\/text>\n   <text x='173.32' y='178.75' font-size='6.4pt' font-family='Liberation Sans'>76%<\/text>\n   <text x='359.55' y='178.75' font-size='6.4pt' font-family='Liberation Sans'>95%<\/text>\n   <text x='545.79' y='178.75' font-size='6.4pt' font-family='Liberation Sans'>92%<\/text>\n   <text x='359.55' y='132.76' font-size='6.4pt' font-family='Liberation Sans'>57%<\/text>\n   <text x='545.79' y='132.76' font-size='6.4pt' font-family='Liberation Sans'>34%<\/text>\n   <text x='170.94' y='86.77' font-size='6.4pt' font-family='Liberation Sans'>146%<\/text>\n   <text x='359.55' y='86.77' font-size='6.4pt' font-family='Liberation Sans'>67%<\/text>\n   <text x='545.79' y='86.77' font-size='6.4pt' font-family='Liberation Sans'>43%<\/text>\n  <\/g>\n  <g clip-path='url(#svg_88db60b10ff21d52_c1)'>\n   <text x='50.88' y='271.09' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>CC<\/text>\n   <text x='24.23' y='225.1' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>COMP_E<\/text>\n   <text x='23.7' y='179.11' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>COMP_N<\/text>\n   <text x='52.48' y='133.13' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>TP<\/text>\n   <text x='45.02' y='87.14' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>TPG<\/text>\n   <text x='178.66' y='307.36' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>B<\/text>\n   <text x='364.36' y='307.36' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>G<\/text>\n   <text x='550.86' y='307.36' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>N<\/text>\n   <text x='331.74' y='320.6' font-size='9pt' font-weight='bold' font-family='Liberation Sans'>Bonus score<\/text>\n   <text transform='translate(18.22,207.50) rotate(-90.00)' font-size='9pt' font-weight='bold' font-family='Liberation Sans'>Policy type<\/text>\n   <text x='295.88' y='361.07' font-size='9pt' font-family='Liberation Sans'>Loss ratio<\/text>\n   <image x='353.9' y='341.02' width='86.4' height='17.28' preserveAspectRatio='none' xlink:href='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAABCAYAAABkOJMpAAAAlElEQVQ4jcVRSw6FMAicuf9N3h08moOLqg+hrZiYuDCV+QEtf8tiJEACQDtJgDf/8PjJM+krmW9oEOfwmp1D2Y/kL/WvZnd2g9nk+5IHrOpr4l0/yoTTjLNsMtso/wn+DLviEbvuErFQK99p7NuvnU/9t0k+9efxGRb7KM4bemiiP3ZT9pqc1vNqvjNLTrvan19bvQGZmZYcyC5jbwAAAABJRU5ErkJggg==' xmlns:xlink='http://www.w3.org/1999/xlink'/>\n   <polyline points='373.90,354.84 373.90,358.30' fill='none' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.37' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='397.06,354.84 397.06,358.30' fill='none' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.37' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='420.21,354.84 420.21,358.30' fill='none' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.37' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='373.90,344.48 373.90,341.02' fill='none' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.37' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='397.06,344.48 397.06,341.02' fill='none' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.37' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='420.21,344.48 420.21,341.02' fill='none' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.37' stroke-linejoin='round' stroke-linecap='butt'/>\n   <text x='364.31' y='370.87' font-size='7.2pt' font-family='Liberation Sans'>60%<\/text>\n   <text x='387.46' y='370.87' font-size='7.2pt' font-family='Liberation Sans'>90%<\/text>\n   <text x='407.95' y='370.87' font-size='7.2pt' font-family='Liberation Sans'>120%<\/text>\n   <text x='70.11' y='46.09' font-size='7.92pt' font-family='Liberation Sans'>Cells with exposure below 100 are filtered out to reduce unstable comparisons.<\/text>\n   <text x='70.11' y='18.62' font-size='9.45pt' font-weight='bold' font-family='Liberation Sans'>High-risk combinations emerge when policy type and bonus score are viewed<\/text>\n   <text x='70.11' y='32.23' font-size='9.45pt' font-weight='bold' font-family='Liberation Sans'>together<\/text>\n  <\/g>\n <\/g>\n<\/svg>","js":null,"uid":"svg_88db60b10ff21d52","ratio":1.759259259259259,"settings":{"tooltip":{"css":".tooltip_SVGID_ { background-color: rgba(255, 255, 255, 0.88);\n        color: black;\n        border: 1px solid rgba(80, 80, 80, 0.35);\n        border-radius: 4px;\n        padding: 6px;\n        font-size: 12px; ; position:absolute;pointer-events:none;z-index:9999;}","placement":"doc","opacity":0.9,"offx":10,"offy":10,"use_cursor_pos":true,"use_fill":false,"use_stroke":false,"delay_over":200,"delay_out":500},"hover":{"css":".hover_data_SVGID_ { fill:orange;stroke:black;cursor:pointer; }\ntext.hover_data_SVGID_ { stroke:none;fill:orange; }\ncircle.hover_data_SVGID_ { fill:orange;stroke:black; }\nline.hover_data_SVGID_, polyline.hover_data_SVGID_ { fill:none;stroke:orange; }\nrect.hover_data_SVGID_, polygon.hover_data_SVGID_, path.hover_data_SVGID_ { fill:orange;stroke:none; }\nimage.hover_data_SVGID_ { stroke:orange; }","reactive":true,"nearest_distance":null,"linked":false},"hover_inv":{"css":""},"hover_key":{"css":".hover_key_SVGID_ { fill:orange;stroke:black;cursor:pointer; }\ntext.hover_key_SVGID_ { stroke:none;fill:orange; }\ncircle.hover_key_SVGID_ { fill:orange;stroke:black; }\nline.hover_key_SVGID_, polyline.hover_key_SVGID_ { fill:none;stroke:orange; }\nrect.hover_key_SVGID_, polygon.hover_key_SVGID_, path.hover_key_SVGID_ { fill:orange;stroke:none; }\nimage.hover_key_SVGID_ { stroke:orange; }","reactive":true},"hover_theme":{"css":".hover_theme_SVGID_ { fill:orange;stroke:black;cursor:pointer; }\ntext.hover_theme_SVGID_ { stroke:none;fill:orange; }\ncircle.hover_theme_SVGID_ { fill:orange;stroke:black; }\nline.hover_theme_SVGID_, polyline.hover_theme_SVGID_ { fill:none;stroke:orange; }\nrect.hover_theme_SVGID_, polygon.hover_theme_SVGID_, path.hover_theme_SVGID_ { fill:orange;stroke:none; }\nimage.hover_theme_SVGID_ { stroke:orange; }","reactive":true},"select":{"css":".select_data_SVGID_ { fill:red;stroke:black;cursor:pointer; }\ntext.select_data_SVGID_ { stroke:none;fill:red; }\ncircle.select_data_SVGID_ { fill:red;stroke:black; }\nline.select_data_SVGID_, polyline.select_data_SVGID_ { fill:none;stroke:red; }\nrect.select_data_SVGID_, polygon.select_data_SVGID_, path.select_data_SVGID_ { fill:red;stroke:none; }\nimage.select_data_SVGID_ { stroke:red; }","type":"multiple","only_shiny":true,"selected":[],"linked":false},"select_inv":{"css":""},"select_key":{"css":".select_key_SVGID_ { fill:red;stroke:black;cursor:pointer; }\ntext.select_key_SVGID_ { stroke:none;fill:red; }\ncircle.select_key_SVGID_ { fill:red;stroke:black; }\nline.select_key_SVGID_, polyline.select_key_SVGID_ { fill:none;stroke:red; }\nrect.select_key_SVGID_, polygon.select_key_SVGID_, path.select_key_SVGID_ { fill:red;stroke:none; }\nimage.select_key_SVGID_ { stroke:red; }","type":"single","only_shiny":true,"selected":[]},"select_theme":{"css":".select_theme_SVGID_ { fill:red;stroke:black;cursor:pointer; }\ntext.select_theme_SVGID_ { stroke:none;fill:red; }\ncircle.select_theme_SVGID_ { fill:red;stroke:black; }\nline.select_theme_SVGID_, polyline.select_theme_SVGID_ { fill:none;stroke:red; }\nrect.select_theme_SVGID_, polygon.select_theme_SVGID_, path.select_theme_SVGID_ { fill:red;stroke:none; }\nimage.select_theme_SVGID_ { stroke:red; }","type":"single","only_shiny":true,"selected":[]},"zoom":{"min":1,"max":1,"duration":300,"default_on":false},"toolbar":{"position":"topright","pngname":"diagram","tooltips":null,"fixed":false,"hidden":[],"delay_over":200,"delay_out":500},"sizing":{"rescale":true,"width":1}}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</div><div class="column" style="width:30%;">
+<div class="takeaway">
+<p>The heatmap shows that risk is not explained by policy type or bonus score alone. The most actionable view is the combination of both variables.</p>
+</div>
+<ul class="small-list">
+<li>
+Some product-history cells exceed 100% loss ratio.
+</li>
+<li>
+COMP_N remains elevated across bonus groups.
+</li>
+<li>
+Exposure thresholds reduce overinterpretation of small cells.
+</li>
+</ul>
+</div></div>
+<aside class="notes">
+<p>This heatmap moves the analysis from one-variable comparison to multivariate segmentation. Some combinations of policy type and bonus score have much higher loss ratios than others. COMP_N remains elevated across multiple bonus score groups, while certain smaller combinations exceed 100%. Management should prioritise cells that combine high loss ratio with meaningful exposure because those segments have both risk intensity and business relevance.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="customer-vehicle-combinations-reveal-hidden-segment-risk" class="slide level2">
+<h2>9. Customer-vehicle combinations reveal hidden segment risk</h2>
+<div class="columns">
+<div class="column" style="width:70%;">
+<div class="cell">
+<div class="cell-output-display">
+<div class="girafe html-widget html-fill-item" id="htmlwidget-fa35bbf809bf323ecd9c" style="width:100%;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-fa35bbf809bf323ecd9c">{"x":{"html":"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' class='ggiraph-svg' role='graphics-document' id='svg_d3aff950146a92ae' viewBox='0 0 691.2 388.8'>\n <defs id='svg_d3aff950146a92ae_defs'>\n  <clipPath id='svg_d3aff950146a92ae_c1'>\n   <rect x='0' y='0' width='691.2' height='388.8'/>\n  <\/clipPath>\n  <clipPath id='svg_d3aff950146a92ae_c2'>\n   <rect x='87.22' y='56.25' width='586.05' height='239.14'/>\n  <\/clipPath>\n <\/defs>\n <g id='svg_d3aff950146a92ae_rootg' class='ggiraph-svg-rootg'>\n  <g clip-path='url(#svg_d3aff950146a92ae_c1)'>\n   <rect x='0' y='0' width='691.2' height='388.8' fill='#FFFFFF' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' class='ggiraph-svg-bg'/>\n   <rect x='-0' y='0' width='691.2' height='388.8' fill='#FFFFFF' fill-opacity='1' stroke='none'/>\n  <\/g>\n  <g clip-path='url(#svg_d3aff950146a92ae_c2)'>\n   <polyline points='87.22,275.46 673.27,275.46' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='87.22,242.24 673.27,242.24' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='87.22,209.03 673.27,209.03' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='87.22,175.82 673.27,175.82' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='87.22,142.60 673.27,142.60' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='87.22,109.39 673.27,109.39' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='87.22,76.18 673.27,76.18' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='136.06,295.39 136.06,56.25' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='217.45,295.39 217.45,56.25' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='298.85,295.39 298.85,56.25' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='380.24,295.39 380.24,56.25' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='461.64,295.39 461.64,56.25' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='543.03,295.39 543.03,56.25' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='624.43,295.39 624.43,56.25' fill='none' stroke='#EBEBEB' stroke-opacity='1' stroke-width='1.16' stroke-linejoin='round' stroke-linecap='butt'/>\n   <rect id='svg_d3aff950146a92ae_e1' x='95.36' y='258.85' width='81.4' height='33.21' fill='#D2DBBE' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 25 and below&amp;lt;br&amp;gt;Vehicle age band: 0-2&amp;lt;br&amp;gt;Exposure: 186&amp;lt;br&amp;gt;Policy count: 301&amp;lt;br&amp;gt;Premium: $260,107&amp;lt;br&amp;gt;Incurred: $143,162&amp;lt;br&amp;gt;Loss ratio: 55.0%&amp;lt;br&amp;gt;Claim frequency: 0.528' data-id='25 and below 0-2'/>\n   <rect id='svg_d3aff950146a92ae_e2' x='176.76' y='258.85' width='81.4' height='33.21' fill='#EDF0BF' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 25 and below&amp;lt;br&amp;gt;Vehicle age band: 3-5&amp;lt;br&amp;gt;Exposure: 551&amp;lt;br&amp;gt;Policy count: 841&amp;lt;br&amp;gt;Premium: $481,257&amp;lt;br&amp;gt;Incurred: $308,658&amp;lt;br&amp;gt;Loss ratio: 64.1%&amp;lt;br&amp;gt;Claim frequency: 0.522' data-id='25 and below 3-5'/>\n   <rect id='svg_d3aff950146a92ae_e3' x='258.15' y='258.85' width='81.4' height='33.21' fill='#F5F7BF' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 25 and below&amp;lt;br&amp;gt;Vehicle age band: 6-10&amp;lt;br&amp;gt;Exposure: 414&amp;lt;br&amp;gt;Policy count: 629&amp;lt;br&amp;gt;Premium: $280,312&amp;lt;br&amp;gt;Incurred: $187,575&amp;lt;br&amp;gt;Loss ratio: 66.9%&amp;lt;br&amp;gt;Claim frequency: 0.427' data-id='25 and below 6-10'/>\n   <rect id='svg_d3aff950146a92ae_e4' x='95.36' y='225.64' width='81.4' height='33.21' fill='#FFEFB1' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 26-35&amp;lt;br&amp;gt;Vehicle age band: 0-2&amp;lt;br&amp;gt;Exposure: 374&amp;lt;br&amp;gt;Policy count: 610&amp;lt;br&amp;gt;Premium: $340,530&amp;lt;br&amp;gt;Incurred: $255,713&amp;lt;br&amp;gt;Loss ratio: 75.1%&amp;lt;br&amp;gt;Claim frequency: 0.599' data-id='26-35 0-2'/>\n   <rect id='svg_d3aff950146a92ae_e5' x='176.76' y='225.64' width='81.4' height='33.21' fill='#FAAF7A' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 26-35&amp;lt;br&amp;gt;Vehicle age band: 3-5&amp;lt;br&amp;gt;Exposure: 1,368&amp;lt;br&amp;gt;Policy count: 2,142&amp;lt;br&amp;gt;Premium: $813,192&amp;lt;br&amp;gt;Incurred: $764,024&amp;lt;br&amp;gt;Loss ratio: 94.0%&amp;lt;br&amp;gt;Claim frequency: 0.475' data-id='26-35 3-5'/>\n   <rect id='svg_d3aff950146a92ae_e6' x='258.15' y='225.64' width='81.4' height='33.21' fill='#F8F9BF' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 26-35&amp;lt;br&amp;gt;Vehicle age band: 6-10&amp;lt;br&amp;gt;Exposure: 10,327&amp;lt;br&amp;gt;Policy count: 14,957&amp;lt;br&amp;gt;Premium: $4,846,442&amp;lt;br&amp;gt;Incurred: $3,285,662&amp;lt;br&amp;gt;Loss ratio: 67.8%&amp;lt;br&amp;gt;Claim frequency: 0.370' data-id='26-35 6-10'/>\n   <rect id='svg_d3aff950146a92ae_e7' x='339.55' y='225.64' width='81.4' height='33.21' fill='#FFEDAF' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 26-35&amp;lt;br&amp;gt;Vehicle age band: 11-15&amp;lt;br&amp;gt;Exposure: 17,833&amp;lt;br&amp;gt;Policy count: 25,441&amp;lt;br&amp;gt;Premium: $7,413,613&amp;lt;br&amp;gt;Incurred: $5,616,116&amp;lt;br&amp;gt;Loss ratio: 75.8%&amp;lt;br&amp;gt;Claim frequency: 0.359' data-id='26-35 11-15'/>\n   <rect id='svg_d3aff950146a92ae_e8' x='420.94' y='225.64' width='81.4' height='33.21' fill='#F6F8BF' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 26-35&amp;lt;br&amp;gt;Vehicle age band: 16-20&amp;lt;br&amp;gt;Exposure: 3,953&amp;lt;br&amp;gt;Policy count: 5,614&amp;lt;br&amp;gt;Premium: $1,607,890&amp;lt;br&amp;gt;Incurred: $1,083,939&amp;lt;br&amp;gt;Loss ratio: 67.4%&amp;lt;br&amp;gt;Claim frequency: 0.337' data-id='26-35 16-20'/>\n   <rect id='svg_d3aff950146a92ae_e9' x='95.36' y='192.42' width='81.4' height='33.21' fill='#9DB4BC' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 36-45&amp;lt;br&amp;gt;Vehicle age band: 0-2&amp;lt;br&amp;gt;Exposure: 266&amp;lt;br&amp;gt;Policy count: 424&amp;lt;br&amp;gt;Premium: $228,454&amp;lt;br&amp;gt;Incurred: $86,766&amp;lt;br&amp;gt;Loss ratio: 38.0%&amp;lt;br&amp;gt;Claim frequency: 0.477' data-id='36-45 0-2'/>\n   <rect id='svg_d3aff950146a92ae_e10' x='176.76' y='192.42' width='81.4' height='33.21' fill='#FFE1A4' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 36-45&amp;lt;br&amp;gt;Vehicle age band: 3-5&amp;lt;br&amp;gt;Exposure: 916&amp;lt;br&amp;gt;Policy count: 1,424&amp;lt;br&amp;gt;Premium: $482,397&amp;lt;br&amp;gt;Incurred: $381,867&amp;lt;br&amp;gt;Loss ratio: 79.2%&amp;lt;br&amp;gt;Claim frequency: 0.425' data-id='36-45 3-5'/>\n   <rect id='svg_d3aff950146a92ae_e11' x='258.15' y='192.42' width='81.4' height='33.21' fill='#FFEFB1' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 36-45&amp;lt;br&amp;gt;Vehicle age band: 6-10&amp;lt;br&amp;gt;Exposure: 4,305&amp;lt;br&amp;gt;Policy count: 6,393&amp;lt;br&amp;gt;Premium: $1,858,858&amp;lt;br&amp;gt;Incurred: $1,395,737&amp;lt;br&amp;gt;Loss ratio: 75.1%&amp;lt;br&amp;gt;Claim frequency: 0.341' data-id='36-45 6-10'/>\n   <rect id='svg_d3aff950146a92ae_e12' x='339.55' y='192.42' width='81.4' height='33.21' fill='#FFDDA0' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 36-45&amp;lt;br&amp;gt;Vehicle age band: 11-15&amp;lt;br&amp;gt;Exposure: 9,045&amp;lt;br&amp;gt;Policy count: 12,904&amp;lt;br&amp;gt;Premium: $3,562,024&amp;lt;br&amp;gt;Incurred: $2,868,998&amp;lt;br&amp;gt;Loss ratio: 80.5%&amp;lt;br&amp;gt;Claim frequency: 0.326' data-id='36-45 11-15'/>\n   <rect id='svg_d3aff950146a92ae_e13' x='420.94' y='192.42' width='81.4' height='33.21' fill='#FFEFB0' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 36-45&amp;lt;br&amp;gt;Vehicle age band: 16-20&amp;lt;br&amp;gt;Exposure: 28,384&amp;lt;br&amp;gt;Policy count: 39,908&amp;lt;br&amp;gt;Premium: $11,079,091&amp;lt;br&amp;gt;Incurred: $8,322,428&amp;lt;br&amp;gt;Loss ratio: 75.1%&amp;lt;br&amp;gt;Claim frequency: 0.316' data-id='36-45 16-20'/>\n   <rect id='svg_d3aff950146a92ae_e14' x='502.34' y='192.42' width='81.4' height='33.21' fill='#F7F9BF' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 36-45&amp;lt;br&amp;gt;Vehicle age band: 21-30&amp;lt;br&amp;gt;Exposure: 29,846&amp;lt;br&amp;gt;Policy count: 42,018&amp;lt;br&amp;gt;Premium: $12,069,411&amp;lt;br&amp;gt;Incurred: $8,158,096&amp;lt;br&amp;gt;Loss ratio: 67.6%&amp;lt;br&amp;gt;Claim frequency: 0.310' data-id='36-45 21-30'/>\n   <rect id='svg_d3aff950146a92ae_e15' x='95.36' y='159.21' width='81.4' height='33.21' fill='#D7191C' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 46-55&amp;lt;br&amp;gt;Vehicle age band: 0-2&amp;lt;br&amp;gt;Exposure: 117&amp;lt;br&amp;gt;Policy count: 178&amp;lt;br&amp;gt;Premium: $108,093&amp;lt;br&amp;gt;Incurred: $139,915&amp;lt;br&amp;gt;Loss ratio: 129.4%&amp;lt;br&amp;gt;Claim frequency: 0.781' data-id='46-55 0-2'/>\n   <rect id='svg_d3aff950146a92ae_e16' x='176.76' y='159.21' width='81.4' height='33.21' fill='#C8D4BE' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 46-55&amp;lt;br&amp;gt;Vehicle age band: 3-5&amp;lt;br&amp;gt;Exposure: 352&amp;lt;br&amp;gt;Policy count: 533&amp;lt;br&amp;gt;Premium: $212,810&amp;lt;br&amp;gt;Incurred: $110,563&amp;lt;br&amp;gt;Loss ratio: 52.0%&amp;lt;br&amp;gt;Claim frequency: 0.389' data-id='46-55 3-5'/>\n   <rect id='svg_d3aff950146a92ae_e17' x='258.15' y='159.21' width='81.4' height='33.21' fill='#FDC78D' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 46-55&amp;lt;br&amp;gt;Vehicle age band: 6-10&amp;lt;br&amp;gt;Exposure: 1,490&amp;lt;br&amp;gt;Policy count: 2,263&amp;lt;br&amp;gt;Premium: $692,315&amp;lt;br&amp;gt;Incurred: $603,065&amp;lt;br&amp;gt;Loss ratio: 87.1%&amp;lt;br&amp;gt;Claim frequency: 0.370' data-id='46-55 6-10'/>\n   <rect id='svg_d3aff950146a92ae_e18' x='339.55' y='159.21' width='81.4' height='33.21' fill='#FDCB91' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 46-55&amp;lt;br&amp;gt;Vehicle age band: 11-15&amp;lt;br&amp;gt;Exposure: 1,610&amp;lt;br&amp;gt;Policy count: 2,400&amp;lt;br&amp;gt;Premium: $698,074&amp;lt;br&amp;gt;Incurred: $599,689&amp;lt;br&amp;gt;Loss ratio: 85.9%&amp;lt;br&amp;gt;Claim frequency: 0.341' data-id='46-55 11-15'/>\n   <rect id='svg_d3aff950146a92ae_e19' x='420.94' y='159.21' width='81.4' height='33.21' fill='#FECD92' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 46-55&amp;lt;br&amp;gt;Vehicle age band: 16-20&amp;lt;br&amp;gt;Exposure: 4,113&amp;lt;br&amp;gt;Policy count: 5,809&amp;lt;br&amp;gt;Premium: $1,809,042&amp;lt;br&amp;gt;Incurred: $1,543,280&amp;lt;br&amp;gt;Loss ratio: 85.3%&amp;lt;br&amp;gt;Claim frequency: 0.320' data-id='46-55 16-20'/>\n   <rect id='svg_d3aff950146a92ae_e20' x='502.34' y='159.21' width='81.4' height='33.21' fill='#F4F6BF' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 46-55&amp;lt;br&amp;gt;Vehicle age band: 21-30&amp;lt;br&amp;gt;Exposure: 31,607&amp;lt;br&amp;gt;Policy count: 44,689&amp;lt;br&amp;gt;Premium: $13,382,285&amp;lt;br&amp;gt;Incurred: $8,932,052&amp;lt;br&amp;gt;Loss ratio: 66.7%&amp;lt;br&amp;gt;Claim frequency: 0.304' data-id='46-55 21-30'/>\n   <rect id='svg_d3aff950146a92ae_e21' x='583.73' y='159.21' width='81.4' height='33.21' fill='#E8EDBF' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 46-55&amp;lt;br&amp;gt;Vehicle age band: 31 and above&amp;lt;br&amp;gt;Exposure: 22,942&amp;lt;br&amp;gt;Policy count: 32,223&amp;lt;br&amp;gt;Premium: $9,960,245&amp;lt;br&amp;gt;Incurred: $6,241,995&amp;lt;br&amp;gt;Loss ratio: 62.7%&amp;lt;br&amp;gt;Claim frequency: 0.289' data-id='46-55 31 and above'/>\n   <rect id='svg_d3aff950146a92ae_e22' x='176.76' y='126' width='81.4' height='33.21' fill='#D3DCBE' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 56-65&amp;lt;br&amp;gt;Vehicle age band: 3-5&amp;lt;br&amp;gt;Exposure: 131&amp;lt;br&amp;gt;Policy count: 189&amp;lt;br&amp;gt;Premium: $80,773&amp;lt;br&amp;gt;Incurred: $44,840&amp;lt;br&amp;gt;Loss ratio: 55.5%&amp;lt;br&amp;gt;Claim frequency: 0.350' data-id='56-65 3-5'/>\n   <rect id='svg_d3aff950146a92ae_e23' x='258.15' y='126' width='81.4' height='33.21' fill='#CED9BE' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 56-65&amp;lt;br&amp;gt;Vehicle age band: 6-10&amp;lt;br&amp;gt;Exposure: 515&amp;lt;br&amp;gt;Policy count: 766&amp;lt;br&amp;gt;Premium: $235,835&amp;lt;br&amp;gt;Incurred: $127,411&amp;lt;br&amp;gt;Loss ratio: 54.0%&amp;lt;br&amp;gt;Claim frequency: 0.270' data-id='56-65 6-10'/>\n   <rect id='svg_d3aff950146a92ae_e24' x='339.55' y='126' width='81.4' height='33.21' fill='#FFDB9F' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 56-65&amp;lt;br&amp;gt;Vehicle age band: 11-15&amp;lt;br&amp;gt;Exposure: 472&amp;lt;br&amp;gt;Policy count: 686&amp;lt;br&amp;gt;Premium: $187,393&amp;lt;br&amp;gt;Incurred: $151,872&amp;lt;br&amp;gt;Loss ratio: 81.0%&amp;lt;br&amp;gt;Claim frequency: 0.324' data-id='56-65 11-15'/>\n   <rect id='svg_d3aff950146a92ae_e25' x='420.94' y='126' width='81.4' height='33.21' fill='#E2E8BF' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 56-65&amp;lt;br&amp;gt;Vehicle age band: 16-20&amp;lt;br&amp;gt;Exposure: 1,823&amp;lt;br&amp;gt;Policy count: 2,527&amp;lt;br&amp;gt;Premium: $740,143&amp;lt;br&amp;gt;Incurred: $447,879&amp;lt;br&amp;gt;Loss ratio: 60.5%&amp;lt;br&amp;gt;Claim frequency: 0.311' data-id='56-65 16-20'/>\n   <rect id='svg_d3aff950146a92ae_e26' x='502.34' y='126' width='81.4' height='33.21' fill='#FFF1B3' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 56-65&amp;lt;br&amp;gt;Vehicle age band: 21-30&amp;lt;br&amp;gt;Exposure: 7,908&amp;lt;br&amp;gt;Policy count: 10,931&amp;lt;br&amp;gt;Premium: $3,241,286&amp;lt;br&amp;gt;Incurred: $2,410,217&amp;lt;br&amp;gt;Loss ratio: 74.4%&amp;lt;br&amp;gt;Claim frequency: 0.293' data-id='56-65 21-30'/>\n   <rect id='svg_d3aff950146a92ae_e27' x='583.73' y='126' width='81.4' height='33.21' fill='#F5F7BF' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 56-65&amp;lt;br&amp;gt;Vehicle age band: 31 and above&amp;lt;br&amp;gt;Exposure: 42,450&amp;lt;br&amp;gt;Policy count: 59,136&amp;lt;br&amp;gt;Premium: $17,536,764&amp;lt;br&amp;gt;Incurred: $11,748,212&amp;lt;br&amp;gt;Loss ratio: 67.0%&amp;lt;br&amp;gt;Claim frequency: 0.278' data-id='56-65 31 and above'/>\n   <rect id='svg_d3aff950146a92ae_e28' x='339.55' y='92.78' width='81.4' height='33.21' fill='#A6BBBD' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 66-75&amp;lt;br&amp;gt;Vehicle age band: 11-15&amp;lt;br&amp;gt;Exposure: 127&amp;lt;br&amp;gt;Policy count: 179&amp;lt;br&amp;gt;Premium: $47,889&amp;lt;br&amp;gt;Incurred: $19,586&amp;lt;br&amp;gt;Loss ratio: 40.9%&amp;lt;br&amp;gt;Claim frequency: 0.188' data-id='66-75 11-15'/>\n   <rect id='svg_d3aff950146a92ae_e29' x='420.94' y='92.78' width='81.4' height='33.21' fill='#FFF0B2' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 66-75&amp;lt;br&amp;gt;Vehicle age band: 16-20&amp;lt;br&amp;gt;Exposure: 688&amp;lt;br&amp;gt;Policy count: 976&amp;lt;br&amp;gt;Premium: $282,391&amp;lt;br&amp;gt;Incurred: $210,812&amp;lt;br&amp;gt;Loss ratio: 74.7%&amp;lt;br&amp;gt;Claim frequency: 0.292' data-id='66-75 16-20'/>\n   <rect id='svg_d3aff950146a92ae_e30' x='502.34' y='92.78' width='81.4' height='33.21' fill='#FFFABB' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 66-75&amp;lt;br&amp;gt;Vehicle age band: 21-30&amp;lt;br&amp;gt;Exposure: 2,144&amp;lt;br&amp;gt;Policy count: 3,023&amp;lt;br&amp;gt;Premium: $890,782&amp;lt;br&amp;gt;Incurred: $639,288&amp;lt;br&amp;gt;Loss ratio: 71.8%&amp;lt;br&amp;gt;Claim frequency: 0.281' data-id='66-75 21-30'/>\n   <rect id='svg_d3aff950146a92ae_e31' x='583.73' y='92.78' width='81.4' height='33.21' fill='#FFFFBF' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 66-75&amp;lt;br&amp;gt;Vehicle age band: 31 and above&amp;lt;br&amp;gt;Exposure: 21,803&amp;lt;br&amp;gt;Policy count: 30,830&amp;lt;br&amp;gt;Premium: $8,745,929&amp;lt;br&amp;gt;Incurred: $6,151,964&amp;lt;br&amp;gt;Loss ratio: 70.3%&amp;lt;br&amp;gt;Claim frequency: 0.256' data-id='66-75 31 and above'/>\n   <rect id='svg_d3aff950146a92ae_e32' x='502.34' y='59.57' width='81.4' height='33.21' fill='#98B1BC' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 76 and above&amp;lt;br&amp;gt;Vehicle age band: 21-30&amp;lt;br&amp;gt;Exposure: 195&amp;lt;br&amp;gt;Policy count: 268&amp;lt;br&amp;gt;Premium: $82,845&amp;lt;br&amp;gt;Incurred: $30,224&amp;lt;br&amp;gt;Loss ratio: 36.5%&amp;lt;br&amp;gt;Claim frequency: 0.230' data-id='76 and above 21-30'/>\n   <rect id='svg_d3aff950146a92ae_e33' x='583.73' y='59.57' width='81.4' height='33.21' fill='#EC724A' fill-opacity='1' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.47' stroke-linejoin='miter' stroke-linecap='butt' title='Driver age band: 76 and above&amp;lt;br&amp;gt;Vehicle age band: 31 and above&amp;lt;br&amp;gt;Exposure: 1,848&amp;lt;br&amp;gt;Policy count: 2,605&amp;lt;br&amp;gt;Premium: $709,236&amp;lt;br&amp;gt;Incurred: $791,068&amp;lt;br&amp;gt;Loss ratio: 111.5%&amp;lt;br&amp;gt;Claim frequency: 0.268' data-id='76 and above 31 and above'/>\n   <text x='128.38' y='278.1' font-size='5.76pt' font-family='Liberation Sans'>55%<\/text>\n   <text x='209.77' y='278.1' font-size='5.76pt' font-family='Liberation Sans'>64%<\/text>\n   <text x='291.17' y='278.1' font-size='5.76pt' font-family='Liberation Sans'>67%<\/text>\n   <text x='128.38' y='244.88' font-size='5.76pt' font-family='Liberation Sans'>75%<\/text>\n   <text x='209.77' y='244.88' font-size='5.76pt' font-family='Liberation Sans'>94%<\/text>\n   <text x='291.17' y='244.88' font-size='5.76pt' font-family='Liberation Sans'>68%<\/text>\n   <text x='372.56' y='244.88' font-size='5.76pt' font-family='Liberation Sans'>76%<\/text>\n   <text x='453.96' y='244.88' font-size='5.76pt' font-family='Liberation Sans'>67%<\/text>\n   <text x='128.38' y='211.67' font-size='5.76pt' font-family='Liberation Sans'>38%<\/text>\n   <text x='209.77' y='211.67' font-size='5.76pt' font-family='Liberation Sans'>79%<\/text>\n   <text x='291.17' y='211.67' font-size='5.76pt' font-family='Liberation Sans'>75%<\/text>\n   <text x='372.56' y='211.67' font-size='5.76pt' font-family='Liberation Sans'>81%<\/text>\n   <text x='453.96' y='211.67' font-size='5.76pt' font-family='Liberation Sans'>75%<\/text>\n   <text x='535.35' y='211.67' font-size='5.76pt' font-family='Liberation Sans'>68%<\/text>\n   <text x='126.24' y='178.46' font-size='5.76pt' font-family='Liberation Sans'>129%<\/text>\n   <text x='209.77' y='178.46' font-size='5.76pt' font-family='Liberation Sans'>52%<\/text>\n   <text x='291.17' y='178.46' font-size='5.76pt' font-family='Liberation Sans'>87%<\/text>\n   <text x='372.56' y='178.46' font-size='5.76pt' font-family='Liberation Sans'>86%<\/text>\n   <text x='453.96' y='178.46' font-size='5.76pt' font-family='Liberation Sans'>85%<\/text>\n   <text x='535.35' y='178.46' font-size='5.76pt' font-family='Liberation Sans'>67%<\/text>\n   <text x='616.75' y='178.46' font-size='5.76pt' font-family='Liberation Sans'>63%<\/text>\n   <text x='209.77' y='145.24' font-size='5.76pt' font-family='Liberation Sans'>56%<\/text>\n   <text x='291.17' y='145.24' font-size='5.76pt' font-family='Liberation Sans'>54%<\/text>\n   <text x='372.56' y='145.24' font-size='5.76pt' font-family='Liberation Sans'>81%<\/text>\n   <text x='453.96' y='145.24' font-size='5.76pt' font-family='Liberation Sans'>61%<\/text>\n   <text x='535.35' y='145.24' font-size='5.76pt' font-family='Liberation Sans'>74%<\/text>\n   <text x='616.75' y='145.24' font-size='5.76pt' font-family='Liberation Sans'>67%<\/text>\n   <text x='372.56' y='112.03' font-size='5.76pt' font-family='Liberation Sans'>41%<\/text>\n   <text x='453.96' y='112.03' font-size='5.76pt' font-family='Liberation Sans'>75%<\/text>\n   <text x='535.35' y='112.03' font-size='5.76pt' font-family='Liberation Sans'>72%<\/text>\n   <text x='616.75' y='112.03' font-size='5.76pt' font-family='Liberation Sans'>70%<\/text>\n   <text x='535.35' y='78.81' font-size='5.76pt' font-family='Liberation Sans'>36%<\/text>\n   <text x='614.9' y='78.81' font-size='5.76pt' font-family='Liberation Sans'>112%<\/text>\n  <\/g>\n  <g clip-path='url(#svg_d3aff950146a92ae_c1)'>\n   <text x='24.77' y='278.76' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>25 and below<\/text>\n   <text x='57.3' y='245.54' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>26-35<\/text>\n   <text x='57.3' y='212.33' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>36-45<\/text>\n   <text x='57.3' y='179.11' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>46-55<\/text>\n   <text x='57.3' y='145.9' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>56-65<\/text>\n   <text x='57.3' y='112.69' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>66-75<\/text>\n   <text x='23.7' y='79.47' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>76 and above<\/text>\n   <text x='129.12' y='307.36' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>0-2<\/text>\n   <text x='210.52' y='307.36' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>3-5<\/text>\n   <text x='289.25' y='307.36' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>6-10<\/text>\n   <text x='368.33' y='307.36' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>11-15<\/text>\n   <text x='449.37' y='307.36' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>16-20<\/text>\n   <text x='530.77' y='307.36' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>21-30<\/text>\n   <text x='595.36' y='307.36' font-size='7.2pt' font-family='Liberation Sans' fill='#4D4D4D' fill-opacity='1'>31 and above<\/text>\n   <text x='331.56' y='320.6' font-size='9pt' font-weight='bold' font-family='Liberation Sans'>Vehicle age band<\/text>\n   <text transform='translate(18.22,221.17) rotate(-90.00)' font-size='9pt' font-weight='bold' font-family='Liberation Sans'>Driver age band<\/text>\n   <text x='308.04' y='361.07' font-size='9pt' font-family='Liberation Sans'>Loss ratio<\/text>\n   <image x='366.05' y='341.02' width='86.4' height='17.28' preserveAspectRatio='none' xlink:href='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAABCAYAAABkOJMpAAAAnElEQVQ4jZ2QSxLDMAhDxf0v0Gt036tZ6qKxA9SxSRbMmI8ewvZ6f2QAzFxg9zbc0aAyN3IrzhX4RQ7ybTvOpbbgwQA89ehz6T84qY240CwDRfYvdGOP+tyCu+JpcZsmTG05iDVGvh7o8s6sERc99+/5H85e9BUYVOpheAt1zvxjuj/49TomP0wsujm629lnD789bzh77eA2AU34ApqqixwmJNgwAAAAAElFTkSuQmCC' xmlns:xlink='http://www.w3.org/1999/xlink'/>\n   <polyline points='369.45,354.84 369.45,358.30' fill='none' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.37' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='387.98,354.84 387.98,358.30' fill='none' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.37' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='406.51,354.84 406.51,358.30' fill='none' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.37' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='425.03,354.84 425.03,358.30' fill='none' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.37' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='443.56,354.84 443.56,358.30' fill='none' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.37' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='369.45,344.48 369.45,341.02' fill='none' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.37' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='387.98,344.48 387.98,341.02' fill='none' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.37' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='406.51,344.48 406.51,341.02' fill='none' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.37' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='425.03,344.48 425.03,341.02' fill='none' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.37' stroke-linejoin='round' stroke-linecap='butt'/>\n   <polyline points='443.56,344.48 443.56,341.02' fill='none' stroke='#FFFFFF' stroke-opacity='1' stroke-width='0.37' stroke-linejoin='round' stroke-linecap='butt'/>\n   <text x='359.85' y='370.87' font-size='7.2pt' font-family='Liberation Sans'>40%<\/text>\n   <text x='378.38' y='370.87' font-size='7.2pt' font-family='Liberation Sans'>60%<\/text>\n   <text x='396.91' y='370.87' font-size='7.2pt' font-family='Liberation Sans'>80%<\/text>\n   <text x='412.77' y='370.87' font-size='7.2pt' font-family='Liberation Sans'>100%<\/text>\n   <text x='431.3' y='370.87' font-size='7.2pt' font-family='Liberation Sans'>120%<\/text>\n   <text x='87.22' y='46.09' font-size='7.92pt' font-family='Liberation Sans'>Only cells with exposure of at least 100 are shown.<\/text>\n   <text x='87.22' y='18.62' font-size='9.45pt' font-weight='bold' font-family='Liberation Sans'>Driver and vehicle age combinations reveal segment-level profitability<\/text>\n   <text x='87.22' y='32.23' font-size='9.45pt' font-weight='bold' font-family='Liberation Sans'>differences<\/text>\n  <\/g>\n <\/g>\n<\/svg>","js":null,"uid":"svg_d3aff950146a92ae","ratio":1.777777777777778,"settings":{"tooltip":{"css":".tooltip_SVGID_ { background-color: rgba(255, 255, 255, 0.88);\n        color: black;\n        border: 1px solid rgba(80, 80, 80, 0.35);\n        border-radius: 4px;\n        padding: 6px;\n        font-size: 12px; ; position:absolute;pointer-events:none;z-index:9999;}","placement":"doc","opacity":0.9,"offx":10,"offy":10,"use_cursor_pos":true,"use_fill":false,"use_stroke":false,"delay_over":200,"delay_out":500},"hover":{"css":".hover_data_SVGID_ { fill:orange;stroke:black;cursor:pointer; }\ntext.hover_data_SVGID_ { stroke:none;fill:orange; }\ncircle.hover_data_SVGID_ { fill:orange;stroke:black; }\nline.hover_data_SVGID_, polyline.hover_data_SVGID_ { fill:none;stroke:orange; }\nrect.hover_data_SVGID_, polygon.hover_data_SVGID_, path.hover_data_SVGID_ { fill:orange;stroke:none; }\nimage.hover_data_SVGID_ { stroke:orange; }","reactive":true,"nearest_distance":null,"linked":false},"hover_inv":{"css":""},"hover_key":{"css":".hover_key_SVGID_ { fill:orange;stroke:black;cursor:pointer; }\ntext.hover_key_SVGID_ { stroke:none;fill:orange; }\ncircle.hover_key_SVGID_ { fill:orange;stroke:black; }\nline.hover_key_SVGID_, polyline.hover_key_SVGID_ { fill:none;stroke:orange; }\nrect.hover_key_SVGID_, polygon.hover_key_SVGID_, path.hover_key_SVGID_ { fill:orange;stroke:none; }\nimage.hover_key_SVGID_ { stroke:orange; }","reactive":true},"hover_theme":{"css":".hover_theme_SVGID_ { fill:orange;stroke:black;cursor:pointer; }\ntext.hover_theme_SVGID_ { stroke:none;fill:orange; }\ncircle.hover_theme_SVGID_ { fill:orange;stroke:black; }\nline.hover_theme_SVGID_, polyline.hover_theme_SVGID_ { fill:none;stroke:orange; }\nrect.hover_theme_SVGID_, polygon.hover_theme_SVGID_, path.hover_theme_SVGID_ { fill:orange;stroke:none; }\nimage.hover_theme_SVGID_ { stroke:orange; }","reactive":true},"select":{"css":".select_data_SVGID_ { fill:red;stroke:black;cursor:pointer; }\ntext.select_data_SVGID_ { stroke:none;fill:red; }\ncircle.select_data_SVGID_ { fill:red;stroke:black; }\nline.select_data_SVGID_, polyline.select_data_SVGID_ { fill:none;stroke:red; }\nrect.select_data_SVGID_, polygon.select_data_SVGID_, path.select_data_SVGID_ { fill:red;stroke:none; }\nimage.select_data_SVGID_ { stroke:red; }","type":"multiple","only_shiny":true,"selected":[],"linked":false},"select_inv":{"css":""},"select_key":{"css":".select_key_SVGID_ { fill:red;stroke:black;cursor:pointer; }\ntext.select_key_SVGID_ { stroke:none;fill:red; }\ncircle.select_key_SVGID_ { fill:red;stroke:black; }\nline.select_key_SVGID_, polyline.select_key_SVGID_ { fill:none;stroke:red; }\nrect.select_key_SVGID_, polygon.select_key_SVGID_, path.select_key_SVGID_ { fill:red;stroke:none; }\nimage.select_key_SVGID_ { stroke:red; }","type":"single","only_shiny":true,"selected":[]},"select_theme":{"css":".select_theme_SVGID_ { fill:red;stroke:black;cursor:pointer; }\ntext.select_theme_SVGID_ { stroke:none;fill:red; }\ncircle.select_theme_SVGID_ { fill:red;stroke:black; }\nline.select_theme_SVGID_, polyline.select_theme_SVGID_ { fill:none;stroke:red; }\nrect.select_theme_SVGID_, polygon.select_theme_SVGID_, path.select_theme_SVGID_ { fill:red;stroke:none; }\nimage.select_theme_SVGID_ { stroke:red; }","type":"single","only_shiny":true,"selected":[]},"zoom":{"min":1,"max":1,"duration":300,"default_on":false},"toolbar":{"position":"topright","pngname":"diagram","tooltips":null,"fixed":false,"hidden":[],"delay_over":200,"delay_out":500},"sizing":{"rescale":true,"width":1}}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</div><div class="column" style="width:30%;">
+<div class="takeaway">
+<p>Driver and vehicle age should be monitored jointly, not separately, because the same driver age group can behave differently across vehicle ages.</p>
+</div>
+<ul class="small-list">
+<li>
+Several cells are above the portfolio average.
+</li>
+<li>
+Older driver and older vehicle combinations can be riskier.
+</li>
+<li>
+Exposure filtering improves reliability.
+</li>
+</ul>
+</div></div>
+<aside class="notes">
+<p>The customer-vehicle heatmap shows how profitability differs across driver age and vehicle age combinations. This is useful because a single driver-age or vehicle-age chart may hide important interactions. Cells with higher loss ratios should be interpreted alongside exposure, because small cells can be unstable. For management, this supports segment-based underwriting review rather than broad rules based on age alone.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="portfolio-impact-depends-on-both-volume-and-risk-intensity" class="slide level2">
+<h2>10. Portfolio impact depends on both volume and risk intensity</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-d11d409b2643b66a721b" style="width:100%;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-d11d409b2643b66a721b">{"x":{"visdat":{"2e505c5c691a":["function () ","plotlyVisDat"]},"cur_data":"2e505c5c691a","attrs":{"2e505c5c691a":{"ids":{},"labels":{},"parents":{},"values":{},"branchvalues":"total","textinfo":"label+percent parent","hovertext":{},"hoverinfo":"text","marker":{"colors":{},"colorscale":"RdYlBu","reversescale":true,"cmin":0,"cmax":1.5,"colorbar":{"title":"Loss ratio","tickformat":".0%"}},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"treemap"}},"layout":{"height":560,"margin":{"b":20,"l":10,"t":70,"r":95},"title":{"text":"Premium concentration and loss ratio by policy type and vehicle brand","x":0},"hoverlabel":{"bgcolor":"rgba(255, 255, 255, 0.85)","bordercolor":"rgba(80, 80, 80, 0.35)","font":{"color":"black","size":12}},"hovermode":"closest","showlegend":false},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"ids":["Portfolio","policy_CC","policy_COMP_E","policy_COMP_N","policy_TP","policy_TPG","brand_CC_AUDI","brand_CC_CITROEN","brand_CC_FORD","brand_CC_MERCEDES","brand_CC_NISSAN","brand_CC_OPEL","brand_CC_Other brands","brand_CC_PEUGEOT","brand_CC_RENAULT","brand_CC_SEAT","brand_CC_VOLKSWAGEN","brand_COMP_E_AUDI","brand_COMP_E_BMW","brand_COMP_E_CITROEN","brand_COMP_E_FORD","brand_COMP_E_MERCEDES","brand_COMP_E_OPEL","brand_COMP_E_Other brands","brand_COMP_E_PEUGEOT","brand_COMP_E_RENAULT","brand_COMP_E_TOYOTA","brand_COMP_E_VOLKSWAGEN","brand_COMP_N_AUDI","brand_COMP_N_BMW","brand_COMP_N_CITROEN","brand_COMP_N_FORD","brand_COMP_N_MERCEDES","brand_COMP_N_Other brands","brand_COMP_N_PEUGEOT","brand_COMP_N_RENAULT","brand_COMP_N_SEAT","brand_COMP_N_TOYOTA","brand_COMP_N_VOLKSWAGEN","brand_TP_CITROEN","brand_TP_FIAT","brand_TP_FORD","brand_TP_MERCEDES","brand_TP_NISSAN","brand_TP_OPEL","brand_TP_Other brands","brand_TP_PEUGEOT","brand_TP_RENAULT","brand_TP_SEAT","brand_TP_VOLKSWAGEN","brand_TPG_BMW","brand_TPG_CITROEN","brand_TPG_FORD","brand_TPG_MERCEDES","brand_TPG_NISSAN","brand_TPG_OPEL","brand_TPG_Other brands","brand_TPG_PEUGEOT","brand_TPG_RENAULT","brand_TPG_SEAT","brand_TPG_VOLKSWAGEN"],"labels":["Portfolio","CC","COMP_E","COMP_N","TP","TPG","AUDI","CITROEN","FORD","MERCEDES","NISSAN","OPEL","Other brands","PEUGEOT","RENAULT","SEAT","VOLKSWAGEN","AUDI","BMW","CITROEN","FORD","MERCEDES","OPEL","Other brands","PEUGEOT","RENAULT","TOYOTA","VOLKSWAGEN","AUDI","BMW","CITROEN","FORD","MERCEDES","Other brands","PEUGEOT","RENAULT","SEAT","TOYOTA","VOLKSWAGEN","CITROEN","FIAT","FORD","MERCEDES","NISSAN","OPEL","Other brands","PEUGEOT","RENAULT","SEAT","VOLKSWAGEN","BMW","CITROEN","FORD","MERCEDES","NISSAN","OPEL","Other brands","PEUGEOT","RENAULT","SEAT","VOLKSWAGEN"],"parents":["","Portfolio","Portfolio","Portfolio","Portfolio","Portfolio","policy_CC","policy_CC","policy_CC","policy_CC","policy_CC","policy_CC","policy_CC","policy_CC","policy_CC","policy_CC","policy_CC","policy_COMP_E","policy_COMP_E","policy_COMP_E","policy_COMP_E","policy_COMP_E","policy_COMP_E","policy_COMP_E","policy_COMP_E","policy_COMP_E","policy_COMP_E","policy_COMP_E","policy_COMP_N","policy_COMP_N","policy_COMP_N","policy_COMP_N","policy_COMP_N","policy_COMP_N","policy_COMP_N","policy_COMP_N","policy_COMP_N","policy_COMP_N","policy_COMP_N","policy_TP","policy_TP","policy_TP","policy_TP","policy_TP","policy_TP","policy_TP","policy_TP","policy_TP","policy_TP","policy_TP","policy_TPG","policy_TPG","policy_TPG","policy_TPG","policy_TPG","policy_TPG","policy_TPG","policy_TPG","policy_TPG","policy_TPG","policy_TPG"],"values":[104335709.36169179,49737584.01193703,35613983.571015984,10005799.005387317,882238.18183491658,8096104.5915165469,1984341.4719733838,4812449.3170494186,4243608.0811954159,2048309.430853358,1818233.284216993,4164442.7268260806,13079957.93055613,4303185.9730147282,5222549.5166748082,4253721.1781678349,3806785.101408876,2879420.9549008026,2787168.9335711389,2161456.1474482501,2189453.0485079014,2754418.607632692,1977986.5476290381,10976704.215480952,2190399.7005850337,2384510.0595366876,1916158.0079657843,3396307.3477577032,957543.25327432074,1176163.4906890106,636681.92589053593,602994.37562320183,1085863.3581767455,2589761.3416594244,600970.69153450197,559057.48746948165,464483.67105663649,539747.83931277727,792531.57070068072,105336.19355758227,31541.262496964991,89975.725421518218,40720.446916643581,49673.981409783068,92044.74532094592,130304.64500927413,93905.965073153202,109947.69454888479,76765.947437751005,62021.574642415435,291075.91737855395,819933.8869884602,678969.69869216904,386611.91878342041,287631.16400163999,672632.30896813935,1951894.9404428038,831016.47229456215,837260.8838806717,729738.83773407259,609338.56235205405],"branchvalues":"total","textinfo":"label+percent parent","hovertext":["Portfolio<br>Premium: $104,335,709<br>Incurred: $73,401,484<br>Loss ratio: 70.4%","Policy type: CC<br>Premium: $49,737,584<br>Incurred: $31,528,242<br>Loss ratio: 63.4%<br>Exposure: 144,067","Policy type: COMP_E<br>Premium: $35,613,984<br>Incurred: $26,314,876<br>Loss ratio: 73.9%<br>Exposure: 64,876","Policy type: COMP_N<br>Premium: $10,005,799<br>Incurred: $9,417,998<br>Loss ratio: 94.1%<br>Exposure: 12,006","Policy type: TP<br>Premium: $882,238<br>Incurred: $493,440<br>Loss ratio: 55.9%<br>Exposure: 3,327","Policy type: TPG<br>Premium: $8,096,105<br>Incurred: $5,646,927<br>Loss ratio: 69.7%<br>Exposure: 24,593","Policy type: CC<br>Vehicle brand: AUDI<br>Premium: $1,984,341<br>Incurred: $934,719<br>Loss ratio: 47.1%<br>Exposure: 5,175","Policy type: CC<br>Vehicle brand: CITROEN<br>Premium: $4,812,449<br>Incurred: $3,215,595<br>Loss ratio: 66.8%<br>Exposure: 14,637","Policy type: CC<br>Vehicle brand: FORD<br>Premium: $4,243,608<br>Incurred: $2,822,497<br>Loss ratio: 66.5%<br>Exposure: 12,422","Policy type: CC<br>Vehicle brand: MERCEDES<br>Premium: $2,048,309<br>Incurred: $1,074,519<br>Loss ratio: 52.5%<br>Exposure: 5,074","Policy type: CC<br>Vehicle brand: NISSAN<br>Premium: $1,818,233<br>Incurred: $1,007,245<br>Loss ratio: 55.4%<br>Exposure: 5,282","Policy type: CC<br>Vehicle brand: OPEL<br>Premium: $4,164,443<br>Incurred: $2,946,249<br>Loss ratio: 70.7%<br>Exposure: 12,594","Policy type: CC<br>Vehicle brand: Other brands<br>Premium: $13,079,958<br>Incurred: $8,841,856<br>Loss ratio: 67.6%<br>Exposure: 36,787","Policy type: CC<br>Vehicle brand: PEUGEOT<br>Premium: $4,303,186<br>Incurred: $2,531,072<br>Loss ratio: 58.8%<br>Exposure: 12,792","Policy type: CC<br>Vehicle brand: RENAULT<br>Premium: $5,222,550<br>Incurred: $3,322,874<br>Loss ratio: 63.6%<br>Exposure: 15,533","Policy type: CC<br>Vehicle brand: SEAT<br>Premium: $4,253,721<br>Incurred: $2,754,295<br>Loss ratio: 64.8%<br>Exposure: 12,673","Policy type: CC<br>Vehicle brand: VOLKSWAGEN<br>Premium: $3,806,785<br>Incurred: $2,077,322<br>Loss ratio: 54.6%<br>Exposure: 11,099","Policy type: COMP_E<br>Vehicle brand: AUDI<br>Premium: $2,879,421<br>Incurred: $2,055,852<br>Loss ratio: 71.4%<br>Exposure: 4,692","Policy type: COMP_E<br>Vehicle brand: BMW<br>Premium: $2,787,169<br>Incurred: $2,242,953<br>Loss ratio: 80.5%<br>Exposure: 4,047","Policy type: COMP_E<br>Vehicle brand: CITROEN<br>Premium: $2,161,456<br>Incurred: $1,501,261<br>Loss ratio: 69.5%<br>Exposure: 4,294","Policy type: COMP_E<br>Vehicle brand: FORD<br>Premium: $2,189,453<br>Incurred: $1,444,903<br>Loss ratio: 66.0%<br>Exposure: 4,292","Policy type: COMP_E<br>Vehicle brand: MERCEDES<br>Premium: $2,754,419<br>Incurred: $2,106,445<br>Loss ratio: 76.5%<br>Exposure: 4,031","Policy type: COMP_E<br>Vehicle brand: OPEL<br>Premium: $1,977,987<br>Incurred: $1,718,212<br>Loss ratio: 86.9%<br>Exposure: 3,915","Policy type: COMP_E<br>Vehicle brand: Other brands<br>Premium: $10,976,704<br>Incurred: $7,755,017<br>Loss ratio: 70.6%<br>Exposure: 20,458","Policy type: COMP_E<br>Vehicle brand: PEUGEOT<br>Premium: $2,190,400<br>Incurred: $1,537,790<br>Loss ratio: 70.2%<br>Exposure: 4,321","Policy type: COMP_E<br>Vehicle brand: RENAULT<br>Premium: $2,384,510<br>Incurred: $1,647,306<br>Loss ratio: 69.1%<br>Exposure: 4,693","Policy type: COMP_E<br>Vehicle brand: TOYOTA<br>Premium: $1,916,158<br>Incurred: $1,375,894<br>Loss ratio: 71.8%<br>Exposure: 3,781","Policy type: COMP_E<br>Vehicle brand: VOLKSWAGEN<br>Premium: $3,396,307<br>Incurred: $2,929,243<br>Loss ratio: 86.2%<br>Exposure: 6,352","Policy type: COMP_N<br>Vehicle brand: AUDI<br>Premium: $957,543<br>Incurred: $731,903<br>Loss ratio: 76.4%<br>Exposure: 967","Policy type: COMP_N<br>Vehicle brand: BMW<br>Premium: $1,176,163<br>Incurred: $1,039,581<br>Loss ratio: 88.4%<br>Exposure: 926","Policy type: COMP_N<br>Vehicle brand: CITROEN<br>Premium: $636,682<br>Incurred: $647,902<br>Loss ratio: 101.8%<br>Exposure: 871","Policy type: COMP_N<br>Vehicle brand: FORD<br>Premium: $602,994<br>Incurred: $531,506<br>Loss ratio: 88.1%<br>Exposure: 848","Policy type: COMP_N<br>Vehicle brand: MERCEDES<br>Premium: $1,085,863<br>Incurred: $998,761<br>Loss ratio: 92.0%<br>Exposure: 979","Policy type: COMP_N<br>Vehicle brand: Other brands<br>Premium: $2,589,761<br>Incurred: $2,596,812<br>Loss ratio: 100.3%<br>Exposure: 3,401","Policy type: COMP_N<br>Vehicle brand: PEUGEOT<br>Premium: $600,971<br>Incurred: $592,302<br>Loss ratio: 98.6%<br>Exposure: 800","Policy type: COMP_N<br>Vehicle brand: RENAULT<br>Premium: $559,057<br>Incurred: $557,492<br>Loss ratio: 99.7%<br>Exposure: 776","Policy type: COMP_N<br>Vehicle brand: SEAT<br>Premium: $464,484<br>Incurred: $549,895<br>Loss ratio: 118.4%<br>Exposure: 670","Policy type: COMP_N<br>Vehicle brand: TOYOTA<br>Premium: $539,748<br>Incurred: $501,025<br>Loss ratio: 92.8%<br>Exposure: 741","Policy type: COMP_N<br>Vehicle brand: VOLKSWAGEN<br>Premium: $792,532<br>Incurred: $670,819<br>Loss ratio: 84.6%<br>Exposure: 1,026","Policy type: TP<br>Vehicle brand: CITROEN<br>Premium: $105,336<br>Incurred: $35,802<br>Loss ratio: 34.0%<br>Exposure: 400","Policy type: TP<br>Vehicle brand: FIAT<br>Premium: $31,541<br>Incurred: $25,390<br>Loss ratio: 80.5%<br>Exposure: 105","Policy type: TP<br>Vehicle brand: FORD<br>Premium: $89,976<br>Incurred: $39,631<br>Loss ratio: 44.0%<br>Exposure: 327","Policy type: TP<br>Vehicle brand: MERCEDES<br>Premium: $40,720<br>Incurred: $12,915<br>Loss ratio: 31.7%<br>Exposure: 128","Policy type: TP<br>Vehicle brand: NISSAN<br>Premium: $49,674<br>Incurred: $30,672<br>Loss ratio: 61.7%<br>Exposure: 190","Policy type: TP<br>Vehicle brand: OPEL<br>Premium: $92,045<br>Incurred: $58,370<br>Loss ratio: 63.4%<br>Exposure: 354","Policy type: TP<br>Vehicle brand: Other brands<br>Premium: $130,305<br>Incurred: $81,477<br>Loss ratio: 62.5%<br>Exposure: 498","Policy type: TP<br>Vehicle brand: PEUGEOT<br>Premium: $93,906<br>Incurred: $79,258<br>Loss ratio: 84.4%<br>Exposure: 348","Policy type: TP<br>Vehicle brand: RENAULT<br>Premium: $109,948<br>Incurred: $69,020<br>Loss ratio: 62.8%<br>Exposure: 441","Policy type: TP<br>Vehicle brand: SEAT<br>Premium: $76,766<br>Incurred: $31,216<br>Loss ratio: 40.7%<br>Exposure: 310","Policy type: TP<br>Vehicle brand: VOLKSWAGEN<br>Premium: $62,022<br>Incurred: $29,687<br>Loss ratio: 47.9%<br>Exposure: 226","Policy type: TPG<br>Vehicle brand: BMW<br>Premium: $291,076<br>Incurred: $227,323<br>Loss ratio: 78.1%<br>Exposure: 747","Policy type: TPG<br>Vehicle brand: CITROEN<br>Premium: $819,934<br>Incurred: $457,460<br>Loss ratio: 55.8%<br>Exposure: 2,570","Policy type: TPG<br>Vehicle brand: FORD<br>Premium: $678,970<br>Incurred: $389,204<br>Loss ratio: 57.3%<br>Exposure: 2,060","Policy type: TPG<br>Vehicle brand: MERCEDES<br>Premium: $386,612<br>Incurred: $167,745<br>Loss ratio: 43.4%<br>Exposure: 965","Policy type: TPG<br>Vehicle brand: NISSAN<br>Premium: $287,631<br>Incurred: $237,253<br>Loss ratio: 82.5%<br>Exposure: 852","Policy type: TPG<br>Vehicle brand: OPEL<br>Premium: $672,632<br>Incurred: $374,784<br>Loss ratio: 55.7%<br>Exposure: 2,183","Policy type: TPG<br>Vehicle brand: Other brands<br>Premium: $1,951,895<br>Incurred: $1,561,598<br>Loss ratio: 80.0%<br>Exposure: 5,928","Policy type: TPG<br>Vehicle brand: PEUGEOT<br>Premium: $831,016<br>Incurred: $560,233<br>Loss ratio: 67.4%<br>Exposure: 2,500","Policy type: TPG<br>Vehicle brand: RENAULT<br>Premium: $837,261<br>Incurred: $497,325<br>Loss ratio: 59.4%<br>Exposure: 2,680","Policy type: TPG<br>Vehicle brand: SEAT<br>Premium: $729,739<br>Incurred: $770,154<br>Loss ratio: 105.5%<br>Exposure: 2,261","Policy type: TPG<br>Vehicle brand: VOLKSWAGEN<br>Premium: $609,339<br>Incurred: $403,848<br>Loss ratio: 66.3%<br>Exposure: 1,848"],"hoverinfo":["text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text"],"marker":{"color":"rgba(31,119,180,1)","colors":[0.70351257849836701,0.63389171296364566,0.73889168163473995,0.94125396821674767,0.55930488518839916,0.69748694278444701,0.47104735787759494,0.66818263749976015,0.66511716539216992,0.5245880684894072,0.55396923142002752,0.70747736750493773,0.67598502242461445,0.58818560094133698,0.63625511110819877,0.64750256319957755,0.54568933566310096,0.71398106692281993,0.80474256887836082,0.694560109753947,0.6599377853682189,0.76475137717371222,0.86866713682131802,0.70649780264305029,0.70205906373584315,0.69083609184692341,0.71804817180012459,0.86247865448158967,0.76435451296561085,0.88387449043414967,1.0176231704610901,0.88144413693856161,0.91978523676957169,1.0027223243420795,0.98557485804779177,0.99720044896175875,1.1838846471159346,0.92825811611940878,0.84642620533958723,0.33988740043495602,0.80499052637614465,0.44046492889427685,0.31715992770013834,0.61747496636054233,0.63414902498206127,0.62528334269435326,0.84401521179466688,0.62775689188564321,0.40663385969817606,0.4786600174400833,0.78097367191102707,0.55792300484153345,0.57322708178241844,0.43388483605951789,0.82485113990863401,0.55718992606070672,0.80004186477666595,0.6741544682659667,0.59399103323078439,1.055382884500736,0.66276529658838623],"colorscale":"RdYlBu","reversescale":true,"cmin":0,"cmax":1.5,"colorbar":{"title":"Loss ratio","tickformat":".0%"},"line":{"color":"rgba(255,255,255,1)"}},"type":"treemap","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<aside class="notes">
+<p>The treemap combines business volume and risk intensity. Rectangle size represents premium volume, while colour represents loss ratio. This is important because a small high-loss segment may be less urgent than a large segment with moderately poor performance. The chart helps management distinguish between segments that are statistically interesting and segments that are commercially material.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="statistical-validation-and-fair-comparison-strengthen-the-findings" class="slide level2">
+<h2>11. Statistical validation and fair comparison strengthen the findings</h2>
+<div class="columns">
+<div class="column" style="width:48%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="exec-summary_files/figure-revealjs/bootstrap-slide-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:52%;">
+<div class="cell">
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-4dadd80a26ac8256aa3d" style="width:100%;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-4dadd80a26ac8256aa3d">{"x":{"visdat":{"2e5046d6920":["function () ","plotlyVisDat"],"2e5011a4589e":["function () ","data"],"2e5036144ab8":["function () ","data"],"2e507929e6d":["function () ","data"],"2e507bcb3f60":["function () ","data"],"2e505805109b":["function () ","data"],"2e5019377a79":["function () ","data"]},"cur_data":"2e5019377a79","attrs":{"2e5011a4589e":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"y":{},"type":"scatter","mode":"lines","name":"95% upper","line":{"dash":"dash","color":"grey"},"inherit":true},"2e5036144ab8":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"y":{},"type":"scatter","mode":"lines","name":"95% lower","line":{"dash":"dash","color":"grey"},"inherit":true},"2e507929e6d":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"y":{},"type":"scatter","mode":"lines","name":"99.8% upper","line":{"dash":"dot","color":"grey"},"inherit":true},"2e507bcb3f60":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"y":{},"type":"scatter","mode":"lines","name":"99.8% lower","line":{"dash":"dot","color":"grey"},"inherit":true},"2e505805109b":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"y":0.30799450005736628,"type":"scatter","mode":"lines","name":"Portfolio average","line":{"color":"black"},"inherit":true},"2e5019377a79":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"y":{},"type":"scatter","mode":"markers","text":{},"hoverinfo":"text","name":"Vehicle brand","marker":{"size":7,"opacity":0.75},"inherit":true}},"layout":{"height":440,"margin":{"b":55,"l":60,"t":60,"r":115},"title":{"text":"Funnel plot of claim frequency by brand","x":0},"xaxis":{"domain":[0,1],"automargin":true,"title":"Exposure"},"yaxis":{"domain":[0,1],"automargin":true,"title":"Claim frequency"},"legend":{"x":1.02,"y":1,"xanchor":"left","yanchor":"top"},"hoverlabel":{"bgcolor":"rgba(255, 255, 255, 0.85)","bordercolor":"rgba(80, 80, 80, 0.35)","font":{"color":"black","size":12}},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":[149.77808219178081,246.05585080046211,342.33361940914341,438.61138801782471,534.88915662650606,631.16692523518736,727.44469384386866,823.72246245254996,920.00023106123126,1016.2779996699126,1112.5557682785939,1208.8335368872752,1305.1113054959565,1401.3890741046378,1497.6668427133191,1593.9446113220004,1690.2223799306817,1786.500148539363,1882.7779171480443,1979.0556857567256,2075.3334543654069,2171.6112229740879,2267.8889915827694,2364.166760191451,2460.444528800132,2556.7222974088131,2653.0000660174946,2749.2778346261762,2845.5556032348572,2941.8333718435383,3038.1111404522198,3134.3889090609014,3230.6666776695824,3326.9444462782635,3423.222214886945,3519.4999834956266,3615.7777521043076,3712.0555207129887,3808.3332893216702,3904.6110579303518,4000.8888265390328,4097.1665951477135,4193.4443637563954,4289.7221323650765,4385.9999009737576,4482.2776695824386,4578.5554381911206,4674.8332067998017,4771.1109754084828,4867.3887440171638,4963.6665126258449,5059.9442812345269,5156.222049843208,5252.499818451889,5348.777587060571,5445.0553556692521,5541.3331242779332,5637.6108928866142,5733.8886614952953,5830.1664301039773,5926.4441987126584,6022.7219673213394,6118.9997359300214,6215.2775045387025,6311.5552731473836,6407.8330417560646,6504.1108103647457,6600.3885789734277,6696.6663475821088,6792.9441161907898,6889.2218847994718,6985.4996534081529,7081.777422016834,7178.055190625515,7274.3329592341961,7370.6107278428781,7466.8884964515591,7563.1662650602402,7659.4440336689222,7755.7218022776033,7851.9995708862843,7948.2773394949654,8044.5551081036465,8140.8328767123285,8237.1106453210105,8333.3884139296915,8429.6661825383726,8525.9439511470537,8622.2217197557347,8718.4994883644158,8814.7772569730969,8911.055025581778,9007.3327941904608,9103.6105627991419,9199.888331407823,9296.1661000165041,9392.4438686251851,9488.7216372338662,9584.9994058425473,9681.2771744512283,9777.5549430599094,9873.8327116685923,9970.1104802772734,10066.388248885954,10162.666017494636,10258.943786103317,10355.221554711998,10451.499323320679,10547.777091929362,10644.054860538043,10740.332629146724,10836.610397755405,10932.888166364086,11029.165934972767,11125.443703581448,11221.721472190129,11317.99924079881,11414.277009407493,11510.554778016174,11606.832546624855,11703.110315233536,11799.388083842217,11895.665852450898,11991.94362105958,12088.221389668262,12184.499158276943,12280.776926885625,12377.054695494306,12473.332464102987,12569.610232711668,12665.888001320349,12762.16576992903,12858.443538537711,12954.721307146394,13050.999075755075,13147.276844363756,13243.554612972437,13339.832381581118,13436.110150189799,13532.38791879848,13628.665687407163,13724.943456015844,13821.221224624525,13917.498993233206,14013.776761841887,14110.054530450569,14206.33229905925,14302.610067667931,14398.887836276612,14495.165604885295,14591.443373493976,14687.721142102657,14783.998910711338,14880.276679320019,14976.5544479287,15072.832216537381,15169.109985146064,15265.387753754745,15361.665522363426,15457.943290972107,15554.221059580788,15650.498828189469,15746.77659679815,15843.054365406831,15939.332134015513,16035.609902624195,16131.887671232877,16228.165439841558,16324.443208450239,16420.720977058922,16516.998745667603,16613.276514276284,16709.554282884965,16805.832051493646,16902.109820102327,16998.387588711008,17094.665357319689,17190.94312592837,17287.220894537051,17383.498663145732,17479.776431754413,17576.054200363094,17672.331968971775,17768.609737580457,17864.887506189141,17961.165274797822,18057.443043406503,18153.720812015184,18249.998580623866,18346.276349232547,18442.554117841228,18538.831886449909,18635.10965505859,18731.387423667271,18827.665192275952,18923.942960884633,19020.220729493314,19116.498498101995,19212.776266710676,19309.054035319357,19405.331803928038,19501.609572536723,19597.887341145404,19694.165109754085,19790.442878362766,19886.720646971447,19982.998415580128,20079.27618418881,20175.553952797491,20271.831721406172,20368.109490014853,20464.387258623534,20560.665027232215,20656.942795840896,20753.220564449577,20849.498333058258,20945.776101666943,21042.053870275624,21138.331638884305,21234.609407492986,21330.887176101667,21427.164944710348,21523.442713319029,21619.72048192771,21715.998250536391,21812.276019145072,21908.553787753754,22004.831556362435,22101.109324971116,22197.387093579797,22293.664862188478,22389.942630797159,22486.22039940584,22582.498168014525,22678.775936623206,22775.053705231887,22871.331473840568,22967.609242449249,23063.88701105793,23160.164779666611,23256.442548275292,23352.720316883973,23448.998085492654,23545.275854101335,23641.553622710016,23737.831391318698,23834.109159927379,23930.38692853606,24026.664697144744,24122.942465753425],"y":[0.40059265763046703,0.3779629693724208,0.36806200985305465,0.36022776497900472,0.35521378148383403,0.35172945717533866,0.34916743795029453,0.3459903219725749,0.34456513085256152,0.34242598985024819,0.34065708057620264,0.33999718526863315,0.33866843244610101,0.33752225469732927,0.33652344141298107,0.33564528917744313,0.33486717885205874,0.33417293611092358,0.33354969499072357,0.33248180166714336,0.33199484090169096,0.33155105867151397,0.33114495585424308,0.33077192910735004,0.33002166498587243,0.32971903161104499,0.32943836345695615,0.32881362102237965,0.32858257942212843,0.32836666047970059,0.3278352746014902,0.32765557491322955,0.32717705212549475,0.32702680118903327,0.32659287940409765,0.32646682920532188,0.32634749171551392,0.32596495209952858,0.3258643363698463,0.3255125750408791,0.3254276878086349,0.32510271893202769,0.32479267205060763,0.32472965777668905,0.32444141179393843,0.32438864951788055,0.32411969671078034,0.32407573339650902,0.32382394959231137,0.32358212644016543,0.32355114831242054,0.32332371841866375,0.32329872218181344,0.32308425676446195,0.32287751208385457,0.32286173145505592,0.32266603719713866,0.3224770269785564,0.32246876581621903,0.32228925580885848,0.32228431348681053,0.32211349129616768,0.3219480446178809,0.32178772364379565,0.32179073336185821,0.32163759364042099,0.32148898765190909,0.32149622323145693,0.32135392272858254,0.32121565593323004,0.32122640800448177,0.32109371001194792,0.32096462011547766,0.32083899313113395,0.32085416121036497,0.32073325905950545,0.32061547472386726,0.32050068913574159,0.32051934699287038,0.32040860455699122,0.32030057787129024,0.32019516824782934,0.32021658940530817,0.32011466633281777,0.3200151258739431,0.31991788544785005,0.31994149490601409,0.31984728208694335,0.31975517327314856,0.31966509876148874,0.31957699189410133,0.31960300905156425,0.31951744936705895,0.31943369940309263,0.31935170234293586,0.31937897495126821,0.31929921987800791,0.31922108328208987,0.31914451639249797,0.31906947237827599,0.31899590625301066,0.31902505257937241,0.31895333620330785,0.31888299165842826,0.318813979955896,0.31874626357047747,0.31877637601079878,0.31871025361571431,0.31864533832172764,0.31858159737337066,0.31851899918967264,0.31845751331198618,0.31839711035457013,0.31842843064530174,0.31836932479913377,0.31831123316081178,0.31825412984793372,0.318197989851355,0.31814278899866716,0.31808850391949478,0.31812055938273937,0.31806734157165856,0.31801498519904858,0.3179634695166364,0.3179127744371551,0.31786288050822892,0.31781376888748614,0.31784621598481888,0.31779799114695279,0.31775050507181607,0.31770374091264031,0.31765768233102526,0.31761231347790642,0.31756761897537206,0.31752358389928442,0.31748019376266468,0.31751294292856114,0.31747025591171951,0.317428180650912,0.31738670408890751,0.31734581353743851,0.31730549666426056,0.31726574148075148,0.31722653633002645,0.31718786987554209,0.3171497310901677,0.31718250039092705,0.31714491121127264,0.31710782470965587,0.31707123086962274,0.31703511993908295,0.31699948242164533,0.31696430906829193,0.31692959086937528,0.31689531904692442,0.31686148504724554,0.31682808053380485,0.31686060505146807,0.31682762477249937,0.31679505532019853,0.3167628890657409,0.31673111856802405,0.31669973656792877,0.31666873598278972,0.31663810990106622,0.316607851577205,0.31657795442668729,0.31654841202125156,0.31651921808428585,0.31649036648638207,0.31646185124104576,0.31643366650055471,0.3164656525528225,0.31643776896647935,0.31641020304100842,0.31638294937877781,0.31635600270375414,0.31632935785809768,0.31630300979887099,0.31627695359485691,0.31625118442348205,0.31622569756784091,0.3162004884138177,0.31617555244730139,0.3161508852514911,0.31612648250428804,0.31610233997577081,0.31607845352575098,0.31605481910140643,0.31603143273498874,0.31600829054160262,0.31598538871705456,0.3159627235357681,0.3159936776771427,0.31597120191199157,0.31594895484299751,0.3159269329972742,0.31590513297189804,0.31588355143215557,0.31586218510984282,0.3158410308016153,0.31582008536738704,0.31579934572877699,0.3157788088676004,0.3157584718244047,0.31573833169704779,0.31571838563931764,0.31569863085959099,0.31567906461953132,0.31565968423282315,0.3156404870639426,0.31562147052696277,0.31560263208439227,0.31558396924604676,0.31556547956795133,0.31554716065127381,0.3155290101412872,0.31551102572636069,0.31549320513697809,0.31547554614478318,0.31545804656165083,0.31544070423878318,0.31542351706583005,0.31540648297003271,0.31538959991539084,0.31537286590185104,0.31535627896451707,0.31533983717288083,0.31532353863007317,0.3153073814721345,0.31529136386730411,0.31527548401532796,0.31525974014678404,0.31524413052242528,0.31522865343253892,0.3152133071963224,0.31519809016127476,0.3151830007026033,0.31516803722264569,0.31515319815030557,0.31513848194050303,0.31512388707363814,0.31510941205506776,0.31509505541459559,0.31508081570597413,0.31506669150641914,0.31505268141613563,0.31503878405785551,0.31502499807638623,0.31501132213817029],"type":"scatter","mode":"lines","name":"95% upper","line":{"color":"grey","dash":"dash"},"marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[149.77808219178081,246.05585080046211,342.33361940914341,438.61138801782471,534.88915662650606,631.16692523518736,727.44469384386866,823.72246245254996,920.00023106123126,1016.2779996699126,1112.5557682785939,1208.8335368872752,1305.1113054959565,1401.3890741046378,1497.6668427133191,1593.9446113220004,1690.2223799306817,1786.500148539363,1882.7779171480443,1979.0556857567256,2075.3334543654069,2171.6112229740879,2267.8889915827694,2364.166760191451,2460.444528800132,2556.7222974088131,2653.0000660174946,2749.2778346261762,2845.5556032348572,2941.8333718435383,3038.1111404522198,3134.3889090609014,3230.6666776695824,3326.9444462782635,3423.222214886945,3519.4999834956266,3615.7777521043076,3712.0555207129887,3808.3332893216702,3904.6110579303518,4000.8888265390328,4097.1665951477135,4193.4443637563954,4289.7221323650765,4385.9999009737576,4482.2776695824386,4578.5554381911206,4674.8332067998017,4771.1109754084828,4867.3887440171638,4963.6665126258449,5059.9442812345269,5156.222049843208,5252.499818451889,5348.777587060571,5445.0553556692521,5541.3331242779332,5637.6108928866142,5733.8886614952953,5830.1664301039773,5926.4441987126584,6022.7219673213394,6118.9997359300214,6215.2775045387025,6311.5552731473836,6407.8330417560646,6504.1108103647457,6600.3885789734277,6696.6663475821088,6792.9441161907898,6889.2218847994718,6985.4996534081529,7081.777422016834,7178.055190625515,7274.3329592341961,7370.6107278428781,7466.8884964515591,7563.1662650602402,7659.4440336689222,7755.7218022776033,7851.9995708862843,7948.2773394949654,8044.5551081036465,8140.8328767123285,8237.1106453210105,8333.3884139296915,8429.6661825383726,8525.9439511470537,8622.2217197557347,8718.4994883644158,8814.7772569730969,8911.055025581778,9007.3327941904608,9103.6105627991419,9199.888331407823,9296.1661000165041,9392.4438686251851,9488.7216372338662,9584.9994058425473,9681.2771744512283,9777.5549430599094,9873.8327116685923,9970.1104802772734,10066.388248885954,10162.666017494636,10258.943786103317,10355.221554711998,10451.499323320679,10547.777091929362,10644.054860538043,10740.332629146724,10836.610397755405,10932.888166364086,11029.165934972767,11125.443703581448,11221.721472190129,11317.99924079881,11414.277009407493,11510.554778016174,11606.832546624855,11703.110315233536,11799.388083842217,11895.665852450898,11991.94362105958,12088.221389668262,12184.499158276943,12280.776926885625,12377.054695494306,12473.332464102987,12569.610232711668,12665.888001320349,12762.16576992903,12858.443538537711,12954.721307146394,13050.999075755075,13147.276844363756,13243.554612972437,13339.832381581118,13436.110150189799,13532.38791879848,13628.665687407163,13724.943456015844,13821.221224624525,13917.498993233206,14013.776761841887,14110.054530450569,14206.33229905925,14302.610067667931,14398.887836276612,14495.165604885295,14591.443373493976,14687.721142102657,14783.998910711338,14880.276679320019,14976.5544479287,15072.832216537381,15169.109985146064,15265.387753754745,15361.665522363426,15457.943290972107,15554.221059580788,15650.498828189469,15746.77659679815,15843.054365406831,15939.332134015513,16035.609902624195,16131.887671232877,16228.165439841558,16324.443208450239,16420.720977058922,16516.998745667603,16613.276514276284,16709.554282884965,16805.832051493646,16902.109820102327,16998.387588711008,17094.665357319689,17190.94312592837,17287.220894537051,17383.498663145732,17479.776431754413,17576.054200363094,17672.331968971775,17768.609737580457,17864.887506189141,17961.165274797822,18057.443043406503,18153.720812015184,18249.998580623866,18346.276349232547,18442.554117841228,18538.831886449909,18635.10965505859,18731.387423667271,18827.665192275952,18923.942960884633,19020.220729493314,19116.498498101995,19212.776266710676,19309.054035319357,19405.331803928038,19501.609572536723,19597.887341145404,19694.165109754085,19790.442878362766,19886.720646971447,19982.998415580128,20079.27618418881,20175.553952797491,20271.831721406172,20368.109490014853,20464.387258623534,20560.665027232215,20656.942795840896,20753.220564449577,20849.498333058258,20945.776101666943,21042.053870275624,21138.331638884305,21234.609407492986,21330.887176101667,21427.164944710348,21523.442713319029,21619.72048192771,21715.998250536391,21812.276019145072,21908.553787753754,22004.831556362435,22101.109324971116,22197.387093579797,22293.664862188478,22389.942630797159,22486.22039940584,22582.498168014525,22678.775936623206,22775.053705231887,22871.331473840568,22967.609242449249,23063.88701105793,23160.164779666611,23256.442548275292,23352.720316883973,23448.998085492654,23545.275854101335,23641.553622710016,23737.831391318698,23834.109159927379,23930.38692853606,24026.664697144744,24122.942465753425],"y":[0.22032596169675686,0.23978295906422395,0.25121692736002144,0.25763124963688311,0.26173647056703558,0.26617364326782383,0.26806161574924187,0.27072225192941823,0.27282601843530896,0.27453118151787137,0.27594122358019579,0.27712665952552823,0.27813719678265758,0.27900888284705233,0.28043620117748425,0.2810637187878402,0.28161974758583036,0.28267559922280805,0.28309233667206318,0.28397381844518932,0.28429166347169477,0.28504181294120434,0.28528733214073937,0.28593583641504938,0.28612715782026382,0.28669519593226095,0.28722200566842171,0.28734818651292027,0.28781725406066649,0.28825561913745973,0.28833704874588895,0.2887325173286005,0.28910441502858292,0.28915421208074449,0.28949333049146758,0.28981389537809255,0.29011738882167293,0.29013574662082009,0.29041575827965355,0.29068196118914069,0.29093535223444777,0.29117683459903082,0.29140722852117662,0.29139416526982143,0.29160967370656871,0.29181592405047302,0.29201350033848605,0.29220293849480616,0.29238473118529085,0.29255933209574325,0.29272715971229579,0.29288860067020761,0.29285007228226656,0.29300334187419386,0.29315109377387605,0.29329362066764747,0.29343119490075359,0.29356407021425235,0.2936924833069296,0.29381665524245587,0.29393679271938428,0.29405308921933654,0.29416572604679475,0.29427487327225116,0.29438069058903621,0.29448332809290367,0.29458292699237576,0.29467962025691979,0.2947735332092109,0.29486478406703009,0.29495348443972297,0.29503973978360437,0.29512364982021483,0.29520530892091745,0.29528480646095284,0.29536222714574595,0.29543765131196792,0.29551115520560334,0.29558281123904623,0.29565268822904667,0.2957208516171515,0.29591317709976217,0.29597659137190946,0.29603850570302792,0.29609897268837149,0.29615804249260841,0.29621576298862334,0.29627217988691562,0.29632733685632739,0.29638127563677319,0.29643403614458175,0.29648565657100867,0.29653617347443167,0.29669546839331268,0.29674273226555986,0.29678901714063627,0.29683435312433676,0.29687876910057681,0.29692229279275878,0.29696495082147734,0.29700676875881471,0.29704777117946007,0.29718828150012611,0.2972267635644914,0.29726451649591412,0.29730156082261661,0.29733791630937578,0.29737360199268692,0.29740863621400165,0.29753698580992777,0.29756992733416948,0.29760228352105345,0.29763406983446461,0.29766530119832729,0.29769599201996927,0.29772615621228221,0.29784416205368813,0.29787256759212744,0.29790049794550238,0.29792796493868173,0.29795498000741666,0.29798155421421568,0.29809176249427077,0.29811681183372019,0.29814146215756104,0.2981657229244502,0.29818960329643202,0.29829390681645945,0.29831642912659218,0.29833860641444926,0.29836044654792937,0.29838195715750965,0.29840314564513393,0.29850121112731254,0.29852120725666315,0.29854091052191156,0.29856032731023324,0.29857946382441058,0.29867275239205388,0.29869081674676695,0.2987086258753554,0.29872618514890198,0.29874349978883075,0.29883242686219252,0.2988487736870124,0.29886489743178485,0.29888080263201872,0.29896641100956828,0.29898142474267819,0.29899623903153721,0.29901085782408537,0.29902528496474795,0.29910716489543043,0.29912078222213517,0.29913422446907317,0.29914749499121235,0.299226520504149,0.29923904152886216,0.29925140560492697,0.29926361566494553,0.29927567456891085,0.29935148083340579,0.29936285505939769,0.29937409104372564,0.29938519129143809,0.29945851945513857,0.29946898332393307,0.29947932303353758,0.29948954078073803,0.29956053737666222,0.29957016260583402,0.29957967627416032,0.29958908031002823,0.29965787975088193,0.29966673118973591,0.29967548236063485,0.29968413495771679,0.29975086080227609,0.29975899721612098,0.29976704350360117,0.29977500115395189,0.29983976721527916,0.29984724196578738,0.29985463571363863,0.2998619497684557,0.29992486108675587,0.29993172272403201,0.29993851158029178,0.29994522880740271,0.30000638250661915,0.30001267528597925,0.30001890270472131,0.30007872792323625,0.30008455182010796,0.3000903161544381,0.3000960218353208,0.30015424537883811,0.30015957161661716,0.30016484447342912,0.30017006474776992,0.30022676545116833,0.30023162848287888,0.30023644373374114,0.30029198836516946,0.30029646312248953,0.3003008945524398,0.30030528328127198,0.30035943251525371,0.30036350001481549,0.30036752887852169,0.30042061601248482,0.30042433825666004,0.30042802564112975,0.30043167865331583,0.30048348306394018,0.30048684625022504,0.3004901785185749,0.30054100417133678,0.3005440594144882,0.3005470869526804,0.30055008716105563,0.3005997301378906,0.30060246802414498,0.30060518152547921,0.30065391996606611,0.30065638240795739,0.30065882320730553,0.30066124264818844,0.30070888760732761,0.3007110689136302,0.30071323137948597,0.30076003815826868,0.30076197243796032,0.30076389022451361,0.30080988581854534,0.30081158484496517,0.30081326956714804,0.30085847974236618,0.30085995464134524,0.3008614172778914,0.300862867804298,0.30090712793402025,0.30090837886866401,0.30090961957304352,0.30095314857672251,0.30095419763629605,0.30095523822052744,0.30099805830597337,0.30099891479566987,0.30099976444864512],"type":"scatter","mode":"lines","name":"95% lower","line":{"color":"grey","dash":"dash"},"marker":{"color":"rgba(255,127,14,1)","line":{"color":"rgba(255,127,14,1)"}},"error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[149.77808219178081,246.05585080046211,342.33361940914341,438.61138801782471,534.88915662650606,631.16692523518736,727.44469384386866,823.72246245254996,920.00023106123126,1016.2779996699126,1112.5557682785939,1208.8335368872752,1305.1113054959565,1401.3890741046378,1497.6668427133191,1593.9446113220004,1690.2223799306817,1786.500148539363,1882.7779171480443,1979.0556857567256,2075.3334543654069,2171.6112229740879,2267.8889915827694,2364.166760191451,2460.444528800132,2556.7222974088131,2653.0000660174946,2749.2778346261762,2845.5556032348572,2941.8333718435383,3038.1111404522198,3134.3889090609014,3230.6666776695824,3326.9444462782635,3423.222214886945,3519.4999834956266,3615.7777521043076,3712.0555207129887,3808.3332893216702,3904.6110579303518,4000.8888265390328,4097.1665951477135,4193.4443637563954,4289.7221323650765,4385.9999009737576,4482.2776695824386,4578.5554381911206,4674.8332067998017,4771.1109754084828,4867.3887440171638,4963.6665126258449,5059.9442812345269,5156.222049843208,5252.499818451889,5348.777587060571,5445.0553556692521,5541.3331242779332,5637.6108928866142,5733.8886614952953,5830.1664301039773,5926.4441987126584,6022.7219673213394,6118.9997359300214,6215.2775045387025,6311.5552731473836,6407.8330417560646,6504.1108103647457,6600.3885789734277,6696.6663475821088,6792.9441161907898,6889.2218847994718,6985.4996534081529,7081.777422016834,7178.055190625515,7274.3329592341961,7370.6107278428781,7466.8884964515591,7563.1662650602402,7659.4440336689222,7755.7218022776033,7851.9995708862843,7948.2773394949654,8044.5551081036465,8140.8328767123285,8237.1106453210105,8333.3884139296915,8429.6661825383726,8525.9439511470537,8622.2217197557347,8718.4994883644158,8814.7772569730969,8911.055025581778,9007.3327941904608,9103.6105627991419,9199.888331407823,9296.1661000165041,9392.4438686251851,9488.7216372338662,9584.9994058425473,9681.2771744512283,9777.5549430599094,9873.8327116685923,9970.1104802772734,10066.388248885954,10162.666017494636,10258.943786103317,10355.221554711998,10451.499323320679,10547.777091929362,10644.054860538043,10740.332629146724,10836.610397755405,10932.888166364086,11029.165934972767,11125.443703581448,11221.721472190129,11317.99924079881,11414.277009407493,11510.554778016174,11606.832546624855,11703.110315233536,11799.388083842217,11895.665852450898,11991.94362105958,12088.221389668262,12184.499158276943,12280.776926885625,12377.054695494306,12473.332464102987,12569.610232711668,12665.888001320349,12762.16576992903,12858.443538537711,12954.721307146394,13050.999075755075,13147.276844363756,13243.554612972437,13339.832381581118,13436.110150189799,13532.38791879848,13628.665687407163,13724.943456015844,13821.221224624525,13917.498993233206,14013.776761841887,14110.054530450569,14206.33229905925,14302.610067667931,14398.887836276612,14495.165604885295,14591.443373493976,14687.721142102657,14783.998910711338,14880.276679320019,14976.5544479287,15072.832216537381,15169.109985146064,15265.387753754745,15361.665522363426,15457.943290972107,15554.221059580788,15650.498828189469,15746.77659679815,15843.054365406831,15939.332134015513,16035.609902624195,16131.887671232877,16228.165439841558,16324.443208450239,16420.720977058922,16516.998745667603,16613.276514276284,16709.554282884965,16805.832051493646,16902.109820102327,16998.387588711008,17094.665357319689,17190.94312592837,17287.220894537051,17383.498663145732,17479.776431754413,17576.054200363094,17672.331968971775,17768.609737580457,17864.887506189141,17961.165274797822,18057.443043406503,18153.720812015184,18249.998580623866,18346.276349232547,18442.554117841228,18538.831886449909,18635.10965505859,18731.387423667271,18827.665192275952,18923.942960884633,19020.220729493314,19116.498498101995,19212.776266710676,19309.054035319357,19405.331803928038,19501.609572536723,19597.887341145404,19694.165109754085,19790.442878362766,19886.720646971447,19982.998415580128,20079.27618418881,20175.553952797491,20271.831721406172,20368.109490014853,20464.387258623534,20560.665027232215,20656.942795840896,20753.220564449577,20849.498333058258,20945.776101666943,21042.053870275624,21138.331638884305,21234.609407492986,21330.887176101667,21427.164944710348,21523.442713319029,21619.72048192771,21715.998250536391,21812.276019145072,21908.553787753754,22004.831556362435,22101.109324971116,22197.387093579797,22293.664862188478,22389.942630797159,22486.22039940584,22582.498168014525,22678.775936623206,22775.053705231887,22871.331473840568,22967.609242449249,23063.88701105793,23160.164779666611,23256.442548275292,23352.720316883973,23448.998085492654,23545.275854101335,23641.553622710016,23737.831391318698,23834.109159927379,23930.38692853606,24026.664697144744,24122.942465753425],"y":[0.45400501198119597,0.42266826682507269,0.40603666166329044,0.3921466808632203,0.38512652097720951,0.37866369488696366,0.37391158709637839,0.36905634343741323,0.36630425582748655,0.36308962716879761,0.36043137021387139,0.35819654798374251,0.35629145042406551,0.35464811962911763,0.35321607243545039,0.35195702285709457,0.35024977010674696,0.34928628498026182,0.34842133744253928,0.34713525493210862,0.34645034921381107,0.34536568611616036,0.34481405523038361,0.34388437130981531,0.34302744488679354,0.34262618231468017,0.34187711173393504,0.34118050499888508,0.34053103685566033,0.33992407917153272,0.33968474235817053,0.33914106731525123,0.33862979661806175,0.33814811703829267,0.33769353183464834,0.33726381746450573,0.33685698721143725,0.33647126047298448,0.33610503670701314,0.33575687323256687,0.3354254662359355,0.3351096344547102,0.33480830510943699,0.334520501729755,0.33424533358391689,0.33398198647061017,0.33372971467255552,0.33327392252921523,0.33304612032503739,0.33282733005274162,0.33261702731245724,0.33241472761625451,0.33221998266193548,0.33184199147935017,0.33166456655284193,0.33149341597063475,0.33132821269236384,0.33116865201813245,0.33084004800073957,0.33069381862665204,0.33055234037730985,0.33024934751962753,0.33011931478584744,0.32999331059671244,0.32987115059546473,0.32959660250779677,0.32948393139074184,0.32937454726917409,0.32911898034098325,0.32901786939081995,0.32891958451791942,0.32868085518833368,0.32858982446489948,0.32850123569397038,0.32827752226664592,0.32819532726943473,0.32798132731777396,0.32790499548541219,0.32783058260655701,0.32762908015264175,0.32755987526240898,0.32736653350917566,0.32730212729199398,0.32711640692413418,0.32705642985751243,0.32699783865168469,0.32682195716205742,0.32676733696157834,0.32659795717707157,0.32654701692642929,0.3263837435851365,0.32633621851192024,0.32617868875622624,0.32613433752674759,0.32598221760601248,0.32594081983911849,0.32579380220963794,0.32575515629743801,0.32561295706472249,0.3255768782571466,0.32543923491410065,0.32540555363095985,0.32527222305261866,0.32524078339242807,0.32511154005379023,0.32508219847325459,0.32495683286165944,0.32492945700359227,0.32480777420120172,0.32478224185188515,0.32466406026728689,0.32464025842699723,0.32452540865786123,0.32441256402303231,0.32439155652175999,0.32428179660475753,0.32426225889559046,0.32415544120319756,0.32413728720754431,0.32403327823434991,0.3239309805586798,0.32391510244787608,0.32381541712575607,0.32380072177631763,0.32370353535586466,0.32360788480349773,0.32359516206991285,0.32350184260376585,0.32349013478253141,0.32339904935326297,0.32330934866731165,0.32329935799156639,0.32321174701620448,0.32320263020172163,0.32311702541102377,0.32303267439147987,0.3230250582279155,0.32294258854018598,0.32286130074177172,0.32285506639451383,0.32277554537599817,0.32277000005113071,0.32269217947643136,0.3226154355881809,0.32261110454608005,0.32253596116007893,0.32246183628291986,0.32245862665484776,0.32238601014065321,0.32231435827303684,0.32231218527313171,0.32224195667990713,0.32217264278537655,0.32217142888629879,0.32210345956223413,0.32203635854676083,0.32203603275231724,0.32197020339631294,0.32190519919868693,0.32190569640051209,0.32184189621739373,0.32177888099829915,0.32178014140559352,0.32171826735185949,0.32165714076932167,0.32159674819453343,0.32159906551119122,0.32153973407181047,0.32148110247848505,0.32148405708709082,0.32142643356393952,0.32136947792399878,0.32137302462342221,0.3213170275327169,0.3212616683830733,0.32120693633472053,0.32121131857365276,0.3211574815620738,0.32110424421973899,0.32110912240205369,0.32105673787709504,0.32100492725400476,0.32095368115303757,0.3209592694209612,0.32090882173279006,0.32085891487710672,0.32080954020316055,0.32081577436981068,0.32076714823502656,0.32071903246165462,0.3207256414813966,0.32067824102473358,0.32063133035431629,0.32058490191776345,0.32059206164746695,0.32054630541522378,0.32050101240662066,0.32045617562275996,0.32046383690357255,0.32041963260773854,0.32037586694299919,0.32033253341290252,0.32034065155683666,0.32029791386667045,0.32025559200241271,0.32021367992463773,0.32022221425043484,0.32018086414202723,0.32013990867915731,0.32009934223891068,0.32005915930468842,0.32006821984078127,0.32002855896367716,0.31998926778898129,0.3199503411713539,0.31995973684521167,0.31992130382157141,0.31988322249798673,0.31984548806884222,0.31980809581567732,0.31981792148069282,0.31978098911734609,0.31974438716262221,0.31970811120235609,0.31971820590050498,0.31968236574118436,0.31964684058308196,0.31961162629152196,0.31957671880387528,0.31958716447539964,0.31955266413297406,0.31951846049662225,0.31948454975518364,0.31945092816249132,0.3194616861265554,0.31942844544550014,0.31939548462035122,0.31936280013173024,0.31933038851902401,0.31934142396488013,0.31930936920318947,0.31927757874997226,0.31924604934960582,0.31921477779971702,0.31922605935467674,0.31919512254902227,0.31916443568152131,0.31913399573548779,0.31910379974258862,0.31911529909456965],"type":"scatter","mode":"lines","name":"99.8% upper","line":{"color":"grey","dash":"dot"},"marker":{"color":"rgba(44,160,44,1)","line":{"color":"rgba(44,160,44,1)"}},"error_y":{"color":"rgba(44,160,44,1)"},"error_x":{"color":"rgba(44,160,44,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[149.77808219178081,246.05585080046211,342.33361940914341,438.61138801782471,534.88915662650606,631.16692523518736,727.44469384386866,823.72246245254996,920.00023106123126,1016.2779996699126,1112.5557682785939,1208.8335368872752,1305.1113054959565,1401.3890741046378,1497.6668427133191,1593.9446113220004,1690.2223799306817,1786.500148539363,1882.7779171480443,1979.0556857567256,2075.3334543654069,2171.6112229740879,2267.8889915827694,2364.166760191451,2460.444528800132,2556.7222974088131,2653.0000660174946,2749.2778346261762,2845.5556032348572,2941.8333718435383,3038.1111404522198,3134.3889090609014,3230.6666776695824,3326.9444462782635,3423.222214886945,3519.4999834956266,3615.7777521043076,3712.0555207129887,3808.3332893216702,3904.6110579303518,4000.8888265390328,4097.1665951477135,4193.4443637563954,4289.7221323650765,4385.9999009737576,4482.2776695824386,4578.5554381911206,4674.8332067998017,4771.1109754084828,4867.3887440171638,4963.6665126258449,5059.9442812345269,5156.222049843208,5252.499818451889,5348.777587060571,5445.0553556692521,5541.3331242779332,5637.6108928866142,5733.8886614952953,5830.1664301039773,5926.4441987126584,6022.7219673213394,6118.9997359300214,6215.2775045387025,6311.5552731473836,6407.8330417560646,6504.1108103647457,6600.3885789734277,6696.6663475821088,6792.9441161907898,6889.2218847994718,6985.4996534081529,7081.777422016834,7178.055190625515,7274.3329592341961,7370.6107278428781,7466.8884964515591,7563.1662650602402,7659.4440336689222,7755.7218022776033,7851.9995708862843,7948.2773394949654,8044.5551081036465,8140.8328767123285,8237.1106453210105,8333.3884139296915,8429.6661825383726,8525.9439511470537,8622.2217197557347,8718.4994883644158,8814.7772569730969,8911.055025581778,9007.3327941904608,9103.6105627991419,9199.888331407823,9296.1661000165041,9392.4438686251851,9488.7216372338662,9584.9994058425473,9681.2771744512283,9777.5549430599094,9873.8327116685923,9970.1104802772734,10066.388248885954,10162.666017494636,10258.943786103317,10355.221554711998,10451.499323320679,10547.777091929362,10644.054860538043,10740.332629146724,10836.610397755405,10932.888166364086,11029.165934972767,11125.443703581448,11221.721472190129,11317.99924079881,11414.277009407493,11510.554778016174,11606.832546624855,11703.110315233536,11799.388083842217,11895.665852450898,11991.94362105958,12088.221389668262,12184.499158276943,12280.776926885625,12377.054695494306,12473.332464102987,12569.610232711668,12665.888001320349,12762.16576992903,12858.443538537711,12954.721307146394,13050.999075755075,13147.276844363756,13243.554612972437,13339.832381581118,13436.110150189799,13532.38791879848,13628.665687407163,13724.943456015844,13821.221224624525,13917.498993233206,14013.776761841887,14110.054530450569,14206.33229905925,14302.610067667931,14398.887836276612,14495.165604885295,14591.443373493976,14687.721142102657,14783.998910711338,14880.276679320019,14976.5544479287,15072.832216537381,15169.109985146064,15265.387753754745,15361.665522363426,15457.943290972107,15554.221059580788,15650.498828189469,15746.77659679815,15843.054365406831,15939.332134015513,16035.609902624195,16131.887671232877,16228.165439841558,16324.443208450239,16420.720977058922,16516.998745667603,16613.276514276284,16709.554282884965,16805.832051493646,16902.109820102327,16998.387588711008,17094.665357319689,17190.94312592837,17287.220894537051,17383.498663145732,17479.776431754413,17576.054200363094,17672.331968971775,17768.609737580457,17864.887506189141,17961.165274797822,18057.443043406503,18153.720812015184,18249.998580623866,18346.276349232547,18442.554117841228,18538.831886449909,18635.10965505859,18731.387423667271,18827.665192275952,18923.942960884633,19020.220729493314,19116.498498101995,19212.776266710676,19309.054035319357,19405.331803928038,19501.609572536723,19597.887341145404,19694.165109754085,19790.442878362766,19886.720646971447,19982.998415580128,20079.27618418881,20175.553952797491,20271.831721406172,20368.109490014853,20464.387258623534,20560.665027232215,20656.942795840896,20753.220564449577,20849.498333058258,20945.776101666943,21042.053870275624,21138.331638884305,21234.609407492986,21330.887176101667,21427.164944710348,21523.442713319029,21619.72048192771,21715.998250536391,21812.276019145072,21908.553787753754,22004.831556362435,22101.109324971116,22197.387093579797,22293.664862188478,22389.942630797159,22486.22039940584,22582.498168014525,22678.775936623206,22775.053705231887,22871.331473840568,22967.609242449249,23063.88701105793,23160.164779666611,23256.442548275292,23352.720316883973,23448.998085492654,23545.275854101335,23641.553622710016,23737.831391318698,23834.109159927379,23930.38692853606,24026.664697144744,24122.942465753425],"y":[0.18026669593371017,0.2032058975120542,0.21908452967443728,0.23027217887898402,0.23743236972866802,0.24240813940462527,0.24606681650827841,0.25008423272403657,0.25326080595787648,0.25583550965823137,0.25796459663686061,0.25975454057019665,0.26128039697764804,0.26331017332624629,0.26441127539591369,0.26600673385277734,0.26742043258150278,0.26812200401529712,0.26928295439537714,0.27033094816401471,0.27128170599078666,0.27168767307804614,0.27250011014370468,0.27324637621911524,0.27393423916315029,0.27457029678642181,0.27516018915741186,0.27570876629973867,0.27622022184576783,0.27669820044562765,0.27747503663559864,0.27788510783780229,0.2782707378058844,0.27863404843955314,0.27897692292568266,0.27958516965886576,0.27988445899669495,0.28016822329215679,0.28070022206234141,0.28094987790703729,0.28118751826782967,0.28165806129696697,0.28186853036991061,0.28206955198118716,0.28248974646007707,0.282668788816475,0.28305871087410467,0.28321866073727919,0.28337215524194498,0.28372502642150382,0.28386274469003769,0.28419285274207728,0.28431669269258458,0.28462637823386605,0.28473795651633499,0.28502924187613582,0.2851299433844961,0.28540458548322178,0.28567000454676406,0.28575513580498041,0.28600623631421146,0.28608327087798807,0.28632130668554689,0.28655196790480003,0.28661715246263003,0.28683643722032692,0.28689548108965202,0.28710430868219178,0.28730713165882565,0.28735699375878321,0.28755061647396224,0.28773890197236524,0.28778086044669754,0.28796100686150838,0.28813638470305269,0.28817150687072318,0.28833964790329414,0.28850350812466508,0.28853269118299124,0.28869008676181224,0.28884362250977585,0.28899343868969118,0.28901536116744625,0.28915960266594515,0.28930047229044253,0.28943808690930772,0.28945392939216702,0.28958670314362417,0.28971651172880852,0.28984345338007966,0.28985417617658105,0.28997688742599792,0.29009697539823659,0.29021452332289227,0.29022091397400912,0.29033474348045568,0.29044623935552033,0.29055547263411086,0.29066251149705763,0.29066412925622165,0.29076799021394978,0.29086982571681191,0.29096969444207421,0.29106765282217906,0.29116375515107906,0.29116057776300192,0.29125402909680981,0.29134575870905138,0.29143581374620375,0.29152423964894403,0.29161108022860416,0.29169637773955037,0.29168870580888373,0.29177183650813809,0.29185352840846623,0.29193381854278255,0.29201274268390365,0.29209033539769202,0.29216663009353294,0.2922416590722986,0.29223000620171063,0.29230329365325081,0.29237539479838515,0.29244633821002985,0.29251615155081456,0.29258486160904623,0.29265249433298107,0.29271907486349741,0.2927846275652552,0.29284917605642335,0.29283379101515483,0.29289699470976133,0.29295925192734418,0.29302058377017803,0.2930810107178482,0.29314055265005023,0.29319922886839545,0.29325705811727193,0.29331405860380871,0.29337024801698786,0.29342564354594602,0.29348026189750664,0.29353411931297807,0.29358723158425548,0.29363961406925887,0.29369128170673853,0.29367185788525246,0.29372261287446128,0.29377268911998344,0.29382210014658905,0.29387085912208988,0.29391897886903845,0.2939664718759703,0.29401335030820969,0.29405962601825852,0.29410531055578715,0.2941504151772445,0.29419495085510505,0.29423892828676745,0.29428235790312091,0.29432524987679354,0.29436761413009616,0.29440946034267451,0.29445079795888263,0.29449163619488899,0.29453198404552672,0.29457185029089838,0.29461124350274548,0.29465017205059318,0.29468864410767803,0.29472666765666933,0.29476425049519051,0.29480140024115042,0.29483812433789114,0.2948744300591597,0.29491032451391097,0.29494581465094832,0.29498090726340814,0.2950156089930947,0.29504992633467098,0.29508386563971062,0.29511743312061728,0.29515063485441539,0.29518347678641793,0.29521596473377548,0.29530378006388586,0.29533528014905147,0.29536644611451324,0.29539728324821118,0.29542779672708502,0.29545799161997127,0.29548787289041051,0.29551744539936736,0.29554671390786652,0.29557568307954835,0.29560435748314573,0.29563274159488645,0.29566083980082258,0.29568865639908976,0.29571619560209911,0.29574346153866371,0.29577045825606241,0.29579718972204239,0.29582365982676312,0.29590040182488619,0.29592611594794177,0.29595158229052537,0.29597680441687163,0.29600178582318121,0.29602652993923612,0.29605104012996952,0.29607531969699141,0.29609937188007091,0.29612319985857766,0.29614680675288269,0.29617019562572061,0.29619336948351427,0.29621633127766323,0.29628639132896889,0.29630872314419698,0.29633085336843434,0.29635278471908172,0.2963745198649182,0.29639606142718428,0.29641741198063526,0.29643857405456736,0.29645955013381653,0.29648034265973117,0.29650095403111915,0.29656643695257345,0.29658649849062668,0.29660638749763324,0.29662610618973756,0.29664565674529103,0.29666504130565419,0.29668426197597864,0.29670332082596901,0.29672221989062597,0.29678431899697477,0.29680272422046866,0.29682097705489052,0.29683907938503323,0.29685703306473499,0.29687483991751223,0.29689250173717713,0.29691002028843988,0.29692739730749657,0.29698642237686418,0.29700335397979816,0.29702015043031849],"type":"scatter","mode":"lines","name":"99.8% lower","line":{"color":"grey","dash":"dot"},"marker":{"color":"rgba(214,39,40,1)","line":{"color":"rgba(214,39,40,1)"}},"error_y":{"color":"rgba(214,39,40,1)"},"error_x":{"color":"rgba(214,39,40,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[149.77808219178081,246.05585080046211,342.33361940914341,438.61138801782471,534.88915662650606,631.16692523518736,727.44469384386866,823.72246245254996,920.00023106123126,1016.2779996699126,1112.5557682785939,1208.8335368872752,1305.1113054959565,1401.3890741046378,1497.6668427133191,1593.9446113220004,1690.2223799306817,1786.500148539363,1882.7779171480443,1979.0556857567256,2075.3334543654069,2171.6112229740879,2267.8889915827694,2364.166760191451,2460.444528800132,2556.7222974088131,2653.0000660174946,2749.2778346261762,2845.5556032348572,2941.8333718435383,3038.1111404522198,3134.3889090609014,3230.6666776695824,3326.9444462782635,3423.222214886945,3519.4999834956266,3615.7777521043076,3712.0555207129887,3808.3332893216702,3904.6110579303518,4000.8888265390328,4097.1665951477135,4193.4443637563954,4289.7221323650765,4385.9999009737576,4482.2776695824386,4578.5554381911206,4674.8332067998017,4771.1109754084828,4867.3887440171638,4963.6665126258449,5059.9442812345269,5156.222049843208,5252.499818451889,5348.777587060571,5445.0553556692521,5541.3331242779332,5637.6108928866142,5733.8886614952953,5830.1664301039773,5926.4441987126584,6022.7219673213394,6118.9997359300214,6215.2775045387025,6311.5552731473836,6407.8330417560646,6504.1108103647457,6600.3885789734277,6696.6663475821088,6792.9441161907898,6889.2218847994718,6985.4996534081529,7081.777422016834,7178.055190625515,7274.3329592341961,7370.6107278428781,7466.8884964515591,7563.1662650602402,7659.4440336689222,7755.7218022776033,7851.9995708862843,7948.2773394949654,8044.5551081036465,8140.8328767123285,8237.1106453210105,8333.3884139296915,8429.6661825383726,8525.9439511470537,8622.2217197557347,8718.4994883644158,8814.7772569730969,8911.055025581778,9007.3327941904608,9103.6105627991419,9199.888331407823,9296.1661000165041,9392.4438686251851,9488.7216372338662,9584.9994058425473,9681.2771744512283,9777.5549430599094,9873.8327116685923,9970.1104802772734,10066.388248885954,10162.666017494636,10258.943786103317,10355.221554711998,10451.499323320679,10547.777091929362,10644.054860538043,10740.332629146724,10836.610397755405,10932.888166364086,11029.165934972767,11125.443703581448,11221.721472190129,11317.99924079881,11414.277009407493,11510.554778016174,11606.832546624855,11703.110315233536,11799.388083842217,11895.665852450898,11991.94362105958,12088.221389668262,12184.499158276943,12280.776926885625,12377.054695494306,12473.332464102987,12569.610232711668,12665.888001320349,12762.16576992903,12858.443538537711,12954.721307146394,13050.999075755075,13147.276844363756,13243.554612972437,13339.832381581118,13436.110150189799,13532.38791879848,13628.665687407163,13724.943456015844,13821.221224624525,13917.498993233206,14013.776761841887,14110.054530450569,14206.33229905925,14302.610067667931,14398.887836276612,14495.165604885295,14591.443373493976,14687.721142102657,14783.998910711338,14880.276679320019,14976.5544479287,15072.832216537381,15169.109985146064,15265.387753754745,15361.665522363426,15457.943290972107,15554.221059580788,15650.498828189469,15746.77659679815,15843.054365406831,15939.332134015513,16035.609902624195,16131.887671232877,16228.165439841558,16324.443208450239,16420.720977058922,16516.998745667603,16613.276514276284,16709.554282884965,16805.832051493646,16902.109820102327,16998.387588711008,17094.665357319689,17190.94312592837,17287.220894537051,17383.498663145732,17479.776431754413,17576.054200363094,17672.331968971775,17768.609737580457,17864.887506189141,17961.165274797822,18057.443043406503,18153.720812015184,18249.998580623866,18346.276349232547,18442.554117841228,18538.831886449909,18635.10965505859,18731.387423667271,18827.665192275952,18923.942960884633,19020.220729493314,19116.498498101995,19212.776266710676,19309.054035319357,19405.331803928038,19501.609572536723,19597.887341145404,19694.165109754085,19790.442878362766,19886.720646971447,19982.998415580128,20079.27618418881,20175.553952797491,20271.831721406172,20368.109490014853,20464.387258623534,20560.665027232215,20656.942795840896,20753.220564449577,20849.498333058258,20945.776101666943,21042.053870275624,21138.331638884305,21234.609407492986,21330.887176101667,21427.164944710348,21523.442713319029,21619.72048192771,21715.998250536391,21812.276019145072,21908.553787753754,22004.831556362435,22101.109324971116,22197.387093579797,22293.664862188478,22389.942630797159,22486.22039940584,22582.498168014525,22678.775936623206,22775.053705231887,22871.331473840568,22967.609242449249,23063.88701105793,23160.164779666611,23256.442548275292,23352.720316883973,23448.998085492654,23545.275854101335,23641.553622710016,23737.831391318698,23834.109159927379,23930.38692853606,24026.664697144744,24122.942465753425],"y":[0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628,0.30799450005736628],"type":"scatter","mode":"lines","name":"Portfolio average","line":{"color":"black"},"marker":{"color":"rgba(148,103,189,1)","line":{"color":"rgba(148,103,189,1)"}},"error_y":{"color":"rgba(148,103,189,1)"},"error_x":{"color":"rgba(148,103,189,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[1290.0383561643835,11702.164383561643,9829.44109589041,2646.2931506849313,884.82191780821915,22772.257534246575,1579.6986301369864,1592.2520547945205,149.77808219178081,4809.1205479452055,19950.071232876711,207.44657534246576,3484.7479452054795,6582.6164383561645,443.76164383561644,817.83561643835617,4336.1424657534244,486.57534246575341,1391.641095890411,596.85205479452054,2462.6465753424659,11176.219178082192,1335.3506849315067,2366.6904109589041,9465.2767123287667,19690.84109589041,20761.290410958904,235.40000000000001,24122.942465753425,1031.2739726027396,603.44109589041091,19547.087671232875,2672.6273972602739,486.26301369863012,801.40547945205481,266.27945205479449,2386.178082191781,178.12602739726026,10790.038356164383,20551.323287671232,3474.5315068493151],"y":[0.30619244622651126,0.40548054568994379,0.45648577128927192,0.28946150572990703,0.29384443893980677,0.27709154397672536,0.33107580776635043,0.19029650430509384,0.37388648045510253,0.26304185711054734,0.29423453838733848,0.14943606540056525,0.35641028261708751,0.3108186568608477,0.34477968550313942,0.30568490167833573,0.32102266265325158,0.36376689189189193,0.31186201764350358,0.53111989387241743,0.3678968834064254,0.40111954933665411,0.34822313362863999,0.27675778672488721,0.26296114478703125,0.27357896870765452,0.28350838909767667,0.50977060322854717,0.26505887534563244,0.17745042041363923,0.23863141072206889,0.28705043402744929,0.32739318653133903,0.28996653257158311,0.31319975522455412,0.32672442176310812,0.20954010253112962,0.24140211640211642,0.34930367025495868,0.31691389935494607,0.31601382742839479],"type":"scatter","mode":"markers","text":["Vehicle brand: ALFA ROMEO<br>Exposure: 1,290<br>Claims: 395<br>Claim frequency: 0.306<br>Loss ratio: 67.5%","Vehicle brand: AUDI<br>Exposure: 11,702<br>Claims: 4,745<br>Claim frequency: 0.405<br>Loss ratio: 67.1%","Vehicle brand: BMW<br>Exposure: 9,829<br>Claims: 4,487<br>Claim frequency: 0.456<br>Loss ratio: 78.5%","Vehicle brand: CHEVROLET<br>Exposure: 2,646<br>Claims: 766<br>Claim frequency: 0.289<br>Loss ratio: 54.5%","Vehicle brand: CHRYSLER<br>Exposure: 885<br>Claims: 260<br>Claim frequency: 0.294<br>Loss ratio: 60.1%","Vehicle brand: CITROEN<br>Exposure: 22,772<br>Claims: 6,310<br>Claim frequency: 0.277<br>Loss ratio: 68.6%","Vehicle brand: DACIA<br>Exposure: 1,580<br>Claims: 523<br>Claim frequency: 0.331<br>Loss ratio: 80.8%","Vehicle brand: DAEWOO<br>Exposure: 1,592<br>Claims: 303<br>Claim frequency: 0.190<br>Loss ratio: 49.0%","Vehicle brand: DODGE<br>Exposure: 150<br>Claims: 56<br>Claim frequency: 0.374<br>Loss ratio: 32.7%","Vehicle brand: FIAT<br>Exposure: 4,809<br>Claims: 1,265<br>Claim frequency: 0.263<br>Loss ratio: 89.6%","Vehicle brand: FORD<br>Exposure: 19,950<br>Claims: 5,870<br>Claim frequency: 0.294<br>Loss ratio: 67.0%","Vehicle brand: GALLOPER<br>Exposure: 207<br>Claims: 31<br>Claim frequency: 0.149<br>Loss ratio: 42.3%","Vehicle brand: HONDA<br>Exposure: 3,485<br>Claims: 1,242<br>Claim frequency: 0.356<br>Loss ratio: 68.6%","Vehicle brand: HYUNDAI<br>Exposure: 6,583<br>Claims: 2,046<br>Claim frequency: 0.311<br>Loss ratio: 76.4%","Vehicle brand: JAGUAR<br>Exposure: 444<br>Claims: 153<br>Claim frequency: 0.345<br>Loss ratio: 51.7%","Vehicle brand: JEEP<br>Exposure: 818<br>Claims: 250<br>Claim frequency: 0.306<br>Loss ratio: 73.1%","Vehicle brand: KIA<br>Exposure: 4,336<br>Claims: 1,392<br>Claim frequency: 0.321<br>Loss ratio: 66.6%","Vehicle brand: LANCIA<br>Exposure: 487<br>Claims: 177<br>Claim frequency: 0.364<br>Loss ratio: 80.2%","Vehicle brand: LAND ROVER<br>Exposure: 1,392<br>Claims: 434<br>Claim frequency: 0.312<br>Loss ratio: 52.5%","Vehicle brand: LEXUS<br>Exposure: 597<br>Claims: 317<br>Claim frequency: 0.531<br>Loss ratio: 68.0%","Vehicle brand: MAZDA<br>Exposure: 2,463<br>Claims: 906<br>Claim frequency: 0.368<br>Loss ratio: 93.9%","Vehicle brand: MERCEDES<br>Exposure: 11,176<br>Claims: 4,483<br>Claim frequency: 0.401<br>Loss ratio: 69.0%","Vehicle brand: MINI<br>Exposure: 1,335<br>Claims: 465<br>Claim frequency: 0.348<br>Loss ratio: 64.4%","Vehicle brand: MITSUBISHI<br>Exposure: 2,367<br>Claims: 655<br>Claim frequency: 0.277<br>Loss ratio: 99.8%","Vehicle brand: NISSAN<br>Exposure: 9,465<br>Claims: 2,489<br>Claim frequency: 0.263<br>Loss ratio: 64.0%","Vehicle brand: OPEL<br>Exposure: 19,691<br>Claims: 5,387<br>Claim frequency: 0.274<br>Loss ratio: 76.5%","Vehicle brand: PEUGEOT<br>Exposure: 20,761<br>Claims: 5,886<br>Claim frequency: 0.284<br>Loss ratio: 66.1%","Vehicle brand: PORSCHE<br>Exposure: 235<br>Claims: 120<br>Claim frequency: 0.510<br>Loss ratio: 60.5%","Vehicle brand: RENAULT<br>Exposure: 24,123<br>Claims: 6,394<br>Claim frequency: 0.265<br>Loss ratio: 66.9%","Vehicle brand: ROVER<br>Exposure: 1,031<br>Claims: 183<br>Claim frequency: 0.177<br>Loss ratio: 41.5%","Vehicle brand: SAAB<br>Exposure: 603<br>Claims: 144<br>Claim frequency: 0.239<br>Loss ratio: 45.1%","Vehicle brand: SEAT<br>Exposure: 19,547<br>Claims: 5,611<br>Claim frequency: 0.287<br>Loss ratio: 74.2%","Vehicle brand: SKODA<br>Exposure: 2,673<br>Claims: 875<br>Claim frequency: 0.327<br>Loss ratio: 79.5%","Vehicle brand: SMART<br>Exposure: 486<br>Claims: 141<br>Claim frequency: 0.290<br>Loss ratio: 68.9%","Vehicle brand: SSANGYONG<br>Exposure: 801<br>Claims: 251<br>Claim frequency: 0.313<br>Loss ratio: 61.9%","Vehicle brand: SUBARU<br>Exposure: 266<br>Claims: 87<br>Claim frequency: 0.327<br>Loss ratio: 91.6%","Vehicle brand: SUZUKI<br>Exposure: 2,386<br>Claims: 500<br>Claim frequency: 0.210<br>Loss ratio: 70.3%","Vehicle brand: TATA<br>Exposure: 178<br>Claims: 43<br>Claim frequency: 0.241<br>Loss ratio: 65.9%","Vehicle brand: TOYOTA<br>Exposure: 10,790<br>Claims: 3,769<br>Claim frequency: 0.349<br>Loss ratio: 74.6%","Vehicle brand: VOLKSWAGEN<br>Exposure: 20,551<br>Claims: 6,513<br>Claim frequency: 0.317<br>Loss ratio: 70.5%","Vehicle brand: VOLVO<br>Exposure: 3,475<br>Claims: 1,098<br>Claim frequency: 0.316<br>Loss ratio: 58.6%"],"hoverinfo":["text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text"],"name":"Vehicle brand","marker":{"color":"rgba(140,86,75,1)","size":7,"opacity":0.75,"line":{"color":"rgba(140,86,75,1)"}},"error_y":{"color":"rgba(140,86,75,1)"},"error_x":{"color":"rgba(140,86,75,1)"},"line":{"color":"rgba(140,86,75,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</div></div>
+<aside class="notes">
+<p>The bootstrap interval plot shows that policy-type loss ratio differences are not just point estimates. Some estimates are more stable than others. The funnel plot adds a second layer of validation by comparing vehicle brands after accounting for exposure size. This avoids unfairly ranking small brands as extreme simply because they have limited exposure. Together, these visuals make the findings more reliable for management decision-making.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="management-actions-and-recommended-monitoring-approach" class="slide level2">
+<h2>12. Management actions and recommended monitoring approach</h2>
+<div class="columns">
+<div class="column" style="width:52%;">
+<h3 id="key-findings">Key findings</h3>
+<ul class="small-list">
+<li>
+Profitability weakened in 2024, although the portfolio remained below 100% loss ratio.
+</li>
+<li>
+Underperformance is concentrated in selected policy types and cancelled policies.
+</li>
+<li>
+Claim volatility is driven by both frequency and severity.
+</li>
+<li>
+Risk is clearer when policy type, bonus score, driver age, vehicle age, and brand are monitored together.
+</li>
+</ul>
+</div><div class="column" style="width:48%;">
+<h3 id="recommended-actions">Recommended actions</h3>
+<ul class="small-list">
+<li>
+Review pricing for high-loss policy types, especially larger-exposure segments.
+</li>
+<li>
+Monitor cancelled policies as a distinct risk group.
+</li>
+<li>
+Prioritise liability and property claim management.
+</li>
+<li>
+Adopt dashboards with loss ratio, frequency, severity, exposure, and uncertainty indicators.
+</li>
+</ul>
+</div></div>
+<p><br></p>
+<div class="takeaway">
+<p>The key recommendation is to move from aggregate portfolio reporting to segment-level visual analytics that combines profitability, claims behaviour, business volume, and uncertainty.</p>
+</div>
+<aside class="notes">
+<p>The overall recommendation is to avoid relying only on aggregate loss ratio. Management should monitor profitability at segment level, especially policy type, policy status, payment frequency, bonus score, driver-vehicle combinations, and vehicle brands. The most actionable approach is a portfolio monitoring dashboard that combines loss ratio, claim frequency, claim severity, exposure, premium volume, and uncertainty indicators. This supports better pricing, underwriting, and claims management decisions.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+
+
+</section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': true,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'fade',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1600,
+
+        height: 900,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+
+    <script>
+
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+
+      // slide changes (different for each slide format).
+
+      (function () {
+
+        // dispatch for htmlwidgets
+
+        function fireSlideEnter() {
+
+          const event = window.document.createEvent("Event");
+
+          event.initEvent("slideenter", true, true);
+
+          window.document.dispatchEvent(event);
+
+        }
+
+    
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+
+          fireSlideEnter();
+
+    
+
+          // dispatch for shiny
+
+          if (window.jQuery) {
+
+            if (previousSlide) {
+
+              window.jQuery(previousSlide).trigger("hidden");
+
+            }
+
+            if (currentSlide) {
+
+              window.jQuery(currentSlide).trigger("shown");
+
+            }
+
+          }
+
+        }
+
+    
+
+        // hookup for slidy
+
+        if (window.w3c_slidy) {
+
+          window.w3c_slidy.add_observer(function (slide_num) {
+
+            // slide_num starts at position 1
+
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+
+          });
+
+        }
+
+    
+
+      })();
+
+    </script>
+
+    
+
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>
