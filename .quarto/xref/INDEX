@@ -43,5 +43,11 @@
   },
   "take-home-1/exec-summary.qmd": {
     "exec-summary.html": "1f958473"
+  },
+  "take-home-2/technical-report.qmd": {
+    "technical-report.html": "61e39ab0"
+  },
+  "take-home-2/technical-report.knit.md": {
+    "technical-report.knit.html": "dd7c5c77"
   }
 }

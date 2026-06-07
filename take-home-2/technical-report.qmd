@@ -1,0 +1,2124 @@
+---
+title: "Take-Home Exercise 2: Tracing an Anomalous SaidIT Post through Visual Analytics"
+author: "Kelvin Andikko"
+date: "2026-06-01"
+date-modified: "last-modified"
+format: html
+editor: visual
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+# Overview
+
+## Setting the scene
+
+This take-home exercise investigates the VAST Challenge 2026 Mini-Challenge 2, which focuses on an anomalous SaidIT post attributed to **John Windward** on **17 May 2046 at 4:21am**.
+
+Rather than treating the post as a single isolated event, this report looks at the surrounding system activity to reconstruct how the post was created. The dataset records actions performed by employees, personal agents, office systems, file systems, calendar services, and social platforms. Hence, the key analytical challenge is to move from a flat event log into a visual explanation of people, agents, files, and systems.
+
+The overall research question is:
+
+> How did the anomalous SaidIT post attributed to John Windward occur, what does the post appear to originate from, and where should the company intervene to prevent a similar failure from recurring?
+
+## Analytical approach
+
+The approach used in this report follows the idea of hypothesis-driven visual analytics. Before jumping into the full dataset, the investigation is first framed around a set of testable hypotheses. This helps to avoid a random search for interesting patterns and keeps the report aligned with the challenge questions.
+
+The table below summarises how the mini-challenge questions are translated into specific visual analytics tasks.
+
+```{r}
+pacman::p_load(
+  tidyverse, jsonlite, lubridate, janitor, glue, scales,
+  knitr, DT, plotly, ggiraph, ggraph, tidygraph, igraph,
+  visNetwork, patchwork, tidytext, stringdist
+)
+
+# A common theme is used so that the static charts remain consistent.
+theme_set(
+  theme_minimal(base_size = 12) +
+    theme(
+      plot.title = element_text(face = "bold", size = 13),
+      plot.subtitle = element_text(size = 10),
+      axis.title = element_text(face = "bold"),
+      legend.position = "bottom",
+      panel.grid.minor = element_blank()
+    )
+)
+```
+
+The table below maps each investigative question to the corresponding visual analytics technique.
+
+```{r}
+#| label: question-mapping-table
+
+question_mapping <- data.frame(
+  `Mini-challenge question` = c(
+    "How was the anomalous SaidIT post made?",
+    "How does the event chain fit into the wider system?",
+    "What does the post originate from?",
+    "Have similar patterns happened before?",
+    "Where should intervention happen?"
+  ),
+  `Visual analytics task` = c(
+    "Reconstruct the exact event sequence before the post.",
+    "Map people, agents, files, and systems into a network view.",
+    "Trace the post to the file or content source recorded in the event log.",
+    "Compare the SwiftWren incident against earlier instruction-file motifs.",
+    "Identify the weakest control point before external posting."
+  ),
+  `Visual technique used` = c(
+    "Incident timeline and event chain graph",
+    "Interactive system network and organisation chart",
+    "Content provenance table and source timeline",
+    "Historical motif comparison and recurrence timeline",
+    "Causal intervention diagram"
+  ),
+  check.names = FALSE
+)
+
+knitr::kable(question_mapping, format = "pipe", align = "lll")
+```
+
+## Hypotheses used in this investigation
+
+The code block below creates the hypotheses that guide this report. These hypotheses are not meant to be final answers at the start. Instead, they define what each visualisation is trying to test.
+
+```{r}
+#| label: hypothesis-table
+
+hypothesis_table <- data.frame(
+  Hypothesis = c("H1", "H2", "H3", "H4", "H5"),
+  `Statement` = c(
+    "The anomalous post was not a direct human action, but the endpoint of a personal-agent chain.",
+    "The post content originated from a named source file rather than from ordinary manual posting text.",
+    "The incident was preceded by abnormal agent-to-agent delegation involving an instruction file.",
+    "Similar instruction-file patterns happened before the SwiftWren incident.",
+    "The most effective intervention point is before an agent can convert instruction-file output into an external SaidIT post."
+  ),
+  `Evidence needed` = c(
+    "Timeline and event chain leading to the SaidIT post.",
+    "Content source extraction from SaidIT post events.",
+    "Agent delegation and file access sequence before the incident.",
+    "Recurring motifs involving HiddenOrca, MellowOtter, and SwiftWren files.",
+    "Causal path showing the control point before external posting."
+  ),
+  check.names = FALSE
+)
+
+knitr::kable(hypothesis_table, format = "pipe", align = "lll")
+```
+
+------------------------------------------------------------------------
+
+# Data preparation
+
+## Importing the JSON files
+
+The main event log is stored as a nested JSON file. Therefore, instead of converting the whole JSON object directly into a dataframe, the code below first imports the JSON object and then extracts the relevant components into separate tables.
+
+```{r}
+#| label: import-json
+mc2_raw <- jsonlite::fromJSON("../data/MC2 data.json", simplifyVector = FALSE)
+org_raw <- jsonlite::fromJSON("../data/org_chart.json", simplifyVector = FALSE)
+```
+
+## Helper functions
+
+The helper functions below are used because the `details` field is not consistent across all event types. Some records contain email fields, while others contain file access, meeting, SaidIT, or agent-task information.
+
+```{r}
+#| label: helper-functions
+
+safe_chr <- function(x) {
+  if (is.null(x) || length(x) == 0) {
+    NA_character_
+  } else {
+    paste(unlist(x), collapse = " | ")
+  }
+}
+
+safe_num <- function(x) {
+  if (is.null(x) || length(x) == 0) {
+    NA_real_
+  } else {
+    as.numeric(x[[1]])
+  }
+}
+
+safe_json <- function(x) {
+  if (is.null(x)) {
+    "{}"
+  } else {
+    jsonlite::toJSON(x, auto_unbox = TRUE, null = "null") |> as.character()
+  }
+}
+
+get_detail <- function(details, field) {
+  if (is.null(details) || is.null(details[[field]])) {
+    NA_character_
+  } else {
+    safe_chr(details[[field]])
+  }
+}
+
+get_nested_detail <- function(details, path) {
+  value <- details
+  for (p in path) {
+    if (is.null(value) || is.null(value[[p]])) {
+      return(NA_character_)
+    }
+    value <- value[[p]]
+  }
+  safe_chr(value)
+}
+
+extract_json_value <- function(x, key) {
+  pattern <- paste0('"', key, '":"([^"]+)"')
+  stringr::str_match(x, pattern)[, 2]
+}
+
+extract_party <- function(parties, index) {
+  purrr::map_chr(parties, function(x) {
+    if (length(x) >= index) x[[index]] else NA_character_
+  })
+}
+
+clean_actor_label <- function(x) {
+  x |>
+    str_replace("^Agent/person:", "Agent: ") |>
+    str_replace("^agent:person:", "Agent: ") |>
+    str_replace("^person:", "") |>
+    str_replace("^system:", "System: ") |>
+    str_replace("^world:", "World: ") |>
+    str_replace("^team:", "Team: ") |>
+    str_replace("^department:", "Department: ") |>
+    str_replace_all("_", " ") |>
+    str_to_title()
+}
+```
+
+## Creating the main event table
+
+The code below converts the event timeline into a dataframe where each row represents one event. Both UTC time and local time are retained. The local time is created by subtracting seven hours because the anomalous SaidIT post appears in the data as 11:21 UTC, which corresponds to the 4:21am incident time stated in the challenge.
+
+```{r}
+#| label: create-event-table
+
+events_tbl <- purrr::map_dfr(mc2_raw$events, function(x) {
+  details <- x$details
+
+  tibble(
+    id = x$id %||% NA_integer_,
+    short_name = x$short_name %||% NA_character_,
+    when = x$when %||% NA_real_,
+    datetime_utc = lubridate::as_datetime(x$when),
+    datetime_local = lubridate::as_datetime(x$when) - hours(7),
+    tenant_time = lubridate::as_datetime(x$when) - hours(7),
+    date_local = as_date(datetime_local),
+    hour_local = hour(datetime_local),
+    parties = list(x$parties %||% character()),
+    parties_text = safe_chr(x$parties),
+    details_text = safe_json(details),
+    details_json = safe_json(details),
+
+    from_actor = get_detail(details, "from"),
+    to_actor = get_detail(details, "to"),
+    person = get_detail(details, "person"),
+    target = get_detail(details, "target"),
+    target_agent = get_detail(details, "target_agent"),
+    task = get_detail(details, "task"),
+    action = get_detail(details, "action"),
+    subject = get_detail(details, "subject"),
+    status = get_detail(details, "status"),
+    forum = get_detail(details, "forum"),
+    content_source = get_detail(details, "content_source"),
+    poster_id_detail = get_detail(details, "poster_id"),
+
+    nested_task = get_nested_detail(details, c("details", "task")),
+    nested_person = get_nested_detail(details, c("details", "person")),
+    nested_target = get_nested_detail(details, c("details", "target")),
+    nested_subject = get_nested_detail(details, c("details", "subject")),
+    nested_path = get_nested_detail(details, c("args", "path")),
+    meeting_organizer = get_nested_detail(details, c("meeting", "organizer")),
+    meeting_participants = get_nested_detail(details, c("meeting", "participants")),
+    meeting_time = get_nested_detail(details, c("meeting", "time"))
+  )
+}) |>
+  clean_names() |>
+  mutate(
+    event_date = as_date(tenant_time),
+    event_hour = hour(tenant_time),
+    text_all = str_to_lower(paste(short_name, parties_text, details_text)),
+    is_agent_event = str_detect(text_all, "agent/person"),
+    is_john_related = str_detect(text_all, "john_windward|john windward"),
+    is_john = is_john_related,
+    is_saidit_event = str_detect(text_all, "saidit"),
+    is_saidit = is_saidit_event,
+    is_file_event = str_detect(text_all, "file|files|read_file|list_files|create_file|delete_file"),
+    is_swiftwren_event = str_detect(text_all, "swiftwren"),
+    is_swiftwren = is_swiftwren_event,
+    is_hiddenorca_event = str_detect(text_all, "hiddenorca"),
+    is_hiddenorca = is_hiddenorca_event,
+    is_mellowotter_event = str_detect(text_all, "mellowotter"),
+    is_mellowotter = is_mellowotter_event,
+    is_instruction_event = str_detect(text_all, "further_instructions"),
+    is_instruction_file = is_instruction_event,
+    event_category = case_when(
+      is_saidit_event ~ "SaidIT activity",
+      str_detect(short_name, "queue_subordinate_task|assign_agent_task|ask_agent") ~ "Agent coordination",
+      str_detect(short_name, "read_file|list_files|create_file|delete_file|access_files") ~ "File activity",
+      str_detect(short_name, "access_email|check_email|sent|received") ~ "Email activity",
+      str_detect(short_name, "propose_meeting|calendar") ~ "Calendar activity",
+      str_detect(short_name, "room|access|check_in") ~ "Office access",
+      TRUE ~ "Other activity"
+    ),
+    first_party = extract_party(parties, 1),
+    second_party = extract_party(parties, 2),
+    actor_label = clean_actor_label(first_party),
+    poster_id = coalesce(poster_id_detail, person, first_party),
+    details_summary = str_trunc(str_squish(details_json), width = 180)
+  ) |>
+  arrange(datetime_utc)
+
+glimpse(events_tbl)
+```
+
+The following table provides a quick overview of the event log.
+
+```{r}
+#| label: event-overview-table
+
+data_overview <- data.frame(
+  Item = c(
+    "Number of events",
+    "First event time in TenantThread local time",
+    "Last event time in TenantThread local time",
+    "Number of event types",
+    "Number of SaidIT-related events",
+    "Number of John Windward-related events",
+    "Number of SwiftWren-related events"
+  ),
+  Value = c(
+    comma(nrow(events_tbl)),
+    as.character(min(events_tbl$tenant_time, na.rm = TRUE)),
+    as.character(max(events_tbl$tenant_time, na.rm = TRUE)),
+    comma(n_distinct(events_tbl$short_name)),
+    comma(sum(events_tbl$is_saidit, na.rm = TRUE)),
+    comma(sum(events_tbl$is_john, na.rm = TRUE)),
+    comma(sum(events_tbl$is_swiftwren, na.rm = TRUE))
+  )
+)
+
+knitr::kable(data_overview, format = "pipe", align = "ll")
+```
+
+## Creating a party-level event table
+
+Some events involve more than one party. The code below creates a long-format table where each row represents one party involved in one event.
+
+```{r}
+#| label: create-parties-table
+
+event_parties_tbl <- purrr::map_dfr(mc2_raw$events, function(x) {
+  parties <- unlist(x$parties)
+  if (length(parties) == 0) {
+    parties <- NA_character_
+  }
+
+  tibble(
+    id = x$id,
+    short_name = x$short_name,
+    when = x$when,
+    datetime_utc = lubridate::as_datetime(x$when),
+    datetime_local = lubridate::as_datetime(x$when) - hours(7),
+    tenant_time = lubridate::as_datetime(x$when) - hours(7),
+    party = parties
+  )
+}) |>
+  clean_names() |>
+  mutate(
+    actor_type = case_when(
+      str_detect(party, "^Agent/person:") ~ "Personal agent",
+      str_detect(party, "^person:") ~ "Person",
+      str_detect(party, "^system:") ~ "System",
+      str_detect(party, "^world:") ~ "World service",
+      str_detect(party, "^team:") ~ "Team",
+      str_detect(party, "^department:") ~ "Department",
+      TRUE ~ "Other"
+    ),
+    base_person = party |>
+      str_replace("^Agent/", "") |>
+      str_replace("^agent/", ""),
+    actor_label = clean_actor_label(party)
+  )
+
+party_type_summary <- event_parties_tbl |>
+  count(actor_type, sort = TRUE, name = "Number of event-party records") |>
+  mutate(`Number of event-party records` = comma(`Number of event-party records`)) |>
+  as.data.frame()
+
+knitr::kable(party_type_summary, format = "pipe", align = "ll")
+```
+
+## Creating organisation nodes and edges
+
+The organisation chart is also nested. The nodes and edges should be extracted separately instead of forcing the entire organisation chart into one dataframe.
+
+```{r}
+#| label: prepare-org-chart
+
+org_nodes_tbl <- purrr::map_dfr(org_raw$nodes, ~as_tibble(.x)) |>
+  clean_names()
+
+if (!"title" %in% names(org_nodes_tbl)) {
+  org_nodes_tbl$title <- NA_character_
+}
+
+org_nodes_tbl <- org_nodes_tbl |>
+  mutate(
+    label_clean = label,
+    node_type = type
+  )
+
+org_edges_tbl <- purrr::map_dfr(org_raw$edges, ~as_tibble(.x)) |>
+  clean_names()
+
+org_nodes <- org_nodes_tbl
+org_edges <- org_edges_tbl
+
+person_parent <- org_edges_tbl |>
+  filter(str_detect(target, "^person:")) |>
+  transmute(person_id = target, parent_id = source, relation)
+
+team_department <- org_edges_tbl |>
+  filter(str_detect(source, "^department:"), str_detect(target, "^team:")) |>
+  transmute(team_id = target, department_id = source)
+
+department_labels <- org_nodes_tbl |>
+  filter(type == "department") |>
+  transmute(department_id = id, department = label)
+
+person_org <- person_parent |>
+  left_join(team_department, by = c("parent_id" = "team_id")) |>
+  mutate(
+    department_id = if_else(str_detect(parent_id, "^department:"), parent_id, department_id)
+  ) |>
+  left_join(department_labels, by = "department_id") |>
+  left_join(
+    org_nodes_tbl |> select(person_id = id, person_name = label, title),
+    by = "person_id"
+  )
+
+john_org <- person_org |>
+  filter(person_id == "person:john_windward") |>
+  select(person_name, title, department)
+
+knitr::kable(john_org, format = "pipe", align = "lll")
+```
+
+## Creating actor metadata
+
+The actor metadata table is used to attach readable labels and actor types to the event data.
+
+```{r}
+#| label: actor-metadata
+
+actor_tbl <- event_parties_tbl |>
+  distinct(party, actor_type, base_person, actor_label) |>
+  left_join(
+    org_nodes_tbl |>
+      select(id, label_clean, node_type, title),
+    by = c("party" = "id")
+  ) |>
+  mutate(
+    actor_label = coalesce(label_clean, actor_label, base_person, party),
+    actor_type = coalesce(node_type, actor_type)
+  )
+
+knitr::kable(
+  actor_tbl |>
+    count(actor_type, sort = TRUE),
+  col.names = c("Actor type", "Count")
+)
+```
+
+## Creating key analytical subsets
+
+The following subsets will be used for the visual analytics section. These include the incident window, John Windward events, SaidIT events, SwiftWren events, and instruction-file events.
+
+```{r}
+#| label: analytical-subsets
+
+incident_time_local <- ymd_hms("2046-05-17 04:21:15")
+incident_time_utc <- incident_time_local + hours(7)
+
+incident_window_tbl <- events_tbl |>
+  filter(
+    datetime_local >= incident_time_local - hours(12),
+    datetime_local <= incident_time_local + hours(2)
+  )
+
+john_events_tbl <- events_tbl |>
+  filter(is_john_related)
+
+saidit_events_tbl <- events_tbl |>
+  filter(is_saidit_event)
+
+swiftwren_events_tbl <- events_tbl |>
+  filter(is_swiftwren_event)
+
+instruction_events_tbl <- events_tbl |>
+  filter(is_instruction_event)
+
+hiddenorca_events_tbl <- events_tbl |>
+  filter(is_hiddenorca_event)
+
+mellowotter_events_tbl <- events_tbl |>
+  filter(is_mellowotter_event)
+```
+
+## Diagnostic summary
+
+The diagnostic summary gives a quick check that the data has been imported and processed correctly.
+
+```{r}
+#| label: diagnostic-summary
+
+diagnostic_summary <- data.frame(
+  Metric = c(
+    "Total events",
+    "Start date",
+    "End date",
+    "John Windward related events",
+    "SaidIT related events",
+    "SwiftWren related events",
+    "HiddenOrca related events",
+    "MellowOtter related events",
+    "Instruction-file related events",
+    "Events in incident window"
+  ),
+  Value = c(
+    comma(nrow(events_tbl)),
+    as.character(min(events_tbl$datetime_local, na.rm = TRUE)),
+    as.character(max(events_tbl$datetime_local, na.rm = TRUE)),
+    comma(nrow(john_events_tbl)),
+    comma(nrow(saidit_events_tbl)),
+    comma(nrow(swiftwren_events_tbl)),
+    comma(nrow(hiddenorca_events_tbl)),
+    comma(nrow(mellowotter_events_tbl)),
+    comma(nrow(instruction_events_tbl)),
+    comma(nrow(incident_window_tbl))
+  )
+)
+
+knitr::kable(diagnostic_summary)
+```
+
+## Checking the anomalous SaidIT post
+
+The code below extracts the specific SaidIT post associated with John Windward. This should return the key anomalous post at approximately 4:21am local time.
+
+```{r}
+#| label: john-saidit-post-check
+
+john_saidit_post <- events_tbl |>
+  filter(
+    is_john_related,
+    is_saidit_event,
+    str_detect(short_name, "saidit_post")
+  ) |>
+  arrange(datetime_local)
+
+knitr::kable(
+  john_saidit_post |>
+    select(
+      id,
+      short_name,
+      datetime_local,
+      parties_text,
+      forum,
+      content_source
+    ),
+  col.names = c(
+    "Event ID",
+    "Event type",
+    "Local time",
+    "Parties",
+    "Forum",
+    "Content source"
+  )
+)
+```
+
+## Creating an event-chain table
+
+The event-chain table focuses on the records most likely to explain how the anomalous post occurred. It includes John Windward events, SaidIT events, SwiftWren events, instruction-file activity, and events within the incident window.
+
+```{r}
+#| label: event-chain-preparation
+
+event_chain_tbl <- events_tbl |>
+  filter(
+    is_john_related |
+      is_saidit_event |
+      is_swiftwren_event |
+      is_instruction_event |
+      (
+        datetime_local >= incident_time_local - hours(12) &
+          datetime_local <= incident_time_local + hours(2)
+      )
+  ) |>
+  arrange(datetime_local) |>
+  mutate(
+    minutes_from_incident = as.numeric(
+      difftime(datetime_local, incident_time_local, units = "mins")
+    ),
+    event_summary = case_when(
+      !is.na(content_source) ~ glue("{short_name}: content source = {content_source}"),
+      !is.na(target) ~ glue("{short_name}: target = {target}"),
+      !is.na(target_agent) ~ glue("{short_name}: target agent = {target_agent}"),
+      !is.na(nested_path) ~ glue("{short_name}: path = {nested_path}"),
+      !is.na(subject) ~ glue("{short_name}: subject = {subject}"),
+      TRUE ~ short_name
+    )
+  )
+
+knitr::kable(
+  event_chain_tbl |>
+    select(
+      id,
+      datetime_local,
+      minutes_from_incident,
+      short_name,
+      event_category,
+      parties_text,
+      event_summary
+    ) |>
+    head(30),
+  col.names = c(
+    "Event ID",
+    "Local time",
+    "Minutes from incident",
+    "Event",
+    "Category",
+    "Parties",
+    "Summary"
+  )
+)
+```
+
+## Creating file-access table
+
+The file-access table isolates file activity. This is useful for identifying whether the incident was preceded by instruction files such as `SwiftWren_further_instructions.md`.
+
+```{r}
+#| label: file-access-table
+
+file_access_tbl <- events_tbl |>
+  filter(is_file_event | is_instruction_event) |>
+  mutate(
+    file_name = case_when(
+      !is.na(target) & str_detect(target, "\\.") ~ target,
+      !is.na(nested_path) ~ nested_path,
+      !is.na(content_source) ~ content_source,
+      str_detect(details_text, "SwiftWren") ~ "SwiftWren-related file",
+      str_detect(details_text, "HiddenOrca") ~ "HiddenOrca-related file",
+      str_detect(details_text, "MellowOtter") ~ "MellowOtter-related file",
+      TRUE ~ NA_character_
+    )
+  )
+
+file_access_summary <- file_access_tbl |>
+  count(file_name, sort = TRUE)
+
+knitr::kable(
+  file_access_summary |>
+    head(15),
+  col.names = c("File name", "Number of events")
+)
+```
+
+## Creating interaction edges
+
+The interaction edge table is used later for network and flow visualisations. It creates source-target relationships from parties and selected event details.
+
+```{r}
+#| label: interaction-edges
+
+interaction_edges_tbl <- events_tbl |>
+  mutate(
+    source = case_when(
+      !is.na(from_actor) ~ from_actor,
+      !is.na(person) ~ person,
+      !is.na(meeting_organizer) ~ meeting_organizer,
+      TRUE ~ str_extract(parties_text, "^[^|]+") |> str_trim()
+    ),
+    target_actor = case_when(
+      !is.na(to_actor) ~ to_actor,
+      !is.na(target_agent) ~ target_agent,
+      !is.na(target) ~ target,
+      !is.na(meeting_participants) ~ meeting_participants,
+      !is.na(content_source) ~ content_source,
+      TRUE ~ NA_character_
+    )
+  ) |>
+  filter(!is.na(source), !is.na(target_actor)) |>
+  transmute(
+    id,
+    datetime_local,
+    tenant_time,
+    short_name,
+    event_category,
+    source,
+    target = target_actor,
+    weight = 1,
+    details_text
+  )
+
+interaction_edges_summary <- interaction_edges_tbl |>
+  count(source, target, event_category, sort = TRUE)
+
+knitr::kable(
+  interaction_edges_summary |>
+    head(20),
+  col.names = c("Source", "Target", "Event category", "Number of interactions")
+)
+```
+
+## Creating historical motif table
+
+The motif table is used to compare the final SwiftWren incident against earlier suspicious instruction-file patterns.
+
+```{r}
+#| label: historical-motif-table
+
+motif_tbl <- events_tbl |>
+  filter(
+    is_swiftwren_event |
+      is_hiddenorca_event |
+      is_mellowotter_event |
+      is_instruction_event |
+      is_saidit_event
+  ) |>
+  mutate(
+    motif_family = case_when(
+      is_swiftwren_event ~ "SwiftWren",
+      is_hiddenorca_event ~ "HiddenOrca",
+      is_mellowotter_event ~ "MellowOtter",
+      TRUE ~ "Other instruction pattern"
+    )
+  ) |>
+  arrange(datetime_local)
+
+motif_summary <- motif_tbl |>
+  count(motif_family, short_name, sort = TRUE)
+
+knitr::kable(
+  motif_summary,
+  col.names = c("Motif family", "Event type", "Number of events")
+)
+```
+
+------------------------------------------------------------------------
+
+# Reconstructing the anomalous SaidIT post
+
+## Identifying the key incident
+
+The code below identifies the SaidIT post attributed to John Windward that has `SwiftWren.txt` as its content source. The timestamp is converted to TenantThread local time by subtracting seven hours from the Unix timestamp.
+
+```{r}
+#| label: identify-incident
+
+incident_event <- events_tbl |>
+  filter(
+    short_name == "saidit_post",
+    str_detect(parties_text, "john_windward"),
+    content_source == "SwiftWren.txt"
+  ) |>
+  arrange(tenant_time) |>
+  slice(1)
+
+incident_time <- incident_event$datetime_utc[1]
+incident_tenant_time <- incident_event$tenant_time[1]
+
+incident_summary <- incident_event |>
+  transmute(
+    `Event ID` = id,
+    `Event type` = short_name,
+    `TenantThread local time` = as.character(tenant_time),
+    `Parties` = parties_text,
+    `Forum` = forum,
+    `Content source` = content_source
+  ) |>
+  as.data.frame()
+
+knitr::kable(incident_summary, format = "pipe", align = "llllll")
+```
+
+**Observation.** The event log identifies `SwiftWren.txt` as the content source of the anomalous SaidIT post. This means that the post should be investigated through its file provenance and the agent chain that caused John Windward's personal agent to access the SwiftWren instruction file.
+
+## Incident window timeline
+
+The next code chunk extracts events from the twelve hours before the incident and one hour after the incident. This window is broad enough to show the incoming SwiftWren propagation while still keeping the visual focused.
+
+::: panel-tabset
+### Graph
+
+```{r}
+#| label: incident-window-timeline-graph
+#| echo: false
+#| fig-width: 11
+#| fig-height: 6
+#| out-width: "100%"
+
+incident_window <- events_tbl |>
+  filter(
+    datetime_utc >= incident_time - hours(12),
+    datetime_utc <= incident_time + hours(1)
+  ) |>
+  mutate(
+    highlight = case_when(
+      id == incident_event$id[1] ~ "Anomalous SaidIT post",
+      is_swiftwren ~ "SwiftWren-related event",
+      is_saidit ~ "Other SaidIT event",
+      TRUE ~ "Other event"
+    ),
+    tooltip = glue(
+      "Event ID: {id}<br>",
+      "Time: {tenant_time}<br>",
+      "Action: {short_name}<br>",
+      "Parties: {parties_text}<br>",
+      "Details: {details_summary}"
+    )
+  )
+
+p_incident_timeline <- ggplot(
+  incident_window,
+  aes(
+    x = tenant_time,
+    y = event_category,
+    colour = highlight,
+    tooltip = tooltip,
+    data_id = id
+  )
+) +
+  geom_point_interactive(alpha = 0.7, size = 2.1) +
+  geom_vline(
+    xintercept = incident_tenant_time,
+    linetype = "dashed",
+    colour = "firebrick"
+  ) +
+  scale_x_datetime(date_labels = "%d %b\n%H:%M") +
+  labs(
+    title = str_wrap(
+      "The anomalous SaidIT post occurred immediately after SwiftWren propagation reached John Windward",
+      width = 90
+    ),
+    subtitle = "The dashed line marks the post at 17 May 2046, 4:21am local time.",
+    x = "TenantThread local time",
+    y = NULL,
+    colour = "Event type"
+  ) +
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(size = 13, face = "bold"),
+    plot.subtitle = element_text(size = 10),
+    plot.margin = margin(10, 30, 10, 10)
+  )
+
+ggiraph::girafe(
+  ggobj = p_incident_timeline,
+  width_svg = 11,
+  height_svg = 6,
+  options = list(
+    ggiraph::opts_tooltip(
+      css = "background-color:rgba(255,255,255,0.90); color:black; border:1px solid #999999; padding:6px;"
+    )
+  )
+)
+```
+
+### Code Chunk
+
+```{r}
+#| label: incident-window-timeline-code
+#| eval: false
+
+incident_window <- events_tbl |>
+  filter(
+    datetime_utc >= incident_time - hours(12),
+    datetime_utc <= incident_time + hours(1)
+  ) |>
+  mutate(
+    highlight = case_when(
+      id == incident_event$id[1] ~ "Anomalous SaidIT post",
+      is_swiftwren ~ "SwiftWren-related event",
+      is_saidit ~ "Other SaidIT event",
+      TRUE ~ "Other event"
+    ),
+    tooltip = glue(
+      "Event ID: {id}<br>",
+      "Time: {tenant_time}<br>",
+      "Action: {short_name}<br>",
+      "Parties: {parties_text}<br>",
+      "Details: {details_summary}"
+    )
+  )
+
+p_incident_timeline <- ggplot(
+  incident_window,
+  aes(
+    x = tenant_time,
+    y = event_category,
+    colour = highlight,
+    tooltip = tooltip,
+    data_id = id
+  )
+) +
+  geom_point_interactive(alpha = 0.7, size = 2.1) +
+  geom_vline(
+    xintercept = incident_tenant_time,
+    linetype = "dashed",
+    colour = "firebrick"
+  ) +
+  scale_x_datetime(date_labels = "%d %b\n%H:%M") +
+  labs(
+    title = str_wrap(
+      "The anomalous SaidIT post occurred immediately after SwiftWren propagation reached John Windward",
+      width = 90
+    ),
+    subtitle = "The dashed line marks the post at 17 May 2046, 4:21am local time.",
+    x = "TenantThread local time",
+    y = NULL,
+    colour = "Event type"
+  ) +
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(size = 13, face = "bold"),
+    plot.subtitle = element_text(size = 10),
+    plot.margin = margin(10, 30, 10, 10)
+  )
+
+ggiraph::girafe(
+  ggobj = p_incident_timeline,
+  width_svg = 11,
+  height_svg = 6,
+  options = list(
+    ggiraph::opts_tooltip(
+      css = "background-color:rgba(255,255,255,0.90); color:black; border:1px solid #999999; padding:6px;"
+    )
+  )
+)
+```
+:::
+
+**Insights.**
+
+- The incident does not appear as a standalone post. It sits directly after a sequence of SwiftWren-related agent actions.
+- The most critical observation is the short time gap between John Windward's agent receiving the `read_file` task and the SaidIT post.
+- The dashed line provides a clear boundary between precursor activity and the external posting action.
+
+## Exact event chain
+
+The following code extracts the most direct chain of events immediately before and after the anomalous post. This is the core evidence for the first mini-challenge question.
+
+```{r}
+#| label: exact-event-chain-table
+
+incident_chain <- events_tbl |>
+  filter(
+    datetime_utc >= incident_time - minutes(15),
+    datetime_utc <= incident_time + minutes(1),
+    is_swiftwren | is_saidit | id == incident_event$id[1]
+  ) |>
+  arrange(datetime_utc) |>
+  mutate(
+    `Step` = row_number(),
+    `TenantThread local time` = as.character(tenant_time),
+    `Action` = short_name,
+    `Parties involved` = parties_text,
+    `Event details` = details_summary
+  ) |>
+  select(Step, id, `TenantThread local time`, Action, `Parties involved`, `Event details`)
+
+knitr::kable(incident_chain, format = "pipe", align = "llllll")
+```
+
+The same chain is visualised below as a process flow. The red node indicates the external SaidIT post.
+
+::: panel-tabset
+### Graph
+
+```{r}
+#| label: exact-event-chain-graph
+#| echo: false
+#| fig-width: 11
+#| fig-height: 4.5
+#| out-width: "100%"
+
+chain_nodes <- incident_chain |>
+  mutate(
+    node_id = as.character(Step),
+    label = case_when(
+      Step == 1 & str_detect(Action, "queue_subordinate_task") ~ "Daniel's agent\npasses SwiftWren task",
+      str_detect(Action, "queue_subordinate_task") & str_detect(`Event details`, "john_windward") ~ "John's agent receives\nSwiftWren read task",
+      Action == "saidit_post_check" ~ "SaidIT post\ncheck",
+      Action == "saidit_post" ~ "External SaidIT\npost",
+      Action == "delete_file" & str_detect(`Event details`, "further_instructions") ~ "Delete instruction\nfile",
+      Action == "delete_file" & str_detect(`Event details`, "SwiftWren.txt") ~ "Delete content\nfile",
+      TRUE ~ str_wrap(Action, 18)
+    ),
+    fill_group = case_when(
+      Action == "saidit_post" ~ "Post",
+      Action == "saidit_post_check" ~ "Check",
+      Action == "delete_file" ~ "Cleanup",
+      TRUE ~ "Delegation"
+    )
+  )
+
+chain_edges <- data.frame(
+  from = head(chain_nodes$Step, -1),
+  to = tail(chain_nodes$Step, -1)
+)
+
+ggplot(chain_nodes, aes(x = Step, y = 1)) +
+  geom_segment(
+    data = chain_edges,
+    aes(x = from, xend = to, y = 1, yend = 1),
+    inherit.aes = FALSE,
+    arrow = arrow(length = unit(0.18, "cm")),
+    linewidth = 0.7,
+    colour = "grey45"
+  ) +
+  geom_label(
+    aes(label = label, fill = fill_group),
+    label.size = 0.3,
+    size = 3.1,
+    lineheight = 0.9,
+    colour = "black"
+  ) +
+  scale_fill_manual(
+    values = c(
+      "Delegation" = "#d9e8fb",
+      "Check" = "#fff3bf",
+      "Post" = "#f4a6a6",
+      "Cleanup" = "#eeeeee"
+    )
+  ) +
+  scale_x_continuous(
+    breaks = chain_nodes$Step,
+    limits = c(0.55, max(chain_nodes$Step) + 0.45)
+  ) +
+  coord_cartesian(ylim = c(0.8, 1.25), clip = "off") +
+  labs(
+    title = "The post was the endpoint of a short agent-to-system execution chain",
+    subtitle = "John Windward's personal agent moved from instruction-file read task to SaidIT post within seconds.",
+    x = "Event sequence",
+    y = NULL,
+    fill = "Step type"
+  ) +
+  theme(
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    panel.grid = element_blank(),
+    legend.position = "bottom",
+    plot.margin = margin(10, 30, 10, 30)
+  )
+```
+
+### Code Chunk
+
+```{r}
+#| label: exact-event-chain-code
+#| eval: false
+
+chain_nodes <- incident_chain |>
+  mutate(
+    node_id = as.character(Step),
+    label = case_when(
+      Step == 1 & str_detect(Action, "queue_subordinate_task") ~ "Daniel's agent\npasses SwiftWren task",
+      str_detect(Action, "queue_subordinate_task") & str_detect(`Event details`, "john_windward") ~ "John's agent receives\nSwiftWren read task",
+      Action == "saidit_post_check" ~ "SaidIT post\ncheck",
+      Action == "saidit_post" ~ "External SaidIT\npost",
+      Action == "delete_file" & str_detect(`Event details`, "further_instructions") ~ "Delete instruction\nfile",
+      Action == "delete_file" & str_detect(`Event details`, "SwiftWren.txt") ~ "Delete content\nfile",
+      TRUE ~ str_wrap(Action, 18)
+    ),
+    fill_group = case_when(
+      Action == "saidit_post" ~ "Post",
+      Action == "saidit_post_check" ~ "Check",
+      Action == "delete_file" ~ "Cleanup",
+      TRUE ~ "Delegation"
+    )
+  )
+
+chain_edges <- data.frame(
+  from = head(chain_nodes$Step, -1),
+  to = tail(chain_nodes$Step, -1)
+)
+
+ggplot(chain_nodes, aes(x = Step, y = 1)) +
+  geom_segment(
+    data = chain_edges,
+    aes(x = from, xend = to, y = 1, yend = 1),
+    inherit.aes = FALSE,
+    arrow = arrow(length = unit(0.18, "cm")),
+    linewidth = 0.7,
+    colour = "grey45"
+  ) +
+  geom_label(
+    aes(label = label, fill = fill_group),
+    label.size = 0.3,
+    size = 3.1,
+    lineheight = 0.9,
+    colour = "black"
+  ) +
+  scale_fill_manual(
+    values = c(
+      "Delegation" = "#d9e8fb",
+      "Check" = "#fff3bf",
+      "Post" = "#f4a6a6",
+      "Cleanup" = "#eeeeee"
+    )
+  ) +
+  scale_x_continuous(
+    breaks = chain_nodes$Step,
+    limits = c(0.55, max(chain_nodes$Step) + 0.45)
+  ) +
+  coord_cartesian(ylim = c(0.8, 1.25), clip = "off") +
+  labs(
+    title = "The post was the endpoint of a short agent-to-system execution chain",
+    subtitle = "John Windward's personal agent moved from instruction-file read task to SaidIT post within seconds.",
+    x = "Event sequence",
+    y = NULL,
+    fill = "Step type"
+  ) +
+  theme(
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    panel.grid = element_blank(),
+    legend.position = "bottom",
+    plot.margin = margin(10, 30, 10, 30)
+  )
+```
+:::
+
+**Insights.**
+
+- The evidence supports **H1** because the post was made through `Agent/person:john_windward`, not through a normal manually authored text event.
+- The chain shows a direct path from `SwiftWren_further_instructions.md` to `SwiftWren.txt` being used as the content source.
+- The cleanup actions are important. The instruction file and source file were deleted immediately after the post, which suggests that the event chain included an attempt to remove intermediate artefacts.
+
+------------------------------------------------------------------------
+
+# System context
+
+## Interactive system network
+
+A flat timeline helps show sequence, but it does not show the relationships between agents, systems, and files. The next visual converts the incident chain into a small interaction network.
+
+::: panel-tabset
+### Graph
+
+```{r}
+#| label: incident-network-graph
+#| echo: false
+
+network_events <- events_tbl |>
+  filter(
+    datetime_utc >= incident_time - hours(12),
+    datetime_utc <= incident_time + minutes(1),
+    is_swiftwren | id == incident_event$id[1]
+  ) |>
+  mutate(
+    file_target = coalesce(nested_path, target, content_source),
+    from_node = first_party,
+    to_node = case_when(
+      short_name == "queue_subordinate_task" ~ target_agent,
+      short_name == "saidit_post" ~ "system:saidit",
+      short_name == "delete_file" ~ file_target,
+      TRUE ~ second_party
+    ),
+    edge_label = case_when(
+      short_name == "queue_subordinate_task" ~ "delegates read_file",
+      short_name == "saidit_post" ~ "posts to SaidIT",
+      short_name == "delete_file" ~ "deletes file",
+      TRUE ~ short_name
+    )
+  ) |>
+  filter(!is.na(from_node), !is.na(to_node))
+
+network_nodes <- tibble(id = unique(c(network_events$from_node, network_events$to_node))) |>
+  mutate(
+    label = clean_actor_label(id),
+    group = case_when(
+      str_detect(id, "^Agent/person:") ~ "Personal agent",
+      str_detect(id, "^system:") ~ "System",
+      str_detect(id, "\\.md$|\\.txt$") ~ "File",
+      TRUE ~ "Other"
+    ),
+    color = case_when(
+      id == "Agent/person:john_windward" ~ "#f4a6a6",
+      group == "System" ~ "#fff3bf",
+      group == "File" ~ "#d7f0d1",
+      TRUE ~ "#d9e8fb"
+    ),
+    size = case_when(
+      id == "Agent/person:john_windward" ~ 34,
+      group == "System" ~ 30,
+      group == "File" ~ 25,
+      TRUE ~ 22
+    ),
+    title = paste0("<b>", label, "</b><br>", group)
+  )
+
+network_edges <- network_events |>
+  transmute(
+    from = from_node,
+    to = to_node,
+    label = edge_label,
+    title = glue(
+      "Event ID: {id}<br>Time: {tenant_time}<br>Action: {short_name}<br>Details: {details_summary}"
+    ),
+    arrows = "to"
+  )
+
+visNetwork(network_nodes, network_edges, height = "650px") |>
+  visGroups(groupname = "Personal agent", shape = "dot") |>
+  visGroups(groupname = "System", shape = "diamond") |>
+  visGroups(groupname = "File", shape = "box") |>
+  visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE) |>
+  visEdges(smooth = list(enabled = TRUE, type = "dynamic"), font = list(size = 12, align = "middle")) |>
+  visNodes(font = list(size = 16)) |>
+  visLayout(randomSeed = 608) |>
+  visPhysics(stabilization = TRUE)
+```
+
+### Code Chunk
+
+```{r}
+#| label: incident-network-code
+#| eval: false
+
+network_events <- events_tbl |>
+  filter(
+    datetime_utc >= incident_time - hours(12),
+    datetime_utc <= incident_time + minutes(1),
+    is_swiftwren | id == incident_event$id[1]
+  ) |>
+  mutate(
+    file_target = coalesce(nested_path, target, content_source),
+    from_node = first_party,
+    to_node = case_when(
+      short_name == "queue_subordinate_task" ~ target_agent,
+      short_name == "saidit_post" ~ "system:saidit",
+      short_name == "delete_file" ~ file_target,
+      TRUE ~ second_party
+    ),
+    edge_label = case_when(
+      short_name == "queue_subordinate_task" ~ "delegates read_file",
+      short_name == "saidit_post" ~ "posts to SaidIT",
+      short_name == "delete_file" ~ "deletes file",
+      TRUE ~ short_name
+    )
+  ) |>
+  filter(!is.na(from_node), !is.na(to_node))
+
+network_nodes <- tibble(id = unique(c(network_events$from_node, network_events$to_node))) |>
+  mutate(
+    label = clean_actor_label(id),
+    group = case_when(
+      str_detect(id, "^Agent/person:") ~ "Personal agent",
+      str_detect(id, "^system:") ~ "System",
+      str_detect(id, "\\.md$|\\.txt$") ~ "File",
+      TRUE ~ "Other"
+    ),
+    color = case_when(
+      id == "Agent/person:john_windward" ~ "#f4a6a6",
+      group == "System" ~ "#fff3bf",
+      group == "File" ~ "#d7f0d1",
+      TRUE ~ "#d9e8fb"
+    ),
+    size = case_when(
+      id == "Agent/person:john_windward" ~ 34,
+      group == "System" ~ 30,
+      group == "File" ~ 25,
+      TRUE ~ 22
+    ),
+    title = paste0("<b>", label, "</b><br>", group)
+  )
+
+network_edges <- network_events |>
+  transmute(
+    from = from_node,
+    to = to_node,
+    label = edge_label,
+    title = glue(
+      "Event ID: {id}<br>Time: {tenant_time}<br>Action: {short_name}<br>Details: {details_summary}"
+    ),
+    arrows = "to"
+  )
+
+visNetwork(network_nodes, network_edges, height = "650px") |>
+  visGroups(groupname = "Personal agent", shape = "dot") |>
+  visGroups(groupname = "System", shape = "diamond") |>
+  visGroups(groupname = "File", shape = "box") |>
+  visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE) |>
+  visEdges(smooth = list(enabled = TRUE, type = "dynamic"), font = list(size = 12, align = "middle")) |>
+  visNodes(font = list(size = 16)) |>
+  visLayout(randomSeed = 608) |>
+  visPhysics(stabilization = TRUE)
+```
+:::
+
+**Insights.**
+
+- The network reveals that the incident is not only a John Windward event. It involves other personal agents that passed the SwiftWren instruction forward.
+- `system:saidit` is the external endpoint. This makes it a natural control boundary because the action moves from internal agent execution to public or semi-public posting.
+- The network also shows why a simple user-level explanation is insufficient. The post was produced by system-to-system behaviour involving a personal agent, an instruction file, a content file, and a posting system.
+
+## Focused organisation chart with key actors
+
+The next visual places the key actors into a focused TenantThread organisation chart. The full organisation chart is too dense for the main report, so this view keeps John Windward, the relevant actors, and their direct organisational context.
+
+::: panel-tabset
+### Graph
+
+```{r}
+#| label: organisation-chart-highlight-graph
+#| echo: false
+
+highlight_people <- c(
+  "person:john_windward", "person:chloe_ballast", "person:daniel_gangway",
+  "person:gabriel_sonar", "person:mia_fender", "person:lily_anchorline",
+  "person:zoey_drydock", "person:victoria_rigging", "person:james_stern"
+)
+
+# The full organisation chart is too large for the main report. This focused
+# view keeps only the key actors and their direct organisational context.
+direct_parent_edges <- org_edges |>
+  filter(target %in% highlight_people)
+
+parent_nodes <- unique(direct_parent_edges$source)
+
+grandparent_edges <- org_edges |>
+  filter(target %in% parent_nodes)
+
+focused_org_nodes <- unique(c(
+  highlight_people,
+  direct_parent_edges$source,
+  grandparent_edges$source
+))
+
+focused_org_edges <- org_edges |>
+  filter(source %in% focused_org_nodes, target %in% focused_org_nodes)
+
+org_vis_nodes <- org_nodes |>
+  filter(id %in% focused_org_nodes) |>
+  mutate(
+    group = type,
+    color = case_when(
+      id == "person:john_windward" ~ "#f4a6a6",
+      id %in% highlight_people ~ "#ffe8a3",
+      type == "department" ~ "#d9e8fb",
+      type == "team" ~ "#eeeeee",
+      TRUE ~ "#f8f8f8"
+    ),
+    size = case_when(
+      id == "person:john_windward" ~ 32,
+      id %in% highlight_people ~ 24,
+      type == "department" ~ 30,
+      type == "team" ~ 26,
+      TRUE ~ 20
+    ),
+    title = paste0(
+      "<b>", label, "</b><br>",
+      "Type: ", type,
+      if_else(!is.na(title), paste0("<br>Title: ", title), "")
+    )
+  ) |>
+  select(id, label, group, color, size, title)
+
+org_vis_edges <- focused_org_edges |>
+  transmute(from = source, to = target, label = relation, arrows = "to")
+
+visNetwork(org_vis_nodes, org_vis_edges, height = "620px") |>
+  visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE) |>
+  visHierarchicalLayout(direction = "UD", sortMethod = "directed", levelSeparation = 120) |>
+  visNodes(font = list(size = 16)) |>
+  visEdges(font = list(size = 11, align = "middle")) |>
+  visPhysics(enabled = FALSE)
+```
+
+### Code Chunk
+
+```{r}
+#| label: organisation-chart-highlight-code
+#| eval: false
+
+highlight_people <- c(
+  "person:john_windward", "person:chloe_ballast", "person:daniel_gangway",
+  "person:gabriel_sonar", "person:mia_fender", "person:lily_anchorline",
+  "person:zoey_drydock", "person:victoria_rigging", "person:james_stern"
+)
+
+# The full organisation chart is too large for the main report. This focused
+# view keeps only the key actors and their direct organisational context.
+direct_parent_edges <- org_edges |>
+  filter(target %in% highlight_people)
+
+parent_nodes <- unique(direct_parent_edges$source)
+
+grandparent_edges <- org_edges |>
+  filter(target %in% parent_nodes)
+
+focused_org_nodes <- unique(c(
+  highlight_people,
+  direct_parent_edges$source,
+  grandparent_edges$source
+))
+
+focused_org_edges <- org_edges |>
+  filter(source %in% focused_org_nodes, target %in% focused_org_nodes)
+
+org_vis_nodes <- org_nodes |>
+  filter(id %in% focused_org_nodes) |>
+  mutate(
+    group = type,
+    color = case_when(
+      id == "person:john_windward" ~ "#f4a6a6",
+      id %in% highlight_people ~ "#ffe8a3",
+      type == "department" ~ "#d9e8fb",
+      type == "team" ~ "#eeeeee",
+      TRUE ~ "#f8f8f8"
+    ),
+    size = case_when(
+      id == "person:john_windward" ~ 32,
+      id %in% highlight_people ~ 24,
+      type == "department" ~ 30,
+      type == "team" ~ 26,
+      TRUE ~ 20
+    ),
+    title = paste0(
+      "<b>", label, "</b><br>",
+      "Type: ", type,
+      if_else(!is.na(title), paste0("<br>Title: ", title), "")
+    )
+  ) |>
+  select(id, label, group, color, size, title)
+
+org_vis_edges <- focused_org_edges |>
+  transmute(from = source, to = target, label = relation, arrows = "to")
+
+visNetwork(org_vis_nodes, org_vis_edges, height = "620px") |>
+  visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE) |>
+  visHierarchicalLayout(direction = "UD", sortMethod = "directed", levelSeparation = 120) |>
+  visNodes(font = list(size = 16)) |>
+  visEdges(font = list(size = 11, align = "middle")) |>
+  visPhysics(enabled = FALSE)
+```
+:::
+
+**Insights.**
+
+- John Windward appears as the Customer Support department lead. This matters because the post carries more organisational credibility than a random employee account.
+- Chloe Ballast is also important because the final SwiftWren delegation came from her personal agent to John Windward's personal agent.
+- By reducing the full chart to the directly relevant people, teams, and departments, the visual makes the organisational context easier to interpret.
+
+------------------------------------------------------------------------
+
+# Origin and meaning of the post
+
+## Content source extraction
+
+The event log does not store the full text content of the anomalous SwiftWren post in the same way as ordinary SaidIT posts. Instead, the incident event records the source file used by the post. This is still useful because it provides direct provenance.
+
+```{r}
+#| label: content-source-summary
+
+saidit_posts <- events_tbl |>
+  filter(short_name %in% c("saidit_post", "post_saidit")) |>
+  mutate(
+    content = extract_json_value(details_json, "content"),
+    poster_id = coalesce(
+      poster_id_detail,
+      person,
+      first_party
+    ),
+    poster_label = clean_actor_label(poster_id),
+    source_type = if_else(is.na(content_source), "Normal text content", "File-sourced post")
+  )
+
+content_source_table <- saidit_posts |>
+  filter(!is.na(content_source)) |>
+  transmute(
+    `Event ID` = id,
+    `TenantThread local time` = as.character(tenant_time),
+    `Poster or agent` = parties_text,
+    `Forum` = forum,
+    `Content source` = content_source
+  ) |>
+  arrange(`TenantThread local time`) |>
+  as.data.frame()
+
+knitr::kable(content_source_table, format = "pipe", align = "lllll")
+```
+
+**Insights.**
+
+- Only a small number of SaidIT posts are file-sourced in this way.
+- The anomalous John Windward post is linked to `SwiftWren.txt`, while earlier similar file-sourced posts are linked to `HiddenOrca.txt` and `MellowOtter.txt`.
+- This supports **H2** because the anomalous post did not originate from normal typed or generated business text. It originated from a named file source.
+
+## SaidIT posting behaviour
+
+The following chart compares ordinary SaidIT posts against file-sourced SaidIT posts after merging person and personal-agent identities. This helps show that the anomalous post belongs to a different pattern from normal general forum updates.
+
+::: panel-tabset
+### Graph
+
+```{r}
+#| label: saidit-post-pattern-graph
+#| echo: false
+#| fig-width: 9.5
+#| fig-height: 5.2
+#| out-width: "100%"
+
+saidit_posts <- events_tbl |>
+  filter(short_name %in% c("saidit_post", "post_saidit")) |>
+  mutate(
+    content = extract_json_value(details_json, "content"),
+    content_source = extract_json_value(details_json, "content_source"),
+    poster_id = coalesce(
+      poster_id_detail,
+      person,
+      first_party
+    ),
+    poster_base = poster_id |>
+      str_replace("^Agent/", "") |>
+      str_replace("^agent/", ""),
+    poster_label = clean_actor_label(poster_base),
+    source_type = if_else(is.na(content_source), "Normal text content", "File-sourced post")
+  )
+
+top_normal_posters <- saidit_posts |>
+  filter(source_type == "Normal text content") |>
+  count(poster_label, sort = TRUE) |>
+  slice_head(n = 5) |>
+  pull(poster_label)
+
+saidit_post_summary <- saidit_posts |>
+  filter(
+    poster_label %in% top_normal_posters |
+      source_type == "File-sourced post" |
+      poster_label == "John Windward"
+  ) |>
+  count(poster_label, source_type, name = "post_count") |>
+  group_by(poster_label) |>
+  mutate(total_posts = sum(post_count)) |>
+  ungroup() |>
+  mutate(
+    poster_label = fct_reorder(poster_label, total_posts),
+    source_type = factor(
+      source_type,
+      levels = c("Normal text content", "File-sourced post")
+    )
+  )
+
+ggplot(
+  saidit_post_summary,
+  aes(x = post_count, y = poster_label, fill = source_type)
+) +
+  geom_col() +
+  scale_x_continuous(labels = comma) +
+  labs(
+    title = "John Windward is linked to both ordinary and file-sourced SaidIT activity",
+    subtitle = "File-sourced posts are rare, but all three are attributed to John Windward's personal agent.",
+    x = "Number of SaidIT post events",
+    y = NULL,
+    fill = "Post type"
+  ) +
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(size = 13, face = "bold"),
+    plot.margin = margin(10, 20, 10, 10)
+  )
+```
+
+### Code Chunk
+
+```{r}
+#| label: saidit-post-pattern-code
+#| eval: false
+
+saidit_posts <- events_tbl |>
+  filter(short_name %in% c("saidit_post", "post_saidit")) |>
+  mutate(
+    content = extract_json_value(details_json, "content"),
+    content_source = extract_json_value(details_json, "content_source"),
+    poster_id = coalesce(
+      poster_id_detail,
+      person,
+      first_party
+    ),
+    poster_base = poster_id |>
+      str_replace("^Agent/", "") |>
+      str_replace("^agent/", ""),
+    poster_label = clean_actor_label(poster_base),
+    source_type = if_else(is.na(content_source), "Normal text content", "File-sourced post")
+  )
+
+top_normal_posters <- saidit_posts |>
+  filter(source_type == "Normal text content") |>
+  count(poster_label, sort = TRUE) |>
+  slice_head(n = 5) |>
+  pull(poster_label)
+
+saidit_post_summary <- saidit_posts |>
+  filter(
+    poster_label %in% top_normal_posters |
+      source_type == "File-sourced post" |
+      poster_label == "John Windward"
+  ) |>
+  count(poster_label, source_type, name = "post_count") |>
+  group_by(poster_label) |>
+  mutate(total_posts = sum(post_count)) |>
+  ungroup() |>
+  mutate(
+    poster_label = fct_reorder(poster_label, total_posts),
+    source_type = factor(
+      source_type,
+      levels = c("Normal text content", "File-sourced post")
+    )
+  )
+
+ggplot(
+  saidit_post_summary,
+  aes(x = post_count, y = poster_label, fill = source_type)
+) +
+  geom_col() +
+  scale_x_continuous(labels = comma) +
+  labs(
+    title = "John Windward is linked to both ordinary and file-sourced SaidIT activity",
+    subtitle = "File-sourced posts are rare, but all three are attributed to John Windward's personal agent.",
+    x = "Number of SaidIT post events",
+    y = NULL,
+    fill = "Post type"
+  ) +
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(size = 13, face = "bold"),
+    plot.margin = margin(10, 20, 10, 10)
+  )
+```
+:::
+
+**Insights.**
+
+- Ordinary SaidIT activity exists for several employees and agents, so the presence of SaidIT activity alone is not necessarily suspicious.
+- The important distinction is the file-sourced post pattern. After merging `person:john_windward` and `Agent/person:john_windward`, the rare file-sourced posts are clearly tied to John Windward's personal agent.
+- This suggests that the meaning of the anomalous post should be interpreted through file provenance and agent instructions, not only through the final forum destination.
+
+------------------------------------------------------------------------
+
+# Historical recurrence and anomaly pattern
+
+## Instruction-file propagation over time
+
+The next visual compares suspicious instruction-file propagation across the three named file families found in the data: HiddenOrca, MellowOtter, and SwiftWren.
+
+::: panel-tabset
+### Graph
+
+```{r}
+#| label: instruction-file-timeline-graph
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5.4
+#| out-width: "100%"
+
+instruction_family_events <- events_tbl |>
+  filter(is_instruction_file | !is.na(content_source)) |>
+  mutate(
+    family = case_when(
+      str_detect(text_all, "hiddenorca") ~ "HiddenOrca",
+      str_detect(text_all, "mellowotter") ~ "MellowOtter",
+      str_detect(text_all, "swiftwren") ~ "SwiftWren",
+      TRUE ~ "Other"
+    ),
+    event_type = case_when(
+      short_name == "queue_subordinate_task" ~ "Agent delegation",
+      short_name == "read_file" ~ "Instruction read",
+      short_name == "saidit_post" & !is.na(content_source) ~ "File-sourced SaidIT post",
+      short_name == "delete_file" ~ "Cleanup deletion",
+      TRUE ~ short_name
+    )
+  ) |>
+  filter(family != "Other")
+
+p_instruction_timeline <- ggplot(
+  instruction_family_events,
+  aes(
+    x = tenant_time,
+    y = family,
+    colour = event_type,
+    shape = event_type
+  )
+) +
+  geom_point(alpha = 0.8, size = 2.4) +
+  scale_x_datetime(date_labels = "%d %b\n%H:%M") +
+  labs(
+    title = "The SwiftWren incident was part of a recurring instruction-file propagation pattern",
+    subtitle = "HiddenOrca and MellowOtter show earlier versions of the same motif before SwiftWren.",
+    x = "TenantThread local time",
+    y = NULL,
+    colour = "Event type",
+    shape = "Event type"
+  ) +
+  theme(legend.position = "bottom")
+
+p_instruction_timeline
+```
+
+### Code Chunk
+
+```{r}
+#| label: instruction-file-timeline-code
+#| eval: false
+
+instruction_family_events <- events_tbl |>
+  filter(is_instruction_file | !is.na(content_source)) |>
+  mutate(
+    family = case_when(
+      str_detect(text_all, "hiddenorca") ~ "HiddenOrca",
+      str_detect(text_all, "mellowotter") ~ "MellowOtter",
+      str_detect(text_all, "swiftwren") ~ "SwiftWren",
+      TRUE ~ "Other"
+    ),
+    event_type = case_when(
+      short_name == "queue_subordinate_task" ~ "Agent delegation",
+      short_name == "read_file" ~ "Instruction read",
+      short_name == "saidit_post" & !is.na(content_source) ~ "File-sourced SaidIT post",
+      short_name == "delete_file" ~ "Cleanup deletion",
+      TRUE ~ short_name
+    )
+  ) |>
+  filter(family != "Other")
+
+p_instruction_timeline <- ggplot(
+  instruction_family_events,
+  aes(
+    x = tenant_time,
+    y = family,
+    colour = event_type,
+    shape = event_type
+  )
+) +
+  geom_point(alpha = 0.8, size = 2.4) +
+  scale_x_datetime(date_labels = "%d %b\n%H:%M") +
+  labs(
+    title = "The SwiftWren incident was part of a recurring instruction-file propagation pattern",
+    subtitle = "HiddenOrca and MellowOtter show earlier versions of the same motif before SwiftWren.",
+    x = "TenantThread local time",
+    y = NULL,
+    colour = "Event type",
+    shape = "Event type"
+  ) +
+  theme(legend.position = "bottom")
+
+p_instruction_timeline
+```
+:::
+
+**Insights.**
+
+- The SwiftWren event is not the first suspicious instruction-file pattern in the log.
+- HiddenOrca and MellowOtter show earlier instruction-file chains that also culminated in file-sourced SaidIT posts.
+- This supports **H4** because the system had earlier warning signals before the final SwiftWren incident.
+
+## Comparing recurring motifs
+
+The code below summarises the three file-sourced SaidIT motifs. Each row shows the source file, final post time, and the number of related instruction-file delegation events in the 24 hours before the post.
+
+```{r}
+#| label: recurring-motif-table
+
+malicious_posts <- events_tbl |>
+  filter(short_name == "saidit_post", !is.na(content_source)) |>
+  mutate(family = str_remove(content_source, "\\.txt$")) |>
+  arrange(tenant_time)
+
+motif_summary <- malicious_posts |>
+  rowwise() |>
+  mutate(
+    instruction_file = paste0(family, "_further_instructions.md"),
+    delegation_events_24h = sum(
+      events_tbl$short_name == "queue_subordinate_task" &
+        str_detect(events_tbl$details_json, fixed(instruction_file)) &
+        events_tbl$datetime_utc >= datetime_utc - hours(24) &
+        events_tbl$datetime_utc <= datetime_utc,
+      na.rm = TRUE
+    ),
+    first_delegation_time = suppressWarnings(min(
+      events_tbl$tenant_time[
+        events_tbl$short_name == "queue_subordinate_task" &
+          str_detect(events_tbl$details_json, fixed(instruction_file)) &
+          events_tbl$datetime_utc >= datetime_utc - hours(24) &
+          events_tbl$datetime_utc <= datetime_utc
+      ],
+      na.rm = TRUE
+    )),
+    final_actor_before_post = first_party
+  ) |>
+  ungroup() |>
+  transmute(
+    `File family` = family,
+    `Content source` = content_source,
+    `Final post local time` = as.character(tenant_time),
+    `Delegation events in prior 24h` = delegation_events_24h,
+    `Final posting actor` = clean_actor_label(final_actor_before_post)
+  ) |>
+  as.data.frame()
+
+knitr::kable(motif_summary, format = "pipe", align = "lllll")
+```
+
+**Insights.**
+
+- Each file-sourced post was preceded by an instruction-file delegation chain.
+- All three file-sourced posts end with John Windward's personal agent posting to SaidIT.
+- The pattern suggests that the problem is not just a single failed post. It is a repeatable mechanism where instruction files are passed across agents until a high-visibility account is used for posting.
+
+## Actor-action heatmap in the incident window
+
+The heatmap below focuses on actors who appeared in the incident window. Unlike the earlier first-party view, this version counts all actors involved in each relevant event.
+
+::: panel-tabset
+### Graph
+
+```{r}
+#| label: actor-action-heatmap-graph
+#| echo: false
+#| fig-width: 9.8
+#| fig-height: 5.8
+#| out-width: "100%"
+
+incident_relevant_ids <- incident_window |>
+  filter(is_swiftwren | is_saidit | is_instruction_file) |>
+  pull(id)
+
+actor_action_heatmap <- event_parties_tbl |>
+  filter(id %in% incident_relevant_ids) |>
+  left_join(
+    events_tbl |>
+      select(id, event_category),
+    by = "id"
+  ) |>
+  mutate(actor = clean_actor_label(party)) |>
+  count(actor, event_category, name = "event_count") |>
+  group_by(actor) |>
+  mutate(total_events = sum(event_count)) |>
+  ungroup() |>
+  filter(total_events >= 1) |>
+  mutate(actor = fct_reorder(actor, total_events))
+
+ggplot(actor_action_heatmap, aes(x = event_category, y = actor, fill = event_count)) +
+  geom_tile(colour = "white") +
+  geom_text(aes(label = event_count), size = 3) +
+  scale_fill_gradient(
+    low = "#f7fbff",
+    high = "#08519c",
+    labels = comma
+  ) +
+  labs(
+    title = "Agent coordination dominates the suspicious incident window",
+    subtitle = "The heatmap counts all actors involved in SwiftWren, instruction-file, and SaidIT-related events near the post.",
+    x = NULL,
+    y = NULL,
+    fill = "Event count"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 25, hjust = 1),
+    plot.title = element_text(size = 13, face = "bold"),
+    plot.margin = margin(10, 20, 10, 10)
+  )
+```
+
+### Code Chunk
+
+```{r}
+#| label: actor-action-heatmap-code
+#| eval: false
+
+incident_relevant_ids <- incident_window |>
+  filter(is_swiftwren | is_saidit | is_instruction_file) |>
+  pull(id)
+
+actor_action_heatmap <- event_parties_tbl |>
+  filter(id %in% incident_relevant_ids) |>
+  left_join(
+    events_tbl |>
+      select(id, event_category),
+    by = "id"
+  ) |>
+  mutate(actor = clean_actor_label(party)) |>
+  count(actor, event_category, name = "event_count") |>
+  group_by(actor) |>
+  mutate(total_events = sum(event_count)) |>
+  ungroup() |>
+  filter(total_events >= 1) |>
+  mutate(actor = fct_reorder(actor, total_events))
+
+ggplot(actor_action_heatmap, aes(x = event_category, y = actor, fill = event_count)) +
+  geom_tile(colour = "white") +
+  geom_text(aes(label = event_count), size = 3) +
+  scale_fill_gradient(
+    low = "#f7fbff",
+    high = "#08519c",
+    labels = comma
+  ) +
+  labs(
+    title = "Agent coordination dominates the suspicious incident window",
+    subtitle = "The heatmap counts all actors involved in SwiftWren, instruction-file, and SaidIT-related events near the post.",
+    x = NULL,
+    y = NULL,
+    fill = "Event count"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 25, hjust = 1),
+    plot.title = element_text(size = 13, face = "bold"),
+    plot.margin = margin(10, 20, 10, 10)
+  )
+```
+:::
+
+**Insights.**
+
+- The incident window is dominated by agent coordination rather than ordinary manual communication, even when all involved actors are counted instead of only the initiating actor.
+- The final SaidIT activity is a small but critical endpoint following a longer delegation pattern.
+- This supports **H3** because the post is preceded by abnormal agent-to-agent propagation rather than a normal direct posting workflow.
+
+------------------------------------------------------------------------
+
+# Intervention recommendation
+
+## Candidate intervention points
+
+Before making a recommendation, the possible intervention points should be compared. The table below summarises the main candidates and their trade-offs.
+
+```{r}
+#| label: intervention-table
+
+intervention_table <- data.frame(
+  `Intervention point` = c(
+    "Block suspicious instruction-file reads",
+    "Restrict agent-to-agent task delegation",
+    "Require approval before external SaidIT posting",
+    "Monitor deletion after posting",
+    "Apply stricter controls to department lead accounts"
+  ),
+  `What it prevents` = c(
+    "Stops agents from executing files such as SwiftWren_further_instructions.md.",
+    "Reduces uncontrolled propagation across personal agents.",
+    "Stops the final external publication even if earlier steps occur.",
+    "Flags suspicious cleanup behaviour after an incident.",
+    "Reduces reputational risk when senior accounts are involved."
+  ),
+  `Limitation` = c(
+    "May be too broad if legitimate instruction files exist.",
+    "May disrupt useful agent delegation workflows.",
+    "Does not remove the upstream malicious instruction chain.",
+    "Detects after the post has already occurred.",
+    "Does not address the same mechanism on non-lead accounts."
+  ),
+  check.names = FALSE
+)
+
+knitr::kable(intervention_table, format = "pipe", align = "lll")
+```
+
+## Recommended control point
+
+The strongest intervention point is the boundary between **agent-generated content** and **external SaidIT posting**. The reason is that this point prevents public release even if malicious instruction propagation has already happened. The visual below is a recommendation diagram rather than a data chart.
+
+::: panel-tabset
+### Graph
+
+```{r}
+#| label: intervention-diagram-graph
+#| echo: false
+#| fig-width: 11
+#| fig-height: 4.4
+#| out-width: "100%"
+
+intervention_nodes <- data.frame(
+  step = 1:6,
+  label = c(
+    "Instruction file\npropagates",
+    "Agent receives\nread task",
+    "Content source\nfile selected",
+    "Approval gate\nrecommended here",
+    "SaidIT post\nexecuted",
+    "Files deleted\nafter posting"
+  ),
+  type = c("risk", "risk", "risk", "control", "harm", "cleanup")
+)
+
+intervention_edges <- data.frame(
+  from = 1:5,
+  to = 2:6
+)
+
+ggplot(intervention_nodes, aes(x = step, y = 1)) +
+  geom_segment(
+    data = intervention_edges,
+    aes(x = from, xend = to, y = 1, yend = 1),
+    inherit.aes = FALSE,
+    arrow = arrow(length = unit(0.18, "cm")),
+    linewidth = 0.7,
+    colour = "grey45"
+  ) +
+  geom_label(
+    aes(label = label, fill = type),
+    label.size = 0.3,
+    size = 3.2,
+    lineheight = 0.9,
+    colour = "black"
+  ) +
+  scale_fill_manual(
+    values = c(
+      "risk" = "#d9e8fb",
+      "control" = "#c7e9c0",
+      "harm" = "#f4a6a6",
+      "cleanup" = "#eeeeee"
+    )
+  ) +
+  scale_x_continuous(limits = c(0.7, 6.3), breaks = 1:6) +
+  coord_cartesian(ylim = c(0.8, 1.25), clip = "off") +
+  labs(
+    title = "Recommended intervention: require approval before external SaidIT posting",
+    subtitle = "This recommendation diagram shows the preferred control point before the external release boundary.",
+    x = "Causal sequence",
+    y = NULL
+  ) +
+  theme(
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    panel.grid = element_blank(),
+    legend.position = "none",
+    plot.margin = margin(10, 30, 10, 30)
+  )
+```
+
+### Code Chunk
+
+```{r}
+#| label: intervention-diagram-code
+#| eval: false
+
+intervention_nodes <- data.frame(
+  step = 1:6,
+  label = c(
+    "Instruction file\npropagates",
+    "Agent receives\nread task",
+    "Content source\nfile selected",
+    "Approval gate\nrecommended here",
+    "SaidIT post\nexecuted",
+    "Files deleted\nafter posting"
+  ),
+  type = c("risk", "risk", "risk", "control", "harm", "cleanup")
+)
+
+intervention_edges <- data.frame(
+  from = 1:5,
+  to = 2:6
+)
+
+ggplot(intervention_nodes, aes(x = step, y = 1)) +
+  geom_segment(
+    data = intervention_edges,
+    aes(x = from, xend = to, y = 1, yend = 1),
+    inherit.aes = FALSE,
+    arrow = arrow(length = unit(0.18, "cm")),
+    linewidth = 0.7,
+    colour = "grey45"
+  ) +
+  geom_label(
+    aes(label = label, fill = type),
+    label.size = 0.3,
+    size = 3.2,
+    lineheight = 0.9,
+    colour = "black"
+  ) +
+  scale_fill_manual(
+    values = c(
+      "risk" = "#d9e8fb",
+      "control" = "#c7e9c0",
+      "harm" = "#f4a6a6",
+      "cleanup" = "#eeeeee"
+    )
+  ) +
+  scale_x_continuous(limits = c(0.7, 6.3), breaks = 1:6) +
+  coord_cartesian(ylim = c(0.8, 1.25), clip = "off") +
+  labs(
+    title = "Recommended intervention: require approval before external SaidIT posting",
+    subtitle = "This recommendation diagram shows the preferred control point before the external release boundary.",
+    x = "Causal sequence",
+    y = NULL
+  ) +
+  theme(
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    panel.grid = element_blank(),
+    legend.position = "none",
+    plot.margin = margin(10, 30, 10, 30)
+  )
+```
+:::
+
+**Recommendation.** The company should introduce an approval gate before a personal agent can post externally to SaidIT when the post content is derived from a file source or when the posting account belongs to a department lead. This intervention is more effective than only reviewing John Windward's account because the underlying pattern involves cross-agent instruction propagation.
+
+------------------------------------------------------------------------
+
+# Final answers to the mini-challenge questions
+
+## Question 1: How was the anomalous SaidIT post made?
+
+The anomalous post was made through **John Windward's personal agent**, not through a direct human-written post. The most important chain is:
+
+1.  A SwiftWren instruction file was propagated across agents.
+2.  `Agent/person:chloe_ballast` delegated a `read_file` task to `Agent/person:john_windward`.
+3.  John Windward's agent performed a SaidIT post check.
+4.  The agent posted to the `general` forum using `SwiftWren.txt` as the content source.
+5.  The instruction file and content file were deleted immediately after the post.
+
+This supports the conclusion that the post was the endpoint of an agent-executed workflow.
+
+## Question 2: What does the post mean and where did the content originate?
+
+The event log identifies `SwiftWren.txt` as the content source. The full text of the content is not exposed in the event log in the same way as normal business posts, but the source file itself is clearly recorded. This means the most defensible interpretation is that the anomalous post originated from a file-based instruction or payload rather than from normal human-authored SaidIT content.
+
+The earlier `HiddenOrca.txt` and `MellowOtter.txt` posts show that SwiftWren was part of a wider file-sourced posting pattern. Therefore, the post content should be interpreted as the output of an instruction-file propagation mechanism, not as ordinary business communication.
+
+## Question 3: Could this happen again and where should intervention occur?
+
+Yes, the pattern could recur because the dataset shows earlier file-sourced SaidIT posts involving `HiddenOrca.txt` and `MellowOtter.txt` before the SwiftWren incident. These events suggest that the same underlying mechanism had appeared before.
+
+The recommended intervention point is immediately before external SaidIT posting. A policy gate should require approval when:
+
+- a personal agent attempts to post externally,
+- the post content is file-sourced,
+- the content source follows a suspicious instruction-file chain, or
+- the post is attributed to a senior or department lead account.
+
+This intervention targets the release boundary and prevents public posting even when earlier agent propagation has already occurred.
+
+# Conclusion
+
+This report used visual analytics to reconstruct the anomalous SaidIT post attributed to John Windward. The analysis shows that the post was not an isolated action. Instead, it was the final event in a multi-agent chain involving `SwiftWren_further_instructions.md`, a SaidIT post check, a file-sourced post using `SwiftWren.txt`, and immediate cleanup through file deletion.
+
+The strongest finding is that the SwiftWren event was part of a recurring pattern. Earlier `HiddenOrca` and `MellowOtter` file-sourced posts show that warning signs existed before the final incident. As such, the recommended response should not focus only on John Windward. The company should place controls at the agent-to-external-posting boundary and monitor file-sourced posts that follow cross-agent instruction propagation.

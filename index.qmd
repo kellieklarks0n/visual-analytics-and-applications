@@ -64,14 +64,14 @@ This exercise explores the use of a stacked bar chart for a food service KPI rep
 </div>
 
 <div class="card-link">
-<a href="take-home-1/technical-report.html" style="text-decoration:none; color:inherit;">
+<a href="take-home-2/technical-report.html" style="text-decoration:none; color:inherit;">
 <div class="latest-card">
 
 ### Take-Home Exercise
 
-**Latest:** Take-Home Exercise 1
+**Latest:** Take-Home Exercise 2
 
-This exercise explores the 
+This exercise uses visual analytics to investigate an anomalous SaidIT post through event timelines, agent networks, and intervention analysis.
 
 </div>
 </a>
