@@ -8,6 +8,42 @@ title: "Hands-On Exercises"
 
 <div class="exercise-list">
 
+<a href="hands-on/exercise9.html" class="exercise-link">
+<div class="exercise-card">
+
+### Exercise 9
+
+<div class="exercise-meta">Published on 17 June 2026</div>
+
+This hands-on exercise explores geospatial visualisation in R using `sf`, `tmap`, and `tidyverse`. It covers the creation of choropleth maps, geospatial point maps, proportional symbol maps, and analytical maps by combining spatial and attribute data to reveal meaningful spatial patterns.
+
+</div>
+</a>
+
+<a href="hands-on/exercise8.html" class="exercise-link">
+<div class="exercise-card">
+
+### Exercise 8
+
+<div class="exercise-meta">Published on 10 June 2026</div>
+
+Explore time-oriented data visualisation techniques using R, including calendar heatmaps, cycle plots and slopegraphs. This exercise demonstrates how temporal patterns, seasonal trends and changes over time can be communicated clearly through visual analytics.
+
+</div>
+</a>
+
+<a href="hands-on/exercise7.html" class="exercise-link">
+<div class="exercise-card">
+
+### Exercise 7
+
+<div class="exercise-meta">Published on 3 June 2026</div>
+
+This exercise explores the visualisation of both network and text data.
+
+</div>
+</a>
+
 <a href="hands-on/exercise5.html" class="exercise-link">
 <div class="exercise-card">
 

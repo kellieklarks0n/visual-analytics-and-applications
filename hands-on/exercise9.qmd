@@ -1,0 +1,1213 @@
+---
+title: "Hands-On Exercise 9"
+author: "Kelvin Andikko"
+date: "2026-06-17"
+date-modified: "last-modified"
+format: html
+editor: visual
+---
+
+This hands-on exercise will be done in 3 parts:
+
+1. Exploring how choropleth maps can be created in R. In particular, this exercise focuses on how geospatial data and attribute data can be joined together before using `tmap` to visualise spatial patterns across Singapore's planning subzones.
+2. Exploring how geospatial point data can be visualised in R. In particular, this exercise focuses on how an aspatial data frame containing coordinates can be converted into a simple feature point data frame before using `tmap` to create interactive point symbol maps and proportional symbol maps.
+3. Exploring analytical mapping in R. In particular, this exercise focuses on creating choropleth maps, rate maps, percentile maps and box maps by using `tmap`, `sf` and `tidyverse`.
+
+------------------------------------------------------------------------
+
+# Part 1: Creating choropleth maps
+
+In this first part of the exercise, the following R packages will be used:
+
+- `sf`: used to import, process and handle geospatial data in R.
+- `tmap`: used to create thematic maps and choropleth maps.
+- `tidyverse`: used for importing, wrangling and transforming the attribute data.
+
+The code block belows checks that the above packages are installed and loaded into the R working environment.
+
+```{r, message=FALSE, warning=FALSE}
+pacman::p_load(sf, tmap, tidyverse)
+```
+
+------------------------------------------------------------------------
+
+# Importing Data into R
+
+For this exercise, 2 datasets will be used:
+
+1.  `MP14_SUBZONE_WEB_PL`: This is a geospatial dataset that contains the Master Plan 2014 Subzone Boundary of Singapore.
+2.  `respopagesextod2011to2020.csv`: This is an aspatial dataset that contains Singapore resident population by planning area, subzone, age group, sex and dwelling type from 2011 to 2020.
+
+The main idea is that the population dataset does not have geometry information. However, it contains planning area and subzone fields that can be joined to the geospatial dataset. After that, the combined dataset can be used to create choropleth maps.
+
+## Importing the geospatial data
+
+The code chunk below uses `st_read()` from the `sf` package to import the Master Plan 2014 Subzone Boundary shapefile into R.
+
+```{r}
+mpsz <- st_read(dsn = "../data/MP14_SUBZONE_WEB_PL",
+                layer = "MP14_SUBZONE_WEB_PL")
+```
+
+The following code allows us to examine the imported simple feature data frame.
+
+```{r}
+mpsz
+```
+
+There are several things to note from the output:
+
+- The object is imported as a simple feature data frame.
+- Each row represents a planning subzone in Singapore.
+- The `geometry` column stores the polygon information that allows the map to be drawn.
+- The `SUBZONE_N` and `PLN_AREA_N` fields can be used later for joining with the population dataset.
+
+## Importing the attribute data
+
+Next, the population dataset is imported using `read_csv()` from the `readr` package.
+
+```{r}
+popdata <- read_csv("../data/respopagesextod2011to2020.csv")
+```
+
+The code chunk below gives a quick view of the structure of the dataset.
+
+```{r}
+glimpse(popdata)
+```
+
+This dataset is an aspatial dataset. This means that it does not contain polygon boundaries or coordinates. However, it contains fields such as `PA` and `SZ`, which represent planning area and subzone respectively.
+
+------------------------------------------------------------------------
+
+# Data Preparation
+
+Before a choropleth map can be created, the population data needs to be transformed into a form that can be joined to the geospatial data.
+
+For this exercise, the year 2020 will be used. The following derived variables will be created:
+
+- `YOUNG`: Population from younger age groups.
+- `ECONOMY ACTIVE`: Population from the economically active age groups.
+- `AGED`: Population aged 65 years and above.
+- `TOTAL`: Total population across all age groups.
+- `DEPENDENCY`: Ratio of young and aged population against the economy active population.
+
+## Wrangling the population data
+
+The following code chunk does the following:
+
+- Filters the data to keep only year 2020.
+- Groups the data by planning area, subzone and age group.
+- Sums the population values.
+- Uses `pivot_wider()` to reshape the age groups into separate columns.
+- Creates the derived variables needed for the choropleth map.
+
+```{r}
+popdata2020 <- popdata %>%
+  filter(Time == 2020) %>%
+  group_by(PA, SZ, AG) %>%
+  summarise(`POP` = sum(`Pop`),
+            .groups = "drop") %>%
+  pivot_wider(names_from = AG,
+              values_from = POP) %>%
+  mutate(YOUNG = rowSums(.[3:6]) + rowSums(.[12])) %>%
+  mutate(`ECONOMY ACTIVE` = rowSums(.[7:11]) + rowSums(.[13:15])) %>%
+  mutate(`AGED` = rowSums(.[16:21])) %>%
+  mutate(`TOTAL` = rowSums(.[3:21])) %>%
+  mutate(`DEPENDENCY` = (`YOUNG` + `AGED`) / `ECONOMY ACTIVE`) %>%
+  select(`PA`, `SZ`, `YOUNG`, `ECONOMY ACTIVE`,
+         `AGED`, `TOTAL`, `DEPENDENCY`)
+```
+
+The code chunk below checks the output table that was created.
+
+```{r}
+glimpse(popdata2020)
+```
+
+What is done here is that the population dataset has been converted from a long format into a wider format. This is important because each planning subzone should eventually have one row of summary information before it is joined to the map boundary.
+
+## Preparing the common fields for joining
+
+Before joining the attribute data with the geospatial data, we need to make sure that the matching fields have a common format.
+
+The code chunk below converts the `PA` and `SZ` fields into uppercase. It also removes rows where `ECONOMY ACTIVE` is zero, as this would create invalid dependency ratio values.
+
+```{r}
+popdata2020 <- popdata2020 %>%
+  mutate(across(c(PA, SZ), toupper)) %>%
+  filter(`ECONOMY ACTIVE` > 0)
+```
+
+This step is important because the subzone names in the geospatial dataset are stored in uppercase. If this step is skipped, some records may not be matched properly during the join.
+
+## Joining the geospatial and attribute data
+
+The next code chunk uses `left_join()` to join the subzone boundary data with the population data.
+
+```{r}
+mpsz_pop2020 <- left_join(mpsz, popdata2020,
+                          by = c("SUBZONE_N" = "SZ"))
+```
+
+There are 2 things to note from the code chunk above:
+
+1.  `mpsz` is placed on the left side of `left_join()` so that the output remains as a simple feature data frame.
+2.  `SUBZONE_N` from the geospatial dataset is matched with `SZ` from the population dataset.
+
+The code chunk below checks the final joined dataset.
+
+```{r}
+glimpse(mpsz_pop2020)
+```
+
+The joined dataset can also be saved as an `.rds` file. This is useful because the prepared dataset can be loaded again without repeating all the earlier data preparation steps.
+
+```{r}
+dir.create("data/rds", showWarnings = FALSE, recursive = TRUE)
+write_rds(mpsz_pop2020, "data/rds/mpszpop2020.rds")
+```
+
+------------------------------------------------------------------------
+
+# Choropleth Mapping with `tmap`
+
+Choropleth mapping is used when values are represented using colour shading over geographic areas. In this exercise, the planning subzones are shaded based on the selected population indicator.
+
+There are 2 main ways to create a choropleth map using `tmap`:
+
+- Using `qtm()` for a quick thematic map.
+- Using `tm_shape()` and other `tmap` elements for a more customised map.
+
+## Plotting a quick choropleth map using `qtm()`
+
+The easiest way to create a choropleth map in `tmap` is by using `qtm()`.
+
+```{r}
+tmap_mode("plot")
+
+qtm(mpsz_pop2020,
+    fill = "DEPENDENCY")
+```
+
+Things to learn from the code chunk above:
+
+- `tmap_mode("plot")` is used to create a static map.
+- `qtm()` is useful when we want to create a quick map with minimal code.
+- The `fill` argument is used to define the variable used for shading the polygons.
+
+Although `qtm()` is convenient, it gives less control over the design of the map. For more control, `tmap` elements should be used instead.
+
+------------------------------------------------------------------------
+
+# Creating Choropleth Maps Using `tmap` Elements
+
+In this section, the choropleth map will be built using `tm_shape()` and mapping layers. This approach is more flexible because individual map components can be adjusted.
+
+## Drawing a base map
+
+The code chunk below creates a base map of Singapore's planning subzones.
+
+```{r}
+tm_shape(mpsz_pop2020) +
+  tm_polygons()
+```
+
+In this code chunk, `tm_shape()` defines the spatial object to be mapped, while `tm_polygons()` draws the polygon boundaries.
+
+## Drawing a choropleth map using `tm_polygons()`
+
+To turn the base map into a choropleth map, the selected variable is assigned to `tm_polygons()`.
+
+```{r}
+tm_shape(mpsz_pop2020) +
+  tm_polygons(fill = "DEPENDENCY")
+```
+
+The code chunk above shades each planning subzone based on the dependency ratio. A higher dependency ratio means that the young and aged population is larger relative to the economically active population.
+
+There are several things to note:
+
+- By default, `tmap` chooses a classification method automatically.
+- Missing values are usually shown in grey.
+- The map already gives a quick view of spatial variation, but the classification method and colour scheme still matter.
+
+## Adding borders to the choropleth map
+
+The next code chunk adds borders to the planning subzones.
+
+```{r}
+tm_shape(mpsz_pop2020) +
+  tm_polygons(fill = "DEPENDENCY") +
+  tm_borders(col = "grey40",
+             lwd = 0.1)
+```
+
+The borders make it easier to see the individual planning subzones. However, if the border lines are too thick, the map can become visually cluttered.
+
+------------------------------------------------------------------------
+
+# Data Classification Methods
+
+Data classification is one of the most important design choices in choropleth mapping. It decides how continuous values are grouped into classes before they are shown on the map.
+
+In `tmap`, several classification methods can be used, such as:
+
+- `fixed`
+- `sd`
+- `equal`
+- `pretty`
+- `quantile`
+- `kmeans`
+- `hclust`
+- `bclust`
+- `fisher`
+- `jenks`
+
+## Using the Jenks classification method
+
+The code chunk below uses the Jenks classification method with 5 classes.
+
+```{r}
+tm_shape(mpsz_pop2020) +
+  tm_polygons(fill = "DEPENDENCY",
+              fill.scale = tm_scale_intervals(
+                style = "jenks",
+                n = 5,
+                values = "brewer.blues"),
+              fill.legend = tm_legend(
+                title = "Dependency ratio")) +
+  tm_borders(col = "grey40",
+             lwd = 0.1)
+```
+
+Jenks classification attempts to group values by minimising variation within each class and maximising differences between classes. This is useful when the data has natural breaks.
+
+## Using the equal classification method
+
+The next code chunk uses the equal classification method.
+
+```{r}
+tm_shape(mpsz_pop2020) +
+  tm_polygons(fill = "DEPENDENCY",
+              fill.scale = tm_scale_intervals(
+                style = "equal",
+                n = 5,
+                values = "brewer.blues"),
+              fill.legend = tm_legend(
+                title = "Dependency ratio")) +
+  tm_borders(col = "grey40",
+             lwd = 0.1)
+```
+
+The equal classification method divides the value range into intervals of the same size. This makes the method easy to understand, but it may not always show the pattern clearly if the data is unevenly distributed.
+
+## Comparing classification methods
+
+The code chunk below creates 2 maps and arranges them side by side.
+
+```{r}
+jenks_map <- tm_shape(mpsz_pop2020) +
+  tm_polygons(fill = "DEPENDENCY",
+              fill.scale = tm_scale_intervals(
+                style = "jenks",
+                n = 5,
+                values = "brewer.blues"),
+              fill.legend = tm_legend(
+                title = "Dependency ratio")) +
+  tm_borders(col = "grey40",
+             lwd = 0.1) +
+  tm_title("Jenks")
+
+equal_map <- tm_shape(mpsz_pop2020) +
+  tm_polygons(fill = "DEPENDENCY",
+              fill.scale = tm_scale_intervals(
+                style = "equal",
+                n = 5,
+                values = "brewer.blues"),
+              fill.legend = tm_legend(
+                title = "Dependency ratio")) +
+  tm_borders(col = "grey40",
+             lwd = 0.1) +
+  tm_title("Equal")
+
+tmap_arrange(jenks_map, equal_map, ncol = 2)
+```
+
+What can we learn from this comparison?
+
+1.  The same dataset can look different depending on the classification method selected.
+2.  Jenks classification is more sensitive to natural groupings in the data.
+3.  Equal classification may make some differences less visible if the data has outliers.
+
+This shows that choropleth mapping is not only about plotting data. The design choices also affect how the map is interpreted.
+
+------------------------------------------------------------------------
+
+# Custom Breaks
+
+For built-in classification methods, the class intervals are computed automatically. However, there are times where we may want to manually decide the break points.
+
+Before setting custom breaks, it is useful to look at the descriptive statistics of the variable.
+
+```{r}
+summary(mpsz_pop2020$DEPENDENCY)
+```
+
+With reference to the summary statistics, custom break points can be used to control how the values are grouped.
+
+```{r}
+tm_shape(mpsz_pop2020) +
+  tm_polygons(fill = "DEPENDENCY",
+              fill.scale = tm_scale_intervals(
+                style = "fixed",
+                breaks = c(0, 0.60, 0.70, 0.80, 0.90, 1.00, 20.00),
+                values = "brewer.blues"),
+              fill.legend = tm_legend(
+                title = "Dependency ratio")) +
+  tm_borders(col = "grey40",
+             lwd = 0.1)
+```
+
+The important thing to note is that the breaks must be arranged in increasing order. The final value is set high enough so that the outlier values are still included in the classification.
+
+------------------------------------------------------------------------
+
+# Colour Scheme
+
+Colour scheme is another important component of choropleth mapping. The colour scheme should support the message of the map and should not make the map harder to read.
+
+## Using a ColourBrewer palette
+
+The code chunk below changes the colour scheme to green by using a ColourBrewer palette.
+
+```{r}
+tm_shape(mpsz_pop2020) +
+  tm_polygons(fill = "DEPENDENCY",
+              fill.scale = tm_scale_intervals(
+                style = "quantile",
+                n = 5,
+                values = "brewer.greens"),
+              fill.legend = tm_legend(
+                title = "Dependency ratio")) +
+  tm_borders(col = "grey40",
+             lwd = 0.1)
+```
+
+In this example, the dependency ratio is shown using green shades.
+
+## Reversing the colour scheme
+
+To reverse the colour scheme, a minus sign is added before the palette name.
+
+```{r}
+tm_shape(mpsz_pop2020) +
+  tm_polygons(fill = "DEPENDENCY",
+              fill.scale = tm_scale_intervals(
+                style = "quantile",
+                n = 5,
+                values = "-brewer.greens"),
+              fill.legend = tm_legend(
+                title = "Dependency ratio")) +
+  tm_borders(col = "grey40",
+             lwd = 0.1)
+```
+
+Reversing the colour scheme changes how the visual emphasis is placed. This is useful when we want the highest or lowest values to stand out more clearly.
+
+------------------------------------------------------------------------
+
+# Map Layouts
+
+A map layout is made up of the different elements that appear on the final map. This includes the title, legend, borders, compass, grid lines and source credits.
+
+## Adding title and legend
+
+The code chunk below adds a map title and updates the legend title.
+
+```{r}
+tm_shape(mpsz_pop2020) +
+  tm_polygons(fill = "DEPENDENCY",
+              fill.scale = tm_scale_intervals(
+                style = "jenks",
+                n = 5,
+                values = "brewer.greens"),
+              fill.legend = tm_legend(
+                title = "Dependency ratio")) +
+  tm_borders(col = "grey40",
+             lwd = 0.1) +
+  tm_title("Distribution of Dependency Ratio by Planning Subzone")
+```
+
+The title helps the reader understand what the map is trying to show. The legend is also important because it explains how the colour shades should be interpreted.
+
+## Adding cartographic furniture
+
+Cartographic furniture refers to elements such as compass, grid lines and source credits. These elements make the map more complete and easier to interpret.
+
+```{r}
+tm_shape(mpsz_pop2020) +
+  tm_polygons(fill = "DEPENDENCY",
+              fill.scale = tm_scale_intervals(
+                style = "quantile",
+                n = 5,
+                values = "brewer.blues"),
+              fill.legend = tm_legend(
+                title = "Dependency ratio")) +
+  tm_title("Distribution of Dependency Ratio by Planning Subzone") +
+  tm_layout(frame = TRUE) +
+  tm_borders(col = "grey40",
+             lwd = 0.1) +
+  tm_compass(type = "8star",
+             size = 2) +
+  tm_grid(alpha = 0.2) +
+  tm_credits("Source: URA Master Plan 2014 Subzone Boundary and Singapore Department of Statistics",
+             position = c("left", "bottom"))
+```
+
+There are several things to learn from the code chunk above:
+
+- `tm_title()` adds a title to the map.
+- `tm_layout()` changes the overall map layout.
+- `tm_compass()` adds a compass to the map.
+- `tm_grid()` adds grid lines.
+- `tm_credits()` adds source information to the map.
+
+------------------------------------------------------------------------
+
+# Drawing Small Multiple Choropleth Maps
+
+Small multiple maps are useful when we want to compare spatial patterns across different variables. Instead of plotting only one map, we can place several related maps side by side.
+
+## Comparing young and aged population
+
+The code chunk below creates small multiple maps for `YOUNG` and `AGED`.
+
+```{r}
+tm_shape(mpsz_pop2020) +
+  tm_fill(c("YOUNG", "AGED"),
+          style = "equal",
+          palette = "Blues") +
+  tm_layout(legend.position = c("right", "bottom")) +
+  tm_borders(alpha = 0.5)
+```
+
+This allows us to compare the spatial distribution of younger population and aged population across Singapore's planning subzones.
+
+## Comparing dependency ratio and aged population
+
+The code chunk below compares the dependency ratio and aged population using different classification methods and colour palettes.
+
+```{r}
+tm_shape(mpsz_pop2020) +
+  tm_polygons(c("DEPENDENCY", "AGED"),
+              style = c("equal", "quantile"),
+              palette = list("Blues", "Greens")) +
+  tm_layout(legend.position = c("right", "bottom"))
+```
+
+This approach is useful when different variables need to be compared together. However, the maps should still be interpreted carefully because each variable may use a different classification method.
+
+## Creating multiple stand-alone maps
+
+Another way to create small multiples is to save each map as a separate object and arrange them using `tmap_arrange()`.
+
+```{r}
+youngmap <- tm_shape(mpsz_pop2020) +
+  tm_polygons(fill = "YOUNG",
+              fill.scale = tm_scale_intervals(
+                style = "quantile",
+                values = "brewer.blues"),
+              fill.legend = tm_legend(
+                title = "Young population"))
+
+agedmap <- tm_shape(mpsz_pop2020) +
+  tm_polygons(fill = "AGED",
+              fill.scale = tm_scale_intervals(
+                style = "quantile",
+                values = "brewer.blues"),
+              fill.legend = tm_legend(
+                title = "Aged population"))
+
+tmap_arrange(youngmap, agedmap,
+             ncol = 2)
+```
+
+The benefit of this approach is that each map can be customised separately before they are combined.
+
+------------------------------------------------------------------------
+
+# Mapping Spatial Objects that Meet a Selection Criterion
+
+There are situations where we may only want to map a selected part of the spatial dataset. For example, we can focus only on the Central Region of Singapore.
+
+```{r}
+tm_shape(mpsz_pop2020[mpsz_pop2020$REGION_N == "CENTRAL REGION", ]) +
+  tm_polygons(fill = "DEPENDENCY",
+              fill.scale = tm_scale_intervals(
+                style = "quantile",
+                values = "brewer.blues"),
+              fill.legend = tm_legend(
+                title = "Dependency ratio")) +
+  tm_title("Dependency Ratio in the Central Region") +
+  tm_layout(frame = FALSE,
+            legend.outside = TRUE) +
+  tm_borders(col = "grey40",
+             lwd = 0.1)
+```
+
+This is useful when the full map is too broad, or when the analysis needs to focus on a particular region.
+
+------------------------------------------------------------------------
+
+# Switching to Interactive Map Mode
+
+`tmap` can also be switched from static plot mode to interactive view mode. This can be useful when we want to zoom, pan and inspect the map more closely.
+
+```{r}
+tmap_mode("view")
+
+qtm(mpsz_pop2020,
+    fill = "DEPENDENCY")
+```
+
+After the interactive map is created, the mode can be switched back to static plot mode.
+
+```{r}
+tmap_mode("plot")
+```
+
+------------------------------------------------------------------------
+
+# Things Learnt
+
+From this exercise, choropleth mapping is not only about plotting a map. There are several important steps before the map can be created, such as importing geospatial data, importing attribute data, transforming the attribute data and joining both datasets together.
+
+Furthermore, design choices such as classification method, number of classes, colour scheme and map layout affect how the final map is interpreted. This means that a choropleth map should be designed carefully so that it communicates the spatial pattern clearly and truthfully.
+
+------------------------------------------------------------------------
+
+# Part 2: Visualisation of geospatial points data
+
+In this second part of the exercise, the following R packages will be used:
+
+- `sf`: used to convert coordinate data into simple feature point data.
+- `tmap`: used to create static and interactive thematic maps.
+- `tidyverse`: used for importing and checking the data.
+
+The code block below checks that the above packages are installed and loaded into the R working environment.
+
+```{r, message=FALSE, warning=FALSE}
+pacman::p_load(sf, tmap, tidyverse)
+```
+
+------------------------------------------------------------------------
+
+# Importing Data into R
+
+For this exercise, the dataset used is called `SGPools_svy21.csv`. This is an aspatial dataset containing Singapore Pools outlets and branches.
+
+Although the dataset is not a geospatial file like a shapefile, it contains coordinate fields. These coordinate fields can be used to convert the table into a geospatial point layer.
+
+## Importing the aspatial data
+
+The code chunk below uses `read_csv()` from the `readr` package to import the CSV file into R.
+
+```{r}
+sgpools <- read_csv("../data/SGPools_svy21.csv")
+```
+
+The following code allows us to examine the imported data.
+
+```{r}
+list(sgpools)
+```
+
+There are several things to note from the output:
+
+- The dataset is imported as a tibble data frame.
+- Each row represents one Singapore Pools outlet or branch.
+- The `XCOORD` and `YCOORD` fields store the coordinate information.
+- The `OUTLET TYPE` field tells us whether the record is an outlet or branch.
+- The `Gp1Gp2 Winnings` field is a numerical variable that can be used to control the size of symbols later.
+
+## Checking the structure of the data
+
+The code chunk below gives a quick view of the structure of the dataset.
+
+```{r}
+glimpse(sgpools)
+```
+
+This step is useful because it allows us to check whether the coordinate columns are numeric and whether the attribute fields have been imported correctly.
+
+------------------------------------------------------------------------
+
+# Creating a Simple Feature Point Data Frame
+
+Before the dataset can be mapped as geospatial point data, it needs to be converted from an aspatial data frame into a simple feature data frame.
+
+The code chunk below converts `sgpools` into a simple feature point data frame by using `st_as_sf()` from the `sf` package.
+
+```{r}
+sgpools_sf <- st_as_sf(sgpools,
+                       coords = c("XCOORD", "YCOORD"),
+                       crs = 3414)
+```
+
+There are several things to learn from the arguments above:
+
+- The `coords` argument is used to indicate the columns containing the x-coordinate and y-coordinate.
+- The x-coordinate column must be listed first, followed by the y-coordinate column.
+- The `crs` argument is used to assign the coordinate reference system.
+- EPSG 3414 refers to the Singapore SVY21 projected coordinate system.
+
+The code chunk below checks the newly created simple feature data frame.
+
+```{r}
+sgpools_sf
+```
+
+A new `geometry` column is added into the data frame. This column stores the point geometry for each Singapore Pools location.
+
+------------------------------------------------------------------------
+
+# Visualising Geospatial Point Data
+
+Point symbol maps are useful when the data is linked to specific locations. In this exercise, each Singapore Pools outlet or branch is represented as a point on the map.
+
+Before creating the map, `tmap` is switched to interactive viewing mode.
+
+```{r}
+tmap_mode("view")
+```
+
+Interactive mode is useful because it allows users to zoom, pan and inspect the point locations more closely.
+
+## Creating an interactive point symbol map
+
+The code chunk below creates a simple interactive point symbol map.
+
+```{r}
+tm_shape(sgpools_sf) +
+  tm_bubbles(fill = "red",
+             size = 1,
+             col = "black",
+             lwd = 1)
+```
+
+The point symbol map shows where the Singapore Pools outlets and branches are located. At this stage, all points have the same size and colour.
+
+There are several things to note from the code chunk:
+
+- `tm_shape()` identifies the spatial data frame to be mapped.
+- `tm_bubbles()` is used to draw circular point symbols.
+- `fill` controls the colour inside the point symbol.
+- `size` controls the size of each point.
+- `col` and `lwd` control the border colour and border width of the symbols.
+
+------------------------------------------------------------------------
+
+# Drawing a Proportional Symbol Map
+
+A proportional symbol map is different from a normal point symbol map because the symbol size is linked to a numerical variable. This allows the map to show both location and magnitude at the same time.
+
+In this exercise, the `Gp1Gp2 Winnings` variable is used to control the size of the symbols.
+
+```{r}
+tm_shape(sgpools_sf) +
+  tm_bubbles(fill = "red",
+             size = "Gp1Gp2 Winnings",
+             col = "black",
+             lwd = 1)
+```
+
+The larger bubbles represent locations with higher `Gp1Gp2 Winnings` values. This makes it easier to identify places with relatively higher values compared with others.
+
+What is done here is that the size visual attribute has been mapped to a data variable. This is useful because the reader can compare the relative magnitude of each point directly from the map.
+
+------------------------------------------------------------------------
+
+# Adding Colour as Another Visual Attribute
+
+The proportional symbol map can be improved further by using colour to represent a categorical variable.
+
+The code chunk below uses `OUTLET TYPE` as the colour attribute and `Gp1Gp2 Winnings` as the size attribute.
+
+```{r}
+tm_shape(sgpools_sf) +
+  tm_bubbles(fill = "OUTLET TYPE",
+             size = "Gp1Gp2 Winnings",
+             col = "black",
+             lwd = 1)
+```
+
+There are 2 visual variables used in this map:
+
+1.  The size of the bubble represents `Gp1Gp2 Winnings`.
+2.  The colour of the bubble represents the outlet type.
+
+This is useful because we can compare both the magnitude of winnings and the type of outlet at the same time.
+
+However, it is also important not to overload the map with too many visual variables. If there are too many categories or if the symbols overlap too much, the map may become harder to interpret.
+
+------------------------------------------------------------------------
+
+# Creating Faceted Interactive Maps
+
+Another useful feature of `tmap` is that it allows us to create faceted maps. Faceted maps split the data into separate maps based on a categorical variable.
+
+The code chunk below creates separate maps based on `OUTLET TYPE`.
+
+```{r}
+tm_shape(sgpools_sf) +
+  tm_bubbles(fill = "OUTLET TYPE",
+             size = "Gp1Gp2 Winnings",
+             col = "black",
+             lwd = 1) +
+  tm_facets(by = "OUTLET TYPE",
+            nrow = 1,
+            sync = TRUE)
+```
+
+The `sync = TRUE` argument is useful in interactive maps because it synchronises the zooming and panning across the faceted maps. This makes it easier to compare the spatial distribution of different outlet types.
+
+There are several things to learn from this section:
+
+- Faceted maps are useful for comparison.
+- Each facet shows a subset of the data.
+- Synchronised interaction helps users compare the maps more easily.
+
+------------------------------------------------------------------------
+
+# Switching Back to Static Plot Mode
+
+After creating the interactive maps, it is good practice to switch `tmap` back to static plot mode.
+
+```{r}
+tmap_mode("plot")
+```
+
+This is useful because the later maps in a Quarto document may need to be rendered as static plots.
+
+------------------------------------------------------------------------
+
+# Things Learnt
+
+From this exercise, an aspatial dataset can still be used for mapping if it contains coordinate fields. By using `st_as_sf()`, the coordinate fields can be converted into a geometry column, which turns the dataset into a simple feature point data frame.
+
+Furthermore, point symbol maps and proportional symbol maps are useful for slightly different purposes. A point symbol map mainly shows location, while a proportional symbol map shows both location and magnitude. In addition, colour and faceting can be used to show another layer of information, but these design choices should be applied carefully so that the map remains readable.
+
+------------------------------------------------------------------------
+
+# Part 3: Visualisation of geospatial points data
+
+The main idea of this exercise is that maps can be used not only to show where things are, but also to support analysis. By changing the variable being mapped and the classification method used, we can highlight different spatial patterns and extreme values.
+
+In this exercise, the following R packages will be used:
+
+- `sf`: used to handle geospatial data in simple feature format.
+- `tmap`: used to create choropleth maps and analytical maps.
+- `tidyverse`: used for data wrangling and importing the prepared dataset.
+
+The code block below checks that the above packages are installed and loaded into the R working environment.
+
+```{r, message=FALSE, warning=FALSE}
+pacman::p_load(tmap, tidyverse, sf)
+```
+
+------------------------------------------------------------------------
+
+# Importing Data into R
+
+For this exercise, a prepared dataset called `NGA_wp.rds` will be used. This dataset contains information on water points in Nigeria at the Local Government Area level.
+
+The code chunk below uses `read_rds()` to import the dataset into R.
+
+```{r}
+NGA_wp <- read_rds("../data/NGA_wp.rds")
+```
+
+The following code allows us to examine the imported dataset.
+
+```{r}
+NGA_wp
+```
+
+There are several things to note from the output:
+
+- The dataset is a polygon simple feature data frame.
+- Each row represents a Local Government Area.
+- The geometry column stores the polygon boundary of each area.
+- The dataset contains variables related to water points, such as total water points, functional water points and non-functional water points.
+
+The code chunk below gives a quick view of the data structure.
+
+```{r}
+glimpse(NGA_wp)
+```
+
+This step is important because it allows us to identify the variables that can be mapped later.
+
+------------------------------------------------------------------------
+
+# Basic Choropleth Mapping
+
+A choropleth map uses colour shading to represent values across geographic areas. In this section, choropleth maps will be used to visualise the distribution of water point variables across the Local Government Areas.
+
+## Mapping functional water points
+
+The code chunk below creates a choropleth map showing the distribution of functional water points.
+
+```{r}
+p1 <- tm_shape(NGA_wp) +
+  tm_polygons(fill = "wp_functional",
+              fill.scale = tm_scale_intervals(
+                style = "equal",
+                n = 10,
+                values = "brewer.blues"),
+              fill.legend = tm_legend(
+                title = "Functional water points",
+                position = c("right", "bottom"))) +
+  tm_borders(lwd = 0.1,
+             fill_alpha = 1) +
+  tm_title("Distribution of Functional Water Points by LGA")
+
+p1
+```
+
+There are several things to learn from the code chunk:
+
+- `tm_shape()` identifies the geospatial object to be mapped.
+- `tm_polygons()` shades each polygon based on the selected variable.
+- `tm_scale_intervals()` is used to control the classification method and colour palette.
+- `tm_borders()` adds boundary lines to the polygons.
+
+## Mapping total water points
+
+The next code chunk creates another choropleth map showing the total number of water points.
+
+```{r}
+p2 <- tm_shape(NGA_wp) +
+  tm_polygons(fill = "total_wp",
+              fill.scale = tm_scale_intervals(
+                style = "equal",
+                n = 10,
+                values = "brewer.blues"),
+              fill.legend = tm_legend(
+                title = "Total water points",
+                position = c("right", "bottom"))) +
+  tm_borders(lwd = 0.1,
+             fill_alpha = 1) +
+  tm_title("Distribution of Total Water Points by LGA")
+
+p2
+```
+
+This map shows where more water points are located. However, mapping only total counts can sometimes be misleading because areas with more water points may naturally have higher values for both functional and non-functional counts.
+
+## Comparing the two maps
+
+The code chunk below arranges the total water point map and functional water point map side by side.
+
+```{r}
+tmap_arrange(p2, p1,
+             nrow = 1)
+```
+
+This comparison is useful because it allows us to see whether the distribution of functional water points follows the same pattern as total water points.
+
+------------------------------------------------------------------------
+
+# Choropleth Map for Rates
+
+In many cases, mapping rates is more meaningful than mapping raw counts. This is because raw counts may reflect the size or total number of water points in an area rather than the actual proportion of interest.
+
+For this exercise, 2 new variables will be created:
+
+- `pct_functional`: the proportion of functional water points.
+- `pct_nonfunctional`: the proportion of non-functional water points.
+
+## Deriving proportion variables
+
+The code chunk below uses `mutate()` to create the 2 proportion variables.
+
+```{r}
+NGA_wp <- NGA_wp %>%
+  mutate(pct_functional = wp_functional / total_wp) %>%
+  mutate(pct_nonfunctional = wp_nonfunctional / total_wp)
+```
+
+What is done here is that the number of functional and non-functional water points is divided by the total number of water points in each Local Government Area.
+
+## Plotting a rate map
+
+The code chunk below creates a choropleth map showing the proportion of functional water points.
+
+```{r}
+tm_shape(NGA_wp) +
+  tm_polygons(fill = "pct_functional",
+              fill.scale = tm_scale_intervals(
+                style = "equal",
+                n = 10,
+                values = "brewer.blues"),
+              fill.legend = tm_legend(
+                title = "Proportion functional",
+                position = c("right", "bottom"))) +
+  tm_borders(lwd = 0.1,
+             fill_alpha = 1) +
+  tm_title("Rate Map of Functional Water Points by LGA")
+```
+
+The important point here is that the map now focuses on proportion rather than count. This makes the map more suitable for comparing areas with different total numbers of water points.
+
+------------------------------------------------------------------------
+
+# Extreme Value Maps
+
+Extreme value maps are useful when we want to identify unusually low or unusually high values. Instead of only showing the overall distribution, these maps help to highlight possible outliers.
+
+In this exercise, 2 types of extreme value maps will be created:
+
+1.  Percentile map
+2.  Box map
+
+------------------------------------------------------------------------
+
+# Percentile Map
+
+A percentile map is a special type of quantile map. It uses selected percentile breaks to highlight both very low and very high values.
+
+The break points used are:
+
+- 0% to 1%
+- 1% to 10%
+- 10% to 50%
+- 50% to 90%
+- 90% to 99%
+- 99% to 100%
+
+## Preparing the data
+
+Before deriving the percentile breaks, missing values are removed from the dataset.
+
+```{r}
+NGA_wp <- NGA_wp %>%
+  drop_na()
+```
+
+This step helps to avoid errors when calculating the percentile values.
+
+## Extracting values without geometry
+
+When working with an `sf` data frame, the geometry column is kept together with the attribute data. However, some base R functions such as `quantile()` do not work well when the geometry column is included.
+
+The code chunk below removes the geometry column before calculating the quantiles.
+
+```{r}
+percent <- c(0, .01, .1, .5, .9, .99, 1)
+
+var <- NGA_wp["pct_functional"] %>%
+  st_set_geometry(NULL)
+
+quantile(var[, 1], percent)
+```
+
+The important function here is `st_set_geometry(NULL)`. It removes the geometry column and keeps only the attribute values that are needed for the calculation.
+
+## Creating a helper function
+
+Instead of repeating the same code many times, a helper function can be written to extract a variable from a simple feature data frame.
+
+```{r}
+get.var <- function(vname, df) {
+  v <- df[vname] %>%
+    st_set_geometry(NULL)
+  v <- unname(v[, 1])
+  return(v)
+}
+```
+
+There are several things to note:
+
+- `vname` refers to the variable name.
+- `df` refers to the simple feature data frame.
+- `st_set_geometry(NULL)` removes the geometry column.
+- `unname()` returns the values without the column name.
+
+## Creating the percentile mapping function
+
+The code chunk below creates a function called `percentmap()` to draw a percentile map.
+
+```{r}
+percentmap <- function(vnam, df,
+                       legtitle = NA,
+                       mtitle = "Percentile Map") {
+  percent <- c(0, .01, .1, .5, .9, .99, 1)
+  var <- get.var(vnam, df)
+  bperc <- quantile(var, percent)
+
+  tm_shape(df) +
+    tm_polygons(fill = vnam,
+                fill.scale = tm_scale_intervals(
+                  style = "fixed",
+                  breaks = bperc,
+                  values = "brewer.blues",
+                  labels = c("< 1%",
+                             "1% - 10%",
+                             "10% - 50%",
+                             "50% - 90%",
+                             "90% - 99%",
+                             "> 99%")),
+                fill.legend = tm_legend(
+                  title = legtitle)) +
+    tm_borders() +
+    tm_title(mtitle)
+}
+```
+
+This function allows us to reuse the same percentile mapping logic for different variables.
+
+## Testing the percentile map
+
+The code chunk below uses `percentmap()` to create a percentile map of total water points.
+
+```{r}
+percentmap("total_wp", NGA_wp,
+           legtitle = "Total water points",
+           mtitle = "Percentile Map of Total Water Points")
+```
+
+The percentile map is useful because it highlights the very low and very high ends of the distribution more clearly.
+
+------------------------------------------------------------------------
+
+# Box Map
+
+A box map is based on the idea of a boxplot. It uses quartiles and outlier fences to classify values spatially.
+
+Before creating the box map, it is useful to look at the boxplot of the variable.
+
+```{r}
+ggplot(data = NGA_wp,
+       aes(x = "",
+           y = wp_nonfunctional)) +
+  geom_boxplot()
+```
+
+The boxplot provides a non-spatial view of the distribution of non-functional water points. The box map then takes this idea and applies it to a map.
+
+## Creating the box breaks function
+
+The code chunk below creates a function to calculate the break points needed for a box map.
+
+```{r}
+boxbreaks <- function(v, mult = 1.5) {
+  qv <- unname(quantile(v))
+  iqr <- qv[4] - qv[2]
+  upfence <- qv[4] + mult * iqr
+  lofence <- qv[2] - mult * iqr
+
+  bb <- vector(mode = "numeric", length = 7)
+
+  if (lofence < qv[1]) {
+    bb[1] <- lofence
+    bb[2] <- floor(qv[1])
+  } else {
+    bb[2] <- lofence
+    bb[1] <- qv[1]
+  }
+
+  if (upfence > qv[5]) {
+    bb[7] <- upfence
+    bb[6] <- ceiling(qv[5])
+  } else {
+    bb[6] <- upfence
+    bb[7] <- qv[5]
+  }
+
+  bb[3:5] <- qv[2:4]
+  return(bb)
+}
+```
+
+There are several things to learn from this function:
+
+- The quartiles are calculated using `quantile()`.
+- The interquartile range is calculated using the third quartile minus the first quartile.
+- The lower and upper fences are calculated using 1.5 times the interquartile range.
+- The output is a set of break points that can be used in the map.
+
+## Testing the box breaks function
+
+The code chunk below extracts the `wp_nonfunctional` variable and applies the `boxbreaks()` function.
+
+```{r}
+var <- get.var("wp_nonfunctional", NGA_wp)
+boxbreaks(var)
+```
+
+This allows us to check the break values before creating the final box map.
+
+## Creating the box map function
+
+The code chunk below creates a function called `boxmap()`.
+
+```{r}
+boxmap <- function(vnam, df,
+                   legtitle = NA,
+                   mtitle = "Box Map",
+                   mult = 1.5) {
+  var <- get.var(vnam, df)
+  bb <- boxbreaks(var, mult)
+
+  tm_shape(df) +
+    tm_polygons(fill = vnam,
+                fill.scale = tm_scale_intervals(
+                  style = "fixed",
+                  breaks = bb,
+                  values = "brewer.blues",
+                  labels = c("lower outlier",
+                             "< 25%",
+                             "25% - 50%",
+                             "50% - 75%",
+                             "> 75%",
+                             "upper outlier")),
+                fill.legend = tm_legend(
+                  title = legtitle)) +
+    tm_borders() +
+    tm_title(mtitle)
+}
+```
+
+This function takes a selected variable and creates a box map using the calculated break points.
+
+## Plotting the box map
+
+Before plotting the final map, `tmap` is set to static plot mode.
+
+```{r}
+tmap_mode("plot")
+```
+
+The code chunk below creates the box map for non-functional water points.
+
+```{r}
+boxmap("wp_nonfunctional", NGA_wp,
+       legtitle = "Non-functional water points",
+       mtitle = "Box Map of Non-Functional Water Points")
+```
+
+The box map is useful because it helps to identify areas with unusually high or low values. This makes it especially helpful for analytical mapping and spatial exploratory data analysis.
+
+------------------------------------------------------------------------
+
+# Things Learnt
+
+From this exercise, analytical mapping goes beyond creating a basic choropleth map. The same geospatial dataset can be mapped in different ways depending on the question being asked.
+
+Furthermore, mapping rates can be more meaningful than mapping raw counts because rates account for the total number of observations in each area. In addition, percentile maps and box maps are useful because they highlight extreme values and possible spatial outliers. These maps are helpful when the aim is not only to present spatial patterns, but also to support analysis and interpretation.
+
+------------------------------------------------------------------------
+
+

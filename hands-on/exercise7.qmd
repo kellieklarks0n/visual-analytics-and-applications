@@ -1,0 +1,1457 @@
+---
+title: "Hands-On Exercise 7"
+author: "Kelvin Andikko"
+date: "2026-06-03"
+date-modified: "last-modified"
+format: html
+editor: visual
+---
+
+This hands-on exercise will be done in two parts:
+
+1.  Exploring **how network data** can be modelled, visualised and analysed using R. In the first part of the exercise, we will work with email communication data from an organisation, where employees are represented as nodes and email exchanges are represented as edges.
+
+2.  Exploring **how text data** can be processed, visualised and analysed using R. In this second part of the exercise, we will be working with text messages from the 20 Newsgroups dataset, where the aim is to convert unstructured text into a tidy format that can be analysed using the `tidyverse` approach.
+
+------------------------------------------------------------------------
+
+# Part 1: Visualisation of Network Data
+
+For the first part of this hands-on exercise where we are exploring network data, the following R packages will be used:
+
+- `igraph`: provides functions for network analysis and graph algorithms
+- `tidygraph`: creates tidy graph objects and supports graph manipulation using tidy workflows
+- `ggraph`: an extension of `ggplot2` used for plotting static network graphs
+- `visNetwork`: creates interactive network visualisations
+- `lubridate`: used for handling and wrangling date and time fields
+- `clock`: provides additional tools for working with date and time data
+- `graphlayouts`: provides additional layout algorithms for network graphs
+- `ggforce`: provides additional geometries such as marked hulls for grouping communities
+- `concaveman`: supports the creation of concave hulls around groups of points
+- `knitr`: used in building static HTML tables
+- `tidyverse`: R packages for modern data science and visual communication
+
+The code block below checks that the above packages are installed and loaded into the R working environment.
+
+```{r, warning=FALSE, message=FALSE}
+pacman::p_load(igraph, tidygraph, ggraph,
+               visNetwork, lubridate, clock,
+               graphlayouts, concaveman, ggforce,
+               knitr, tidyverse)
+```
+
+The next code block imports the CSV files for this exercise:
+
+```{r}
+GAStech_nodes <- read_csv("../data/GAStech_email_node.csv")
+GAStech_edges <- read_csv("../data/GAStech_email_edge-v2.csv")
+```
+
+From the code chunk above:
+
+1.  `GAStech_nodes` contains the details of the employees in the organisation.
+2.  `GAStech_edges` contains the email correspondence between employees.
+3.  The nodes dataset will be used to define the actors in the network.
+4.  The edges dataset will be used to define the communication links between actors.
+
+------------------------------------------------------------------------
+
+# Understanding network data
+
+Network data is different from the usual rectangular data that we use in most data visualisation exercises. Instead of analysing observations independently, network data focuses on relationships between actors.
+
+There are 2 main parts in a network dataset:
+
+- `nodes`: the actors or entities in the network
+- `edges`: the relationships or links between the actors
+
+For this exercise, each employee in the organisation is a node. Each email correspondence between 2 employees is an edge.
+
+There are 3 important aspects to take note of when working with network graphs:
+
+1.  The nodes represent the actors in the network.
+2.  The edges represent the relationship between the actors.
+3.  The layout determines how the nodes and edges are arranged visually.
+
+In this exercise, we will explore the following areas of network visualisation and analysis:
+
+- preparing network data
+- creating a graph object using `tidygraph`
+- plotting static network graphs using `ggraph`
+- creating facet network graphs
+- computing and visualising network metrics
+- creating interactive network graphs using `visNetwork`
+
+------------------------------------------------------------------------
+
+# Preparing the network data
+
+Before creating the network graph, it is important to inspect and prepare the datasets.
+
+The edges data contains individual email records. However, plotting every individual email record directly may not be useful because there will be too many overlapping links. Therefore, the data needs to be aggregated so that repeated email exchanges between the same sender and receiver are summarised.
+
+## Reviewing the edges data
+
+The code chunk below examines the structure of the edges data.
+
+```{r}
+glimpse(GAStech_edges)
+```
+
+From the output, there are a few fields that are important for the network analysis:
+
+- `source`: the sender of the email
+- `target`: the receiver of the email
+- `SentDate`: the date that the email was sent
+- `SentTime`: the time that the email was sent
+- `MainSubject`: the broad category of the email subject
+- `sourceLabel`: the name of the sender
+- `targetLabel`: the name of the receiver
+
+One thing to take note of is that `SentDate` may be imported as a character field instead of a proper date field. Hence, it needs to be converted before it can be used properly.
+
+## Reviewing the nodes data
+
+The code chunk below examines the structure of the nodes data.
+
+```{r}
+glimpse(GAStech_nodes)
+```
+
+The nodes data contains employee information. The important fields include:
+
+- `id`: the unique identifier of each employee
+- `label`: the name of the employee
+- `Department`: the department that the employee belongs to
+- `Title`: the employee's job title
+
+This dataset is important because it provides the node attributes that can be used to colour, group or label the actors in the network graph.
+
+## Wrangling the time fields
+
+The code chunk below converts the date field and derives the weekday of each email.
+
+```{r}
+GAStech_edges <- GAStech_edges %>%
+  mutate(SendDate = dmy(SentDate)) %>%
+  mutate(Weekday = wday(SendDate,
+                        label = TRUE,
+                        abbr = FALSE))
+```
+
+Things to learn from the code chunk above:
+
+1.  `dmy()` is used to convert `SentDate` into a proper date format.
+2.  `wday()` is used to derive the weekday from the date.
+3.  `label = TRUE` returns the weekday as a labelled factor.
+4.  `abbr = FALSE` displays the weekday in full, such as Monday instead of Mon.
+5.  The new field `Weekday` will be used later when creating faceted network graphs.
+
+## Aggregating the edges data
+
+The original edges dataset contains individual email records. To make the network visualisation more meaningful, we will aggregate the data by sender, receiver and weekday.
+
+The code chunk below performs the aggregation.
+
+```{r}
+GAStech_edges_aggregated <- GAStech_edges %>%
+  filter(MainSubject == "Work related") %>%
+  group_by(source, target, Weekday) %>%
+  summarise(Weight = n()) %>%
+  filter(source != target) %>%
+  filter(Weight > 1) %>%
+  ungroup()
+```
+
+Things to learn from the code chunk above:
+
+1.  `filter(MainSubject == "Work related")` keeps only work-related emails.
+2.  `group_by(source, target, Weekday)` groups the email records by sender, receiver and weekday.
+3.  `summarise(Weight = n())` counts the number of email exchanges for each grouped relationship.
+4.  `filter(source != target)` removes self-links where the sender and receiver are the same.
+5.  `filter(Weight > 1)` keeps only repeated email relationships.
+6.  The final output is saved as `GAStech_edges_aggregated`.
+
+The code chunk below displays the first few rows of the aggregated edges data.
+
+```{r}
+knitr::kable(head(GAStech_edges_aggregated), format = "html")
+```
+
+This table is useful because it allows us to check whether the edge list has been aggregated correctly before building the graph object.
+
+------------------------------------------------------------------------
+
+# Creating network objects using `tidygraph`
+
+In this section, we will create a graph object by using the `tidygraph` package.
+
+A network graph can be thought of as 2 tidy tables:
+
+- a node table
+- an edge table
+
+The `tidygraph` package allows us to move between these 2 tables and apply familiar `dplyr` verbs to either the nodes or the edges.
+
+## Creating a `tbl_graph` object
+
+The code chunk below creates a `tbl_graph` object from the nodes and aggregated edges data.
+
+```{r}
+GAStech_graph <- tbl_graph(nodes = GAStech_nodes,
+                           edges = GAStech_edges_aggregated,
+                           directed = TRUE)
+```
+
+From the code chunk above:
+
+1.  `nodes = GAStech_nodes` supplies the node data.
+2.  `edges = GAStech_edges_aggregated` supplies the edge data.
+3.  `directed = TRUE` indicates that the network is directional.
+4.  Direction is important because an email from Employee A to Employee B is not the same as an email from Employee B to Employee A.
+
+## Reviewing the graph object
+
+The code chunk below prints the output of the graph object.
+
+```{r}
+GAStech_graph
+```
+
+Things to learn from the output above:
+
+- The graph object contains both node data and edge data.
+- The node data is usually active by default.
+- The edge data contains the sender, receiver, weekday and weight of the email relationship.
+- The active table determines which part of the graph object will be affected when `dplyr` verbs are used.
+
+## Changing the active object
+
+The `activate()` function is used to switch between the node table and the edge table.
+
+The code chunk below activates the edges table and arranges the edge records by the largest weight.
+
+```{r}
+GAStech_graph %>%
+  activate(edges) %>%
+  arrange(desc(Weight))
+```
+
+From the code chunk above:
+
+1.  `activate(edges)` switches the active table from nodes to edges.
+2.  `arrange(desc(Weight))` sorts the edges based on the number of email exchanges.
+3.  This allows us to identify the strongest communication links in the network.
+
+------------------------------------------------------------------------
+
+# Plotting static network graphs with `ggraph`
+
+The `ggraph` package is an extension of `ggplot2` for network visualisation. Since it follows a grammar of graphics style, it is easier to build network graphs layer by layer.
+
+A basic `ggraph` plot usually contains:
+
+- `ggraph()`: defines the graph object and layout
+- `geom_edge_link()`: draws the edges
+- `geom_node_point()`: draws the nodes
+- `theme_graph()`: applies a graph-friendly theme
+
+## Plotting a basic network graph
+
+The code chunk below plots a basic network graph.
+
+```{r}
+ggraph(GAStech_graph) +
+  geom_edge_link() +
+  geom_node_point()
+```
+
+Studying both the code chunk and the network graph that is generated, there are 3 things to note:
+
+1.  `ggraph(GAStech_graph)` creates the base graph plot.
+2.  `geom_edge_link()` draws the communication links between employees.
+3.  `geom_node_point()` draws the employees as points.
+
+This first graph is useful for checking whether the graph object has been created correctly.
+
+## Changing the default network graph theme
+
+The graph can be improved by applying `theme_graph()`. This removes the axes and grid lines that are not meaningful in a network graph.
+
+```{r}
+g <- ggraph(GAStech_graph) +
+  geom_edge_link() +
+  geom_node_point()
+
+g + theme_graph()
+```
+
+What can we learn from this makeover?
+
+1.  `theme_graph()` removes the normal `ggplot2` axes, grid lines and background elements.
+2.  The graph becomes cleaner and more suitable for network visualisation.
+3.  It helps the reader focus on the nodes and edges instead of the coordinate system.
+
+## Changing the colouring of the plot
+
+The code chunk below changes the colour of the nodes, edges and background.
+
+```{r}
+g <- ggraph(GAStech_graph) +
+  geom_edge_link(aes(colour = "grey50")) +
+  geom_node_point(aes(colour = "grey40"))
+
+g + theme_graph(background = "grey10",
+                text_colour = "white")
+```
+
+From the code chunk above:
+
+- `colour = "grey50"` is applied to the edges.
+- `colour = "grey40"` is applied to the nodes.
+- `background = "grey10"` creates a dark background.
+- `text_colour = "white"` changes the text colour so that it remains visible.
+
+## Working with `ggraph` layouts
+
+Network layout is important because it affects how the relationships are visually interpreted.
+
+There are many layouts that can be used in `ggraph`, such as:
+
+- `"nicely"`
+- `"fr"`
+- `"kk"`
+- `"circle"`
+- `"star"`
+- `"graphopt"`
+- `"mds"`
+
+The code chunk below plots the network graph using the Fruchterman and Reingold layout.
+
+```{r}
+g <- ggraph(GAStech_graph,
+            layout = "fr") +
+  geom_edge_link() +
+  geom_node_point()
+
+g + theme_graph()
+```
+
+Things to learn from the code chunk above:
+
+1.  `layout = "fr"` is used to specify the Fruchterman and Reingold layout.
+2.  The layout tries to position connected nodes closer together.
+3.  A suitable layout can make the network structure easier to interpret.
+
+## Modifying network nodes
+
+In this section, we will colour the nodes according to their department.
+
+```{r}
+g <- ggraph(GAStech_graph,
+            layout = "nicely") +
+  geom_edge_link() +
+  geom_node_point(aes(colour = Department),
+                  size = 3)
+
+g + theme_graph()
+```
+
+Things to learn from the code chunk above:
+
+- `geom_node_point()` works in a similar way to `geom_point()` in `ggplot2`.
+- `colour = Department` maps the node colour to each employee's department.
+- `size = 3` increases the size of the nodes.
+- This makes it easier to see whether employees from the same department are clustered together.
+
+## Modifying network edges
+
+The code chunk below maps the thickness of the edges to the `Weight` variable.
+
+```{r}
+g <- ggraph(GAStech_graph,
+            layout = "nicely") +
+  geom_edge_link(aes(width = Weight),
+                 alpha = 0.2) +
+  scale_edge_width(range = c(0.1, 5)) +
+  geom_node_point(aes(colour = Department),
+                  size = 3)
+
+g + theme_graph()
+```
+
+From the code chunk above:
+
+1.  `width = Weight` maps the edge thickness to the number of email exchanges.
+2.  `alpha = 0.2` makes the edges more transparent.
+3.  `scale_edge_width(range = c(0.1, 5))` controls the minimum and maximum edge thickness.
+4.  Thicker edges indicate stronger communication links.
+
+------------------------------------------------------------------------
+
+# Creating facet graphs
+
+Faceting is useful for reducing overplotting in network graphs. Instead of showing all relationships in one graph, the network can be split into smaller panels based on node or edge attributes.
+
+In `ggraph`, the main faceting functions are:
+
+- `facet_edges()`: creates panels based on edge attributes
+- `facet_nodes()`: creates panels based on node attributes
+- `facet_graph()`: creates panels based on both node and edge attributes
+
+## Working with `facet_edges()`
+
+The code chunk below creates a faceted network graph by weekday.
+
+```{r}
+set_graph_style()
+
+g <- ggraph(GAStech_graph,
+            layout = "nicely") +
+  geom_edge_link(aes(width = Weight),
+                 alpha = 0.2) +
+  scale_edge_width(range = c(0.1, 5)) +
+  geom_node_point(aes(colour = Department),
+                  size = 2)
+
+g + facet_edges(~Weekday)
+```
+
+Things to learn from the code chunk above:
+
+1.  `facet_edges(~Weekday)` creates a separate panel for each weekday.
+2.  The same set of nodes is shown across the panels.
+3.  Only the relevant edges are shown in each weekday panel.
+4.  This helps us compare communication patterns across the week.
+
+## Changing the legend position
+
+The code chunk below moves the legend to the bottom of the faceted graph.
+
+```{r}
+set_graph_style()
+
+g <- ggraph(GAStech_graph,
+            layout = "nicely") +
+  geom_edge_link(aes(width = Weight),
+                 alpha = 0.2) +
+  scale_edge_width(range = c(0.1, 5)) +
+  geom_node_point(aes(colour = Department),
+                  size = 2) +
+  theme(legend.position = "bottom")
+
+g + facet_edges(~Weekday)
+```
+
+From the code chunk above:
+
+- `theme(legend.position = "bottom")` moves the legend below the graph.
+- This gives more space to the network panels.
+- It also makes the faceted graph more balanced visually.
+
+## Creating a framed facet graph
+
+The code chunk below adds a frame to each facet panel.
+
+```{r}
+set_graph_style()
+
+g <- ggraph(GAStech_graph,
+            layout = "nicely") +
+  geom_edge_link(aes(width = Weight),
+                 alpha = 0.2) +
+  scale_edge_width(range = c(0.1, 5)) +
+  geom_node_point(aes(colour = Department),
+                  size = 2)
+
+g + facet_edges(~Weekday) +
+  th_foreground(foreground = "grey80",
+                border = TRUE) +
+  theme(legend.position = "bottom")
+```
+
+Things to learn from the code chunk above:
+
+1.  `th_foreground()` is used to add foreground elements to the graph.
+2.  `border = TRUE` adds a frame around each panel.
+3.  The frame helps to separate the weekday panels more clearly.
+
+## Working with `facet_nodes()`
+
+The code chunk below creates a faceted network graph by department.
+
+```{r}
+set_graph_style()
+
+g <- ggraph(GAStech_graph,
+            layout = "nicely") +
+  geom_edge_link(aes(width = Weight),
+                 alpha = 0.2) +
+  scale_edge_width(range = c(0.1, 5)) +
+  geom_node_point(aes(colour = Department),
+                  size = 2)
+
+g + facet_nodes(~Department) +
+  th_foreground(foreground = "grey80",
+                border = TRUE) +
+  theme(legend.position = "bottom")
+```
+
+From the code chunk above:
+
+- `facet_nodes(~Department)` creates panels based on the department of the nodes.
+- This allows us to focus on how employees from different departments appear in the network.
+- It can help reveal whether certain departments are more central or more separated from the rest of the organisation.
+
+------------------------------------------------------------------------
+
+# Network metrics analysis
+
+Network metrics are used to describe the relative importance or position of nodes within a network.
+
+Common centrality measures include:
+
+- degree centrality
+- betweenness centrality
+- closeness centrality
+- eigenvector centrality
+
+In this section, betweenness centrality will be used to identify employees who may act as bridges between different parts of the communication network.
+
+## Computing betweenness centrality
+
+The code chunk below computes betweenness centrality and maps it to the size of the nodes.
+
+```{r}
+g <- GAStech_graph %>%
+  activate(nodes) %>%
+  mutate(betweenness_centrality = centrality_betweenness()) %>%
+  ggraph(layout = "fr") +
+  geom_edge_link(aes(width = Weight),
+                 alpha = 0.2) +
+  scale_edge_width(range = c(0.1, 5)) +
+  geom_node_point(aes(colour = Department,
+                      size = betweenness_centrality))
+
+g + theme_graph()
+```
+
+Things to learn from the code chunk above:
+
+1.  `activate(nodes)` switches the active table to the node table.
+2.  `centrality_betweenness()` computes the betweenness centrality score.
+3.  `mutate()` stores the computed value as a new node attribute.
+4.  `size = betweenness_centrality` makes more central nodes appear larger.
+
+## Visualising centrality directly
+
+From `ggraph` version 2.0 onward, tidygraph algorithms can be used directly inside the plotting call.
+
+The code chunk below maps betweenness centrality directly to node size.
+
+```{r}
+g <- GAStech_graph %>%
+  ggraph(layout = "fr") +
+  geom_edge_link(aes(width = Weight),
+                 alpha = 0.2) +
+  scale_edge_width(range = c(0.1, 5)) +
+  geom_node_point(aes(colour = Department,
+                      size = centrality_betweenness()))
+
+g + theme_graph()
+```
+
+What can we learn from this makeover?
+
+1.  The centrality value does not need to be saved as a separate field first.
+2.  `centrality_betweenness()` can be called directly inside `aes()`.
+3.  This makes the code shorter when the metric is used only for visualisation.
+
+## Visualising community structure
+
+Community detection is used to identify groups of nodes that are more closely connected to one another.
+
+The code chunk below applies an edge-betweenness community detection method.
+
+```{r}
+g <- GAStech_graph %>%
+  activate(nodes) %>%
+  mutate(community = as.factor(
+    group_edge_betweenness(
+      weights = Weight,
+      directed = TRUE))) %>%
+  ggraph(layout = "fr") +
+  geom_edge_link(aes(width = Weight),
+                 alpha = 0.2) +
+  scale_edge_width(range = c(0.1, 5)) +
+  geom_node_point(aes(colour = community),
+                  size = 3)
+
+g + theme_graph()
+```
+
+From the code chunk above:
+
+- `group_edge_betweenness()` detects communities based on edge betweenness.
+- `weights = Weight` uses the email frequency as the edge weight.
+- `directed = TRUE` keeps the direction of email communication.
+- `colour = community` shades the nodes according to their detected community.
+
+## Highlighting communities with `geom_mark_hull()`
+
+The code chunk below improves the community visualisation by drawing hulls around detected communities.
+
+```{r}
+g <- GAStech_graph %>%
+  activate(nodes) %>%
+  mutate(community = as.factor(
+    group_optimal(weights = Weight)),
+    betweenness_measure = centrality_betweenness()) %>%
+  ggraph(layout = "fr") +
+  geom_mark_hull(
+    aes(x, y,
+        group = community,
+        fill = community),
+    alpha = 0.2,
+    expand = unit(0.3, "cm"),
+    radius = unit(0.3, "cm")
+  ) +
+  geom_edge_link(aes(width = Weight),
+                 alpha = 0.2) +
+  scale_edge_width(range = c(0.1, 5)) +
+  geom_node_point(aes(fill = Department,
+                      size = betweenness_measure),
+                  colour = "black",
+                  shape = 21)
+
+g + theme_graph()
+```
+
+Things to learn from the code chunk above:
+
+1.  `group_optimal()` is used to detect communities.
+2.  `geom_mark_hull()` draws a boundary around each community.
+3.  `fill = community` colours each community hull.
+4.  `size = betweenness_measure` shows the relative importance of the nodes.
+5.  `shape = 21` allows the nodes to have both fill and outline colours.
+
+This visualisation is useful because it shows both community grouping and node importance in the same graph.
+
+------------------------------------------------------------------------
+
+# Building interactive network graphs with `visNetwork`
+
+Static network graphs are useful for presentation, but interactive network graphs are useful for exploration. With `visNetwork`, users can zoom, pan, drag nodes and inspect the network more closely.
+
+The `visNetwork()` function requires 2 data frames:
+
+- a nodes data frame with an `id` column
+- an edges data frame with `from` and `to` columns
+
+## Preparing data for `visNetwork`
+
+For `visNetwork`, the edges data must contain columns called `from` and `to`.
+
+The code chunk below prepares the edge list for interactive network visualisation.
+
+```{r}
+GAStech_edges_vis <- GAStech_edges %>%
+  left_join(GAStech_nodes, by = c("sourceLabel" = "label")) %>%
+  rename(from = id) %>%
+  left_join(GAStech_nodes, by = c("targetLabel" = "label")) %>%
+  rename(to = id) %>%
+  filter(MainSubject == "Work related") %>%
+  group_by(from, to) %>%
+  summarise(weight = n()) %>%
+  filter(from != to) %>%
+  filter(weight > 1) %>%
+  ungroup()
+```
+
+From the code chunk above:
+
+1.  `left_join()` matches the sender and receiver names to their employee IDs.
+2.  `rename(from = id)` creates the source node field needed by `visNetwork`.
+3.  `rename(to = id)` creates the target node field needed by `visNetwork`.
+4.  `group_by(from, to)` groups the email exchanges by sender and receiver.
+5.  `summarise(weight = n())` counts the number of email exchanges between each pair of employees.
+
+## Plotting the first interactive network graph
+
+The code chunk below creates a basic interactive network graph.
+
+```{r}
+visNetwork(GAStech_nodes,
+           GAStech_edges_vis)
+```
+
+Studying the graph that is generated, there are 3 things to note:
+
+1.  The nodes can be moved around by dragging them.
+2.  The graph can be zoomed in and out.
+3.  The interactive graph makes it easier to explore dense network structures.
+
+## Working with layout
+
+The code chunk below applies the Fruchterman and Reingold layout to the interactive network graph.
+
+```{r}
+visNetwork(GAStech_nodes,
+           GAStech_edges_vis) %>%
+  visIgraphLayout(layout = "layout_with_fr")
+```
+
+From the code chunk above:
+
+- `visIgraphLayout()` applies an igraph layout to the `visNetwork` graph.
+- `layout = "layout_with_fr"` uses the Fruchterman and Reingold layout.
+- This layout helps to position connected nodes closer together.
+
+## Working with visual attributes for nodes
+
+The `visNetwork()` function looks for a field called `group` in the nodes data. This field is used to colour the nodes by category.
+
+The code chunk below renames `Department` into `group`.
+
+```{r}
+GAStech_nodes_vis <- GAStech_nodes %>%
+  rename(group = Department)
+```
+
+When the graph is plotted again, the nodes will be coloured according to their department.
+
+```{r}
+visNetwork(GAStech_nodes_vis,
+           GAStech_edges_vis) %>%
+  visIgraphLayout(layout = "layout_with_fr") %>%
+  visLegend() %>%
+  visLayout(randomSeed = 123)
+```
+
+Things to learn from the code chunk above:
+
+1.  `group` is used to colour the nodes.
+2.  `visLegend()` adds a legend to the interactive graph.
+3.  `visLayout(randomSeed = 123)` fixes the random layout so that the graph can be reproduced.
+
+## Working with visual attributes for edges
+
+The code chunk below adds arrows and curved edges to the interactive network graph.
+
+```{r}
+visNetwork(GAStech_nodes_vis,
+           GAStech_edges_vis) %>%
+  visIgraphLayout(layout = "layout_with_fr") %>%
+  visEdges(arrows = "to",
+           smooth = list(enabled = TRUE,
+                         type = "curvedCW")) %>%
+  visLegend() %>%
+  visLayout(randomSeed = 123)
+```
+
+From the code chunk above:
+
+- `visEdges()` is used to edit the appearance of the edges.
+- `arrows = "to"` adds arrows to show the direction of email communication.
+- `smooth = list(enabled = TRUE, type = "curvedCW")` draws the edges as curved lines.
+- Curved edges are useful when there are many overlapping links.
+
+## Adding interactivity options
+
+The code chunk below adds additional interaction features to the network graph.
+
+```{r}
+visNetwork(GAStech_nodes_vis,
+           GAStech_edges_vis) %>%
+  visIgraphLayout(layout = "layout_with_fr") %>%
+  visOptions(highlightNearest = TRUE,
+             nodesIdSelection = TRUE) %>%
+  visLegend() %>%
+  visLayout(randomSeed = 123)
+```
+
+Things to learn from the code chunk above:
+
+1.  `highlightNearest = TRUE` highlights the nearest connected nodes when a node is selected.
+2.  `nodesIdSelection = TRUE` adds a dropdown selection tool for nodes.
+3.  These options make the graph more useful for exploratory network analysis.
+
+------------------------------------------------------------------------
+
+# Summary of network visualisation and analysis
+
+In this hands-on exercise, we explored how network data can be modelled, visualised and analysed using R.
+
+First, the nodes and edges data were imported and prepared. The date field was converted into a proper date format and the weekday variable was derived. The individual email records were then aggregated into weighted communication links.
+
+Next, the `tidygraph` package was used to create a `tbl_graph` object. This allowed the network data to be represented as a tidy graph model containing both node and edge tables.
+
+After that, the `ggraph` package was used to build static network graphs. The graph was improved by changing the theme, layout, node colour and edge width. Faceted graphs were also created to compare communication patterns across weekdays and departments.
+
+Network metrics were then introduced through betweenness centrality and community detection. These metrics helped to identify important actors and possible groups within the communication network.
+
+Lastly, `visNetwork` was used to create interactive network graphs. These graphs allow users to zoom, move nodes, highlight connected actors and select nodes interactively.
+
+Overall, network visualisation is useful because it helps us understand not only the individual actors in a dataset, but also the relationships and structures that connect them.
+
+------------------------------------------------------------------------
+
+# Part 2: Visualisation of Text Data
+
+In this exercise, the following R packages will be used:
+
+- `tidytext`: converts text into tidy data and supports tokenisation, stop-word removal and tf-idf calculation
+- `widyr`: computes pairwise counts and correlations from tidy data
+- `wordcloud`: creates a static word cloud from word frequency data
+- `ggwordcloud`: creates word clouds using the grammar of graphics approach
+- `DT`: displays interactive HTML tables
+- `textplot`: provides text visualisation functions
+- `lubridate`: used for handling date and time data
+- `hms`: provides tools for working with time values
+- `igraph`: creates graph objects for network analysis
+- `tidygraph`: supports graph manipulation using tidy workflows
+- `ggraph`: an extension of `ggplot2` used for plotting network graphs
+- `tidyverse`: R packages for modern data science and visual communication
+
+The code block belows checks that the above packages are installed and loaded into the R working environment.
+
+```{r, warning=FALSE, message=FALSE}
+pacman::p_load(tidytext, widyr, wordcloud,
+               DT, ggwordcloud, textplot,
+               lubridate, hms, tidygraph,
+               ggraph, igraph, tidyverse)
+```
+
+The next code block defines the folder path that contains the text files for this exercise:
+
+```{r}
+news20 <- "../data/20news/"
+```
+
+From the code chunk above:
+
+1.  `news20` stores the folder path of the 20 Newsgroups dataset.
+2.  The folder is expected to contain subfolders, where each subfolder represents a newsgroup.
+3.  The text files inside each subfolder will be imported and combined into a single data frame.
+
+------------------------------------------------------------------------
+
+# Understanding text data analysis
+
+Text data is different from the usual structured datasets used in most data visualisation exercises. Instead of having numerical or categorical variables that are already arranged neatly in columns, text data often comes as lines, paragraphs, documents or messages.
+
+Before text data can be analysed, it has to be converted into a tidy structure. In the tidy text framework, one row usually represents one token. A token can be a word, bigram, sentence or another meaningful unit of text.
+
+There are 3 important aspects to take note of when working with text data:
+
+1.  Text data must be cleaned before meaningful analysis can be done.
+2.  Tokenisation is used to break text into smaller units such as words or bigrams.
+3.  Text visualisation helps to reveal frequent terms, important terms and relationships between terms.
+
+In this exercise, we will explore the following areas of text visualisation and analysis:
+
+- importing many text files from many folders
+- cleaning message headers, signatures and quoted replies
+- converting text into tidy tokens
+- visualising word frequencies using word clouds
+- computing term frequency-inverse document frequency
+- visualising important words by newsgroup
+- computing pairwise word correlations
+- building network graphs from word relationships and bigrams
+
+------------------------------------------------------------------------
+
+# Importing multiple text files
+
+The 20 Newsgroups dataset contains many text files stored across different folders. Therefore, instead of importing one CSV file, we need to define a function that can read all text files from a folder.
+
+## Creating a function to read one folder
+
+The code chunk below creates a function called `read_folder()`.
+
+```{r}
+read_folder <- function(infolder) {
+  tibble(file = dir(infolder,
+                    full.names = TRUE)) %>%
+    mutate(text = map(file,
+                      read_lines)) %>%
+    transmute(id = basename(file),
+              text) %>%
+    unnest(text)
+}
+```
+
+Things to learn from the code chunk above:
+
+1.  `dir()` is used to list all files inside the selected folder.
+2.  `full.names = TRUE` returns the full file paths instead of only the file names.
+3.  `map()` is used to apply `read_lines()` to every file in the folder.
+4.  `read_lines()` reads the text content line by line.
+5.  `transmute()` keeps only the document id and the extracted text.
+6.  `unnest()` is used to expand the list-column into regular rows.
+
+## Reading all newsgroup folders
+
+After creating the function, we can apply it to every newsgroup folder.
+
+The code chunk below imports all messages and combines them into a single data frame.
+
+```{r}
+raw_text <- tibble(folder = dir(news20,
+                                full.names = TRUE)) %>%
+  mutate(folder_out = map(folder,
+                          read_folder)) %>%
+  unnest(cols = c(folder_out)) %>%
+  transmute(newsgroup = basename(folder),
+            id,
+            text)
+
+raw_text
+```
+
+From the code chunk above:
+
+- `dir(news20, full.names = TRUE)` lists all the newsgroup folders.
+- `map(folder, read_folder)` applies the earlier function to each folder.
+- `unnest()` combines all imported text into one data frame.
+- `newsgroup = basename(folder)` creates a variable that stores the newsgroup name.
+- `id` stores the document or message id.
+- `text` stores the line of text extracted from the message.
+
+The code chunk below saves the imported text data as an RDS file for future use.
+
+```{r}
+dir.create("../data/rds", recursive = TRUE, showWarnings = FALSE)
+write_rds(raw_text, "../data/rds/news20.rds")
+```
+
+This step is useful because it avoids repeating the full import process every time the document is rendered.
+
+------------------------------------------------------------------------
+
+# Initial exploratory data analysis
+
+Before analysing the words inside the messages, it is useful to understand how many messages are available in each newsgroup.
+
+The code chunk below counts the number of distinct messages in each newsgroup.
+
+```{r}
+raw_text %>%
+  group_by(newsgroup) %>%
+  summarise(messages = n_distinct(id),
+            .groups = "drop") %>%
+  ggplot(aes(messages, newsgroup)) +
+  geom_col(fill = "lightblue") +
+  labs(x = "Number of messages",
+       y = NULL,
+       title = "Number of messages by newsgroup")
+```
+
+Studying both the code chunk and the bar chart that is generated, there are 3 things to note:
+
+1.  `group_by(newsgroup)` groups the data by newsgroup.
+2.  `n_distinct(id)` counts the number of unique messages in each group.
+3.  `geom_col()` is used because the message counts have already been computed.
+
+This chart helps us check whether the dataset is balanced across the newsgroups.
+
+------------------------------------------------------------------------
+
+# Cleaning the text data
+
+Text messages often contain additional information that is not useful for the analysis. For example, messages may include headers, automated signatures and quoted replies from other users.
+
+If these parts are not removed, the analysis may focus on formatting words instead of meaningful content.
+
+## Removing headers and automated signatures
+
+The code chunk below removes the message headers and automated email signatures.
+
+```{r}
+cleaned_text <- raw_text %>%
+  group_by(newsgroup, id) %>%
+  filter(cumsum(text == "") > 0,
+         cumsum(str_detect(text, "^--")) == 0) %>%
+  ungroup()
+```
+
+From the code chunk above:
+
+- `group_by(newsgroup, id)` ensures that each message is cleaned separately.
+- `cumsum(text == "") > 0` keeps the part of the message after the first blank line.
+- `str_detect(text, "^--")` detects signature lines that begin with `--`.
+- `cumsum(str_detect(text, "^--")) == 0` removes the signature section after it starts.
+
+## Removing quoted replies
+
+Some messages contain quoted text from earlier replies. These lines may begin with `>` or contain phrases such as `writes:`.
+
+The code chunk below removes these quoted sections using regular expressions.
+
+```{r}
+cleaned_text <- cleaned_text %>%
+  filter(str_detect(text, "^[^>]+[A-Za-z\\d]") |
+           text == "",
+         !str_detect(text,
+                     "writes(:|\\.\\.\\.)$"),
+         !str_detect(text,
+                     "^In article <"))
+```
+
+What can we learn from this code chunk?
+
+1.  `str_detect()` is used to detect whether a line matches a text pattern.
+2.  Lines beginning with nested quote symbols are removed.
+3.  Lines that introduce quoted replies are removed.
+4.  The cleaned text becomes more suitable for word frequency analysis.
+
+------------------------------------------------------------------------
+
+# Introducing tidytext
+
+The `tidytext` package allows text data to be processed using tidy data principles. This means that the text can be analysed using familiar `dplyr`, `tidyr` and `ggplot2` workflows.
+
+In this section, the cleaned text will be converted into individual words.
+
+## Tokenising the text into words
+
+The code chunk below uses `unnest_tokens()` to split the text into words.
+
+```{r}
+usenet_words <- cleaned_text %>%
+  unnest_tokens(word, text) %>%
+  filter(str_detect(word, "[a-z']$"),
+         !word %in% stop_words$word)
+```
+
+From the code chunk above:
+
+- `unnest_tokens(word, text)` converts each line of text into individual words.
+- The new variable `word` stores the tokenised words.
+- `str_detect(word, "[a-z']$")` keeps words that end with alphabetical characters.
+- `stop_words` is used to remove common words such as `the`, `and` and `is`.
+
+The code chunk below counts the most common words in the full dataset.
+
+```{r}
+usenet_words %>%
+  count(word, sort = TRUE)
+```
+
+Instead of counting words across the full dataset, the next code chunk counts words within each newsgroup.
+
+```{r}
+words_by_newsgroup <- usenet_words %>%
+  count(newsgroup, word, sort = TRUE) %>%
+  ungroup()
+
+words_by_newsgroup
+```
+
+This table is useful because it allows us to compare the words that appear frequently across different newsgroups.
+
+------------------------------------------------------------------------
+
+# Visualising words in newsgroups
+
+After counting the words, the next step is to visualise the most common words. In this section, word clouds will be used as a quick way to display frequently occurring terms.
+
+## Creating a static word cloud
+
+The code chunk below creates a static word cloud using the `wordcloud` package.
+
+```{r}
+set.seed(1234)
+
+wordcloud(words_by_newsgroup$word,
+          words_by_newsgroup$n,
+          max.words = 300,
+          random.order = FALSE)
+```
+
+Studying the code chunk above, there are 3 things to note:
+
+1.  The first argument gives the words to display.
+2.  The second argument gives the frequency of each word.
+3.  `max.words = 300` controls the maximum number of words shown in the word cloud.
+
+A word cloud is useful for quick exploration. However, it is less precise when exact values need to be compared.
+
+## Creating word clouds using `ggwordcloud`
+
+The `ggwordcloud` package allows the word cloud to be created using the grammar of graphics approach.
+
+The code chunk below creates word clouds by newsgroup.
+
+```{r}
+set.seed(1234)
+
+words_by_newsgroup %>%
+  filter(n > 0) %>%
+  ggplot(aes(label = word,
+             size = n)) +
+  geom_text_wordcloud() +
+  theme_minimal() +
+  facet_wrap(~newsgroup)
+```
+
+What is added into the code chunk above?
+
+1.  `ggplot()` is used to define the word and size aesthetics.
+2.  `geom_text_wordcloud()` is used to display the words as a word cloud.
+3.  `facet_wrap(~newsgroup)` creates a separate word cloud for each newsgroup.
+4.  `theme_minimal()` provides a cleaner visual style.
+
+This visualisation allows us to compare the common terms used across different discussion groups.
+
+------------------------------------------------------------------------
+
+# Understanding term frequency-inverse document frequency
+
+Word frequency is useful, but it may overemphasise common words that appear across many documents or many groups. To identify words that are more distinctive to a specific group, we can use term frequency-inverse document frequency.
+
+Term frequency-inverse document frequency is commonly known as tf-idf. It gives a higher value to words that appear frequently in one document or group, but not frequently across all documents or groups.
+
+In this exercise, tf-idf will be calculated within each newsgroup.
+
+## Computing tf-idf within newsgroups
+
+The code chunk below computes tf-idf using `bind_tf_idf()` from the `tidytext` package.
+
+```{r}
+tf_idf <- words_by_newsgroup %>%
+  bind_tf_idf(word, newsgroup, n) %>%
+  arrange(desc(tf_idf))
+
+tf_idf
+```
+
+From the code chunk above:
+
+- `word` is the term being analysed.
+- `newsgroup` is treated as the document group.
+- `n` is the word frequency.
+- `bind_tf_idf()` adds `tf`, `idf` and `tf_idf` columns to the data frame.
+- `arrange(desc(tf_idf))` sorts the most distinctive terms to the top.
+
+------------------------------------------------------------------------
+
+# Visualising tf-idf values
+
+There are 2 ways to explore the tf-idf results. The first method is to use an interactive table. The second method is to use a faceted bar chart.
+
+## Visualising tf-idf as an interactive table
+
+The code chunk below uses `datatable()` from the `DT` package to create an interactive HTML table.
+
+```{r}
+DT::datatable(tf_idf, filter = "top") %>%
+  formatRound(columns = c("tf", "idf", "tf_idf"),
+              digits = 3) %>%
+  formatStyle(0,
+              target = "row",
+              lineHeight = "25%")
+```
+
+Things to learn from the code chunk above:
+
+1.  `filter = "top"` adds filtering controls at the top of the table.
+2.  `formatRound()` rounds the selected numerical columns.
+3.  `digits = 3` shows the values to 3 decimal places.
+4.  `formatStyle()` is used to customise the appearance of the table.
+
+This interactive table is useful when we want to search for specific words or compare tf-idf values across newsgroups.
+
+## Visualising tf-idf using bar charts
+
+In this example, we will focus on science-related newsgroups. The code chunk below selects the top tf-idf words for each science newsgroup and displays them using faceted bar charts.
+
+```{r}
+tf_idf %>%
+  filter(str_detect(newsgroup, "^sci\\.")) %>%
+  group_by(newsgroup) %>%
+  slice_max(tf_idf,
+            n = 12) %>%
+  ungroup() %>%
+  mutate(word = reorder(word,
+                        tf_idf)) %>%
+  ggplot(aes(tf_idf,
+             word,
+             fill = newsgroup)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~newsgroup,
+             scales = "free") +
+  labs(x = "tf-idf",
+       y = NULL,
+       title = "Top tf-idf words in science-related newsgroups")
+```
+
+From the code chunk above:
+
+- `str_detect(newsgroup, "^sci\\.")` selects newsgroups that begin with `sci.`.
+- `slice_max(tf_idf, n = 12)` keeps the top 12 terms for each newsgroup.
+- `reorder(word, tf_idf)` arranges the words by tf-idf value.
+- `facet_wrap()` displays one chart for each newsgroup.
+
+This plot is useful because it shows which words are most distinctive within each science-related group.
+
+------------------------------------------------------------------------
+
+# Counting and correlating pairs of words
+
+After looking at individual words, we can also examine relationships between groups based on the words they use. The `widyr` package is useful for this because it can compute pairwise relationships from tidy data.
+
+In this section, we will compute the correlation between newsgroups based on shared word usage.
+
+The code chunk below uses `pairwise_cor()` to compute the correlation between newsgroups.
+
+```{r}
+newsgroup_cors <- words_by_newsgroup %>%
+  pairwise_cor(newsgroup,
+               word,
+               n,
+               sort = TRUE)
+
+newsgroup_cors
+```
+
+From the code chunk above:
+
+1.  `pairwise_cor()` computes the pairwise correlation between newsgroups.
+2.  `newsgroup` is the item being compared.
+3.  `word` is used as the feature linking the groups.
+4.  `n` provides the word frequency used in the correlation calculation.
+5.  `sort = TRUE` sorts the strongest correlations to the top.
+
+This output helps us identify which newsgroups have similar word usage patterns.
+
+------------------------------------------------------------------------
+
+# Visualising correlation as a network graph
+
+The pairwise correlation table can be converted into a network graph. In this graph, each newsgroup is represented as a node, while a correlation between two newsgroups is represented as an edge.
+
+The code chunk below creates a network graph from the newsgroup correlations.
+
+```{r}
+set.seed(2017)
+
+newsgroup_cors %>%
+  filter(correlation > .025) %>%
+  graph_from_data_frame() %>%
+  ggraph(layout = "fr") +
+  geom_edge_link(aes(alpha = correlation,
+                     width = correlation)) +
+  geom_node_point(size = 6,
+                  color = "lightblue") +
+  geom_node_text(aes(label = name),
+                 color = "red",
+                 repel = TRUE) +
+  theme_void()
+```
+
+What can we learn from the graph above?
+
+1.  `filter(correlation > .025)` keeps only stronger relationships for clearer visualisation.
+2.  `graph_from_data_frame()` converts the correlation table into a graph object.
+3.  `ggraph(layout = "fr")` uses a force-directed layout.
+4.  `geom_edge_link()` draws the correlation links between newsgroups.
+5.  `geom_node_point()` draws the newsgroup nodes.
+6.  `geom_node_text()` labels each node.
+
+This network graph helps us identify clusters of newsgroups that use similar vocabulary.
+
+------------------------------------------------------------------------
+
+# Analysing bigrams
+
+A bigram is a pair of consecutive words. While single-word analysis is useful, bigram analysis helps us understand common phrases and word pairings.
+
+For example, a word like `data` may have different meanings depending on the word that appears before or after it. Therefore, bigrams can provide more context than individual words.
+
+## Creating bigrams
+
+The code chunk below creates bigrams from the cleaned text.
+
+```{r}
+bigrams <- cleaned_text %>%
+  unnest_tokens(bigram,
+                text,
+                token = "ngrams",
+                n = 2)
+
+bigrams
+```
+
+From the code chunk above:
+
+- `token = "ngrams"` tells `unnest_tokens()` to create n-grams.
+- `n = 2` specifies that each token should contain 2 words.
+- The output is saved as a data frame called `bigrams`.
+
+## Counting bigrams
+
+The code chunk below counts and sorts the bigrams.
+
+```{r}
+bigrams_count <- bigrams %>%
+  filter(!is.na(bigram)) %>%
+  count(bigram, sort = TRUE)
+
+bigrams_count
+```
+
+From the code chunk above:
+
+1.  `filter(!is.na(bigram))` removes missing bigrams.
+2.  `count(bigram, sort = TRUE)` counts the frequency of each bigram.
+3.  The most common bigrams are shown at the top.
+
+Some of the most common bigrams may still contain stop-words. Therefore, further cleaning is required.
+
+------------------------------------------------------------------------
+
+# Cleaning bigrams
+
+To remove stop-words from bigrams, the bigram must first be separated into two words. After that, stop-words can be removed from both positions.
+
+## Separating bigrams into two words
+
+The code chunk below separates each bigram into `word1` and `word2`.
+
+```{r}
+bigrams_separated <- bigrams %>%
+  filter(!is.na(bigram)) %>%
+  separate(bigram,
+           c("word1", "word2"),
+           sep = " ")
+
+bigrams_separated
+```
+
+## Removing stop-words from bigrams
+
+The code chunk below removes stop-words from both words in the bigram.
+
+```{r}
+bigrams_filtered <- bigrams_separated %>%
+  filter(!word1 %in% stop_words$word) %>%
+  filter(!word2 %in% stop_words$word)
+
+bigrams_filtered
+```
+
+From the code chunk above:
+
+- The first `filter()` removes bigrams where `word1` is a stop-word.
+- The second `filter()` removes bigrams where `word2` is a stop-word.
+- The remaining bigrams are more meaningful for phrase analysis.
+
+The code chunk below counts the cleaned bigrams again.
+
+```{r}
+bigram_counts <- bigrams_filtered %>%
+  count(word1, word2, sort = TRUE)
+
+bigram_counts
+```
+
+This output gives a cleaner list of common word pairs.
+
+------------------------------------------------------------------------
+
+# Creating a network graph from bigram data
+
+Bigrams can also be visualised as a network graph. In this graph, each word is represented as a node, while each bigram is represented as a directed edge from the first word to the second word.
+
+## Creating the bigram graph object
+
+The code chunk below creates a graph object from the cleaned bigram counts.
+
+```{r}
+bigram_graph <- bigram_counts %>%
+  filter(n > 3) %>%
+  graph_from_data_frame()
+
+bigram_graph
+```
+
+From the code chunk above:
+
+1.  `filter(n > 3)` keeps only bigrams that appear more than 3 times.
+2.  This reduces visual clutter in the network graph.
+3.  `graph_from_data_frame()` converts the bigram count table into a graph object.
+4.  The edge weight is stored using the frequency variable `n`.
+
+## Visualising the bigram network with `ggraph`
+
+The code chunk below plots the bigram graph.
+
+```{r}
+set.seed(1234)
+
+ggraph(bigram_graph, layout = "fr") +
+  geom_edge_link() +
+  geom_node_point() +
+  geom_node_text(aes(label = name),
+                 vjust = 1,
+                 hjust = 1)
+```
+
+The first version of the network graph shows the word relationships, but it can still be improved visually.
+
+## Revised version of the bigram network
+
+The code chunk below creates a more refined version of the bigram network graph.
+
+```{r}
+set.seed(1234)
+
+a <- grid::arrow(type = "closed",
+                 length = unit(.15,
+                               "inches"))
+
+ggraph(bigram_graph,
+       layout = "fr") +
+  geom_edge_link(aes(edge_alpha = n),
+                 show.legend = FALSE,
+                 arrow = a,
+                 end_cap = circle(.07,
+                                  "inches")) +
+  geom_node_point(color = "lightblue",
+                  size = 5) +
+  geom_node_text(aes(label = name),
+                 vjust = 1,
+                 hjust = 1) +
+  theme_void()
+```
+
+What is added into the revised version?
+
+1.  `grid::arrow()` creates arrows for the directed links.
+2.  `arrow = a` adds direction to the bigram edges.
+3.  `edge_alpha = n` makes stronger bigram relationships more visible.
+4.  `end_cap = circle()` prevents the edge arrow from overlapping too much with the node.
+5.  `theme_void()` removes unnecessary chart background elements.
+
+This revised network graph is useful because it shows both the direction and strength of common word pairs.
+
+------------------------------------------------------------------------
+
+# Summary of text visualisation and analysis
+
+In this hands-on exercise, text data was imported, cleaned, transformed and visualised using R.
+
+The first part of the exercise focused on importing many text files from many folders. A custom function was created to read each folder, and `map()` was used to apply the function across all newsgroups.
+
+The second part of the exercise focused on cleaning the text. Headers, signatures and quoted replies were removed so that the analysis could focus on the actual message content.
+
+The third part introduced the `tidytext` approach. Text was tokenised into words, stop-words were removed, and word frequencies were computed by newsgroup.
+
+The fourth part explored word visualisation. Static word clouds and faceted `ggwordcloud` plots were used to show common words across newsgroups.
+
+The fifth part introduced tf-idf. This helped identify words that were more distinctive to specific newsgroups rather than words that were only generally frequent.
+
+The final part explored relationships between words and groups. Pairwise correlations were used to compare newsgroups, while bigram networks were used to show common word pair relationships.
+
+Overall, this exercise shows how unstructured text data can be transformed into tidy data, analysed using familiar data wrangling tools and visualised through tables, word clouds, bar charts and network graphs.

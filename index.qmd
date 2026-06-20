@@ -36,14 +36,15 @@ Here are the most recently uploaded exercises.
 <div class="latest-grid">
 
 <div class="card-link">
-<a href="hands-on/exercise5.html" style="text-decoration:none; color:inherit;">
+<a href="hands-on/exercise9.html" style="text-decoration:none; color:inherit;">
 <div class="latest-card">
 
 ### Hands-On Exercise
 
-**Latest:** Exercise 5
+**Latest:** Exercise 9
 
-This exercise explores visual multivariate analysis, using different plots and visualisation with different R packages.
+This hands-on exercise explores geospatial data visualisation for analytics.
+
 
 </div>
 </a>

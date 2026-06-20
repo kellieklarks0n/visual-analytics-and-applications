@@ -49,5 +49,14 @@
   },
   "take-home-2/technical-report.knit.md": {
     "technical-report.knit.html": "dd7c5c77"
+  },
+  "hands-on/exercise7.qmd": {
+    "exercise7.html": "d1e30d53"
+  },
+  "hands-on/exercise8.qmd": {
+    "exercise8.html": "5e08cd3a"
+  },
+  "hands-on/exercise9.qmd": {
+    "exercise9.html": "e66e0293"
   }
 }
