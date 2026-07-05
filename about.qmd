@@ -2,9 +2,11 @@
 title: "About"
 ---
 
-This website was created for **ISSS608: Visual Analytics & Applications**.
+This website was created for **ISSS608: Visual Analytics & Applications**. The module was completed during the **Academic Year 2025/26 April Term**.
 
-Its purpose is to document and present the visualisations, analysis, and coursework outputs that I have completed throughout the module. The site acts as a structured portfolio of my work, allowing different exercises and assignments to be organised into separate sections for easy navigation.
+I would like to acknowledge the module's professor, **Dr. Kam Tin Seong** for his unwavering support and guidance throughout the module. His support in my learning journey has profoundly impacted my overall experience during the module.
+
+The purpose of this website is to document and present the visualisations, analysis, and coursework outputs that I have completed throughout the module. The site acts as a structured portfolio of my work on visual analytics, allowing different exercises and assignments to be organised into separate sections for easy navigation.
 
 The website was built using:
 

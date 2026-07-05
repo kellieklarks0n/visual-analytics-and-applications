@@ -8,7 +8,67 @@ editor: visual
 <p>This section contains the in-class exercises completed for the module.</p>
 :::
 
-:::::::::: exercise-list
+:::::::::::::::: exercise-list
+<a href="https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExercise10d/OverviewofProductSalesinCoffeeChain?publish=yes">
+
+:::: exercise-card
+### Exercise 10D
+
+::: exercise-meta
+Published on 27 June 2026
+:::
+
+This exercise showcases the use of a stacked bar chart for a food service KPI report in Tableau.
+::::
+
+</a>
+
+:::::::::::::::: exercise-list
+<a href="https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExercise10c/CloroplethMapofSingaporebySubzones?publish=yes">
+
+:::: exercise-card
+### Exercise 10C
+
+::: exercise-meta
+Published on 27 June 2026
+:::
+
+This exercise showcases the use of a stacked bar chart for a food service KPI report in Tableau.
+::::
+
+</a>
+
+:::::::::::::::: exercise-list
+<a href="https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExercise10b/Dashboard1?publish=yes">
+
+:::: exercise-card
+### Exercise 10B
+
+::: exercise-meta
+Published on 27 June 2026
+:::
+
+This exercise showcases the use of a stacked bar chart for a food service KPI report in Tableau.
+::::
+
+</a>
+
+:::::::::::::::: exercise-list
+<a href="https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExercise10A/ConcentrationofGroup12WinsatSingaporePoolsoutlets?publish=yes">
+
+:::: exercise-card
+### Exercise 10A
+
+::: exercise-meta
+Published on 27 June 2026
+:::
+
+This exercise showcases the use of a stacked bar chart for a food service KPI report in Tableau.
+::::
+
+</a>
+
+:::::::::::::::: exercise-list
 <a href="https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExericse4b/FoodServiceKPIReport?publish=yes" class="exercise-link">
 
 :::: exercise-card
@@ -23,7 +83,7 @@ This exercise showcases the use of a stacked bar chart for a food service KPI re
 
 </a>
 
-:::::::::: exercise-list
+::::::::::::: exercise-list
 <a href="https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExericse4a/ExamDataofPrimary3Students?publish=yes" class="exercise-link">
 
 :::: exercise-card
@@ -83,3 +143,5 @@ This introductory exercise exposes the basic use of Tableau and its elementary f
 </a>
 :::::::
 ::::::::::
+:::::::::::::
+::::::::::::::::

@@ -8,6 +8,18 @@ title: "Hands-On Exercises"
 
 <div class="exercise-list">
 
+<a href="hands-on/exercise10.html" class="exercise-link">
+<div class="exercise-card">
+
+### Exercise 10
+
+<div class="exercise-meta">Published on 24 June 2026</div>
+
+This hands-on exercise focuses on building information dashboards using R packages such as `gt`, `gtExtras`, `reactable`, and `reactablefmtr`, with emphasis on compact visual summaries and interactive tabular displays.
+
+</div>
+</a>
+
 <a href="hands-on/exercise9.html" class="exercise-link">
 <div class="exercise-card">
 

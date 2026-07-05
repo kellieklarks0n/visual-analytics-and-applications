@@ -36,14 +36,14 @@ Here are the most recently uploaded exercises.
 <div class="latest-grid">
 
 <div class="card-link">
-<a href="hands-on/exercise9.html" style="text-decoration:none; color:inherit;">
+<a href="hands-on/exercise10.html" style="text-decoration:none; color:inherit;">
 <div class="latest-card">
 
 ### Hands-On Exercise
 
-**Latest:** Exercise 9
+**Latest:** Exercise 10
 
-This hands-on exercise explores geospatial data visualisation for analytics.
+explores the design of interactive information dashboards in R. The exercise demonstrates how bullet charts, sparklines, tables, and interactive dashboard components can be used to present business performance clearly and effectively.
 
 
 </div>
@@ -51,14 +51,14 @@ This hands-on exercise explores geospatial data visualisation for analytics.
 </div>
 
 <div class="card-link">
-<a href="https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExericse4b/FoodServiceKPIReport?publish=yes" style="text-decoration:none; color:inherit;">
+<a href="https://public.tableau.com/app/profile/kelvin.andikko/viz/In-ClassExercise10d/OverviewofProductSalesinCoffeeChain?publish=yes" style="text-decoration:none; color:inherit;">
 <div class="latest-card">
 
 ### In-Class Exercise
 
-**Latest:** Exercise 3B
+**Latest:** Exercise 10D
 
-This exercise explores the use of a stacked bar chart for a food service KPI report in Tableau.
+This exercise analyses product sales performance using the Coffee Chain dataset in Tableau. It provides an overview of sales patterns across products and supports comparison of business performance through interactive visual analytics.
 
 </div>
 </a>
